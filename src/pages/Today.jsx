@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { ChevronLeft, ChevronRight, Flame, Check, Plus, Minus, Coffee, Brain } from 'lucide-react'
 import { useData } from '../DataStore'
 import { ProgressRing } from '../components/Bits'
-import { todayISO, addDays, fmtNice } from '../lib/dates'
+import { todayISO, addDays, fmtNice, dayDiff } from '../lib/dates'
 import { currentStreak } from '../lib/stats'
 
 function StreakBadge({ habit, logs }) {
@@ -27,8 +27,8 @@ function CheckRow({ habit, date }) {
   return (
     <button
       onClick={() => toggleCheck(habit, date)}
-      className={`card w-full flex items-center gap-3 text-left transition ${
-        done ? 'border-mint/40' : ''
+      className={`card card-hover w-full flex items-center gap-3 text-left ${
+        done ? '!border-mint/40' : ''
       }`}
     >
       <span className="text-xl w-8 text-center">{habit.icon}</span>
@@ -54,7 +54,7 @@ function StepsRow({ habit, date }) {
   const [draft, setDraft] = useState('')
   const pct = Math.min(1, value / Number(habit.target))
   return (
-    <div className={`card ${log?.completed ? 'border-mint/40' : ''}`}>
+    <div className={`card card-hover ${log?.completed ? '!border-mint/40' : ''}`}>
       <div className="flex items-center gap-3">
         <span className="text-xl w-8 text-center">{habit.icon}</span>
         <div className="flex-1">
@@ -70,11 +70,8 @@ function StepsRow({ habit, date }) {
           </span>
         )}
       </div>
-      <div className="h-2 rounded-full bg-surface2 mt-3 overflow-hidden">
-        <div
-          className="h-full rounded-full transition-all duration-500"
-          style={{ width: `${pct * 100}%`, background: habit.color }}
-        />
+      <div className="progress-track h-2 mt-3">
+        <div className="progress-fill" style={{ width: `${pct * 100}%`, background: habit.color }} />
       </div>
       <div className="flex gap-2 mt-3">
         <input
@@ -107,7 +104,7 @@ function WaterRow({ habit, date }) {
   const value = log?.value || 0
   const target = Number(habit.target)
   return (
-    <div className={`card ${log?.completed ? 'border-mint/40' : ''}`}>
+    <div className={`card card-hover ${log?.completed ? '!border-mint/40' : ''}`}>
       <div className="flex items-center gap-3">
         <span className="text-xl w-8 text-center">{habit.icon}</span>
         <div className="flex-1">
@@ -141,7 +138,7 @@ function HoursRow({ habit, date }) {
   const target = Number(habit.target)
   const pct = Math.min(1, value / target)
   return (
-    <div className={`card ${log?.completed ? 'border-mint/40' : ''}`}>
+    <div className={`card card-hover ${log?.completed ? '!border-mint/40' : ''}`}>
       <div className="flex items-center gap-3">
         <span className="text-xl w-8 text-center">{habit.icon}</span>
         <div className="flex-1">
@@ -157,11 +154,8 @@ function HoursRow({ habit, date }) {
           </span>
         )}
       </div>
-      <div className="h-2 rounded-full bg-surface2 mt-3 overflow-hidden">
-        <div
-          className="h-full rounded-full transition-all duration-500"
-          style={{ width: `${pct * 100}%`, background: habit.color }}
-        />
+      <div className="progress-track h-2 mt-3">
+        <div className="progress-fill" style={{ width: `${pct * 100}%`, background: habit.color }} />
       </div>
       <div className="flex gap-2 mt-3">
         <button className="btn flex-1" onClick={() => setLogValue(habit, date, +(value + 0.5).toFixed(1))}>
@@ -203,95 +197,116 @@ export default function Today({ setTab }) {
   const total = activeHabits.length + 2 // + Java + DSA
   const done = habitDone + (javaDone ? 1 : 0) + (dsaDone ? 1 : 0)
 
+  const dayNum = Math.min(settings.plan_days, Math.max(1, dayDiff(settings.plan_start_date, todayISO()) + 1))
+  const allDone = total > 0 && done === total
+
   return (
-    <div className="space-y-3">
-      {/* date nav + ring */}
-      <div className="card flex items-center gap-4">
-        <ProgressRing pct={total ? done / total : 0} size={84} color={done === total ? '#43D6B5' : '#F2A33C'}>
-          <div className="text-center">
-            <div className="font-mono font-bold text-lg leading-none">
-              {done}
-              <span className="text-dim text-sm">/{total}</span>
-            </div>
-            <div className="text-[9px] uppercase tracking-widest text-dim mt-0.5">done</div>
+    <div>
+      {/* HERO */}
+      <section className="card card-hover relative overflow-hidden p-6 lg:p-8">
+        <div className="flex flex-col sm:flex-row items-center gap-6 lg:gap-10">
+          <div className={allDone ? 'glow-mint rounded-full' : ''}>
+            <ProgressRing pct={total ? done / total : 0} size={132} stroke={10} color={allDone ? '#43D6B5' : '#F2A33C'}>
+              <div className="text-center">
+                <div className="font-mono font-bold text-3xl leading-none">
+                  {done}
+                  <span className="text-dim text-lg">/{total}</span>
+                </div>
+                <div className="text-[9px] uppercase tracking-widest text-dim mt-1">done</div>
+              </div>
+            </ProgressRing>
           </div>
-        </ProgressRing>
-        <div className="flex-1">
-          <div className="flex items-center gap-2">
-            <button className="btn !p-1.5" onClick={() => setUiDate(addDays(date, -1))}>
-              <ChevronLeft size={16} />
-            </button>
-            <div className="flex-1 text-center">
-              <div className="font-display font-bold">{isToday ? 'Today' : fmtNice(date)}</div>
+
+          <div className="flex-1 text-center sm:text-left">
+            <div className="label">Daily ops</div>
+            <div className="font-display font-bold text-4xl lg:text-6xl mt-1 text-grad">
+              {isToday ? 'Today' : fmtNice(date)}
+            </div>
+            <div className="flex items-center justify-center sm:justify-start gap-2 mt-4">
+              <button className="btn !p-2" onClick={() => setUiDate(addDays(date, -1))}>
+                <ChevronLeft size={16} />
+              </button>
+              <button
+                className="btn !p-2"
+                onClick={() => setUiDate(addDays(date, 1))}
+                disabled={isToday}
+              >
+                <ChevronRight size={16} />
+              </button>
               {!isToday && (
-                <button className="text-xs text-amber" onClick={() => setUiDate(todayISO())}>
+                <button className="btn text-amber" onClick={() => setUiDate(todayISO())}>
                   back to today
                 </button>
               )}
+              {allDone && <span className="chip !text-mint !border-mint/40">Perfect day 🏆</span>}
             </div>
-            <button
-              className="btn !p-1.5"
-              onClick={() => setUiDate(addDays(date, 1))}
-              disabled={isToday}
-            >
-              <ChevronRight size={16} />
+          </div>
+
+          <div className="hidden md:block text-right">
+            <div className="label">Mission clock</div>
+            <div className="font-mono font-bold text-3xl mt-1">
+              Day {dayNum}
+              <span className="text-dim text-lg"> / {settings.plan_days}</span>
+            </div>
+            <div className="progress-track h-1.5 w-44 mt-2 ml-auto">
+              <div className="progress-fill bg-amber" style={{ width: `${(dayNum / settings.plan_days) * 100}%` }} />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* JAVA + DSA */}
+      <div className="grid lg:grid-cols-2 gap-3 mt-3 stagger">
+        <div className={`card card-hover border-l-4 ${javaDone ? 'border-l-mint' : 'border-l-amber'}`}>
+          <div className="flex items-center gap-3">
+            <Coffee size={22} className={javaDone ? 'text-mint' : 'text-amber'} />
+            <div className="flex-1">
+              <div className="text-sm font-medium">Java · 3-hour target</div>
+              <div className="font-mono text-xs text-dim mt-0.5">
+                {Math.floor(javaMin / 60)}h {javaMin % 60}m / {Math.floor(javaTarget / 60)}h
+              </div>
+            </div>
+            <button className="btn" onClick={() => logJava(30, null, date)}>
+              +30m
+            </button>
+            <button className="btn" onClick={() => logJava(60, null, date)}>
+              +1h
             </button>
           </div>
-          {done === total && total > 0 && (
-            <div className="text-center text-mint text-xs mt-2 font-medium">Perfect day. Monster. 🏆</div>
-          )}
+          <div className="progress-track h-2 mt-3">
+            <div
+              className="progress-fill bg-amber"
+              style={{ width: `${Math.min(100, (javaMin / javaTarget) * 100)}%` }}
+            />
+          </div>
+          <button className="text-xs text-amber mt-2" onClick={() => setTab('java')}>
+            Open Java HQ →
+          </button>
         </div>
-      </div>
 
-      {/* Java quick card */}
-      <div className={`card border-l-4 ${javaDone ? 'border-l-mint' : 'border-l-amber'}`}>
-        <div className="flex items-center gap-3">
-          <Coffee size={22} className={javaDone ? 'text-mint' : 'text-amber'} />
-          <div className="flex-1">
-            <div className="text-sm font-medium">Java · 3-hour target</div>
-            <div className="font-mono text-xs text-dim mt-0.5">
-              {Math.floor(javaMin / 60)}h {javaMin % 60}m / {Math.floor(javaTarget / 60)}h
+        <div className={`card card-hover border-l-4 ${dsaDone ? 'border-l-mint' : 'border-l-violet'}`}>
+          <div className="flex items-center gap-3">
+            <Brain size={22} className={dsaDone ? 'text-mint' : 'text-violet'} />
+            <div className="flex-1">
+              <div className="text-sm font-medium">DSA problems</div>
+              <div className="font-mono text-xs text-dim mt-0.5">{dsaCount} solved this day</div>
             </div>
+            <button className="btn" onClick={() => logDsa(1, null, date)}>
+              +1 problem
+            </button>
           </div>
-          <button className="btn" onClick={() => logJava(30, null, date)}>
-            +30m
-          </button>
-          <button className="btn" onClick={() => logJava(60, null, date)}>
-            +1h
-          </button>
-        </div>
-        <div className="h-2 rounded-full bg-surface2 mt-3 overflow-hidden">
-          <div
-            className="h-full rounded-full bg-amber transition-all duration-500"
-            style={{ width: `${Math.min(100, (javaMin / javaTarget) * 100)}%` }}
-          />
-        </div>
-        <button className="text-xs text-amber mt-2" onClick={() => setTab('java')}>
-          Open Java HQ →
-        </button>
-      </div>
-
-      {/* DSA quick card */}
-      <div className={`card border-l-4 ${dsaDone ? 'border-l-mint' : 'border-l-violet'}`}>
-        <div className="flex items-center gap-3">
-          <Brain size={22} className={dsaDone ? 'text-mint' : 'text-violet'} />
-          <div className="flex-1">
-            <div className="text-sm font-medium">DSA problems</div>
-            <div className="font-mono text-xs text-dim mt-0.5">{dsaCount} solved this day</div>
-          </div>
-          <button className="btn" onClick={() => logDsa(1, null, date)}>
-            +1 problem
-          </button>
         </div>
       </div>
 
-      {/* habits */}
-      {activeHabits.map((h) => {
-        if (h.type === 'steps') return <StepsRow key={h.id} habit={h} date={date} />
-        if (h.type === 'water') return <WaterRow key={h.id} habit={h} date={date} />
-        if (h.type === 'hours') return <HoursRow key={h.id} habit={h} date={date} />
-        return <CheckRow key={h.id} habit={h} date={date} />
-      })}
+      {/* HABITS GRID */}
+      <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-3 mt-3 stagger">
+        {activeHabits.map((h) => {
+          if (h.type === 'steps') return <StepsRow key={h.id} habit={h} date={date} />
+          if (h.type === 'water') return <WaterRow key={h.id} habit={h} date={date} />
+          if (h.type === 'hours') return <HoursRow key={h.id} habit={h} date={date} />
+          return <CheckRow key={h.id} habit={h} date={date} />
+        })}
+      </div>
     </div>
   )
 }

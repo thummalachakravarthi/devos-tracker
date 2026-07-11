@@ -97,15 +97,15 @@ export default function JavaHQ() {
   const phase = PHASES.find((p) => dayNum >= p.from && dayNum <= p.to)
 
   return (
-    <div className="space-y-3">
+    <div className="grid gap-3 lg:grid-cols-2 stagger">
       {/* Mission header */}
-      <div className="card">
+      <div className="card card-hover lg:col-span-2 p-6 lg:p-8">
         <div className="flex items-end justify-between">
           <div>
             <div className="label">Mission clock</div>
-            <div className="font-mono font-bold text-4xl mt-1">
+            <div className="font-mono font-bold text-5xl lg:text-7xl mt-1 text-grad">
               Day {dayNum}
-              <span className="text-dim text-xl"> / {planDays}</span>
+              <span className="text-2xl lg:text-4xl"> / {planDays}</span>
             </div>
           </div>
           <div className="text-right">
@@ -113,8 +113,8 @@ export default function JavaHQ() {
             <div className="text-xs text-dim">days left</div>
           </div>
         </div>
-        <div className="h-2 rounded-full bg-surface2 mt-3 overflow-hidden">
-          <div className="h-full bg-amber rounded-full" style={{ width: `${planPct * 100}%` }} />
+        <div className="progress-track h-2 mt-4">
+          <div className="progress-fill bg-amber" style={{ width: `${planPct * 100}%` }} />
         </div>
         <div className="flex items-center justify-between mt-2 text-xs text-dim">
           <span>
@@ -141,7 +141,7 @@ export default function JavaHQ() {
       </div>
 
       {/* Today's coffee */}
-      <div className="card flex items-center gap-4">
+      <div className="card card-hover flex items-center gap-4">
         <CoffeeCup pct={todayMin / target} size={110} />
         <div className="flex-1">
           <div className="label">Today's Java</div>
@@ -171,7 +171,7 @@ export default function JavaHQ() {
       </div>
 
       {/* custom log */}
-      <div className="card space-y-2">
+      <div className="card card-hover space-y-2">
         <div className="label">Log a session</div>
         <div className="flex gap-2">
           <input
@@ -216,7 +216,7 @@ export default function JavaHQ() {
       </div>
 
       {/* weekly chart */}
-      <div className="card">
+      <div className="card card-hover">
         <div className="flex items-baseline justify-between">
           <div className="label">This week</div>
           <div className="font-mono text-sm">
@@ -243,7 +243,7 @@ export default function JavaHQ() {
       </div>
 
       {/* consistency heatmap */}
-      <div className="card">
+      <div className="card card-hover lg:col-span-2">
         <div className="flex items-baseline justify-between mb-3">
           <div className="label">240-day consistency</div>
           <div className="text-xs text-dim">
@@ -255,7 +255,7 @@ export default function JavaHQ() {
       </div>
 
       {/* phases */}
-      <div className="card">
+      <div className="card card-hover">
         <div className="label mb-3">Plan phases</div>
         <ul className="space-y-3">
           {PHASES.map((p) => {
@@ -287,7 +287,7 @@ export default function JavaHQ() {
       </div>
 
       {/* DSA */}
-      <div className="card space-y-3">
+      <div className="card card-hover space-y-3">
         <div className="flex items-baseline justify-between">
           <div className="label">DSA grind</div>
           <div className="font-mono text-sm">
@@ -295,9 +295,9 @@ export default function JavaHQ() {
             <span className="text-dim"> / {nextMilestone.target} by day {nextMilestone.day}</span>
           </div>
         </div>
-        <div className="h-2 rounded-full bg-surface2 overflow-hidden">
+        <div className="progress-track h-2">
           <div
-            className="h-full bg-violet rounded-full transition-all duration-500"
+            className="progress-fill bg-violet"
             style={{ width: `${Math.min(100, (dsaTotal / nextMilestone.target) * 100)}%` }}
           />
         </div>

@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { supabase } from '../lib/supabase'
+import { Aurora } from '../Shell'
 
 export default function Login() {
   const [mode, setMode] = useState('signin')
@@ -24,11 +25,12 @@ export default function Login() {
 
   return (
     <div className="min-h-screen grid place-items-center p-6">
-      <div className="w-full max-w-sm">
+      <Aurora />
+      <div className="w-full max-w-sm anim-up">
         <div className="flex items-center gap-3 mb-6 justify-center">
-          <img src="/icon.svg" alt="" className="w-12 h-12 rounded-xl" />
+          <img src="/icon.svg" alt="" className="w-12 h-12 rounded-xl glow-amber" />
           <div>
-            <div className="font-display font-bold text-2xl leading-none">DevOS</div>
+            <div className="font-display font-bold text-2xl leading-none text-grad">DevOS</div>
             <div className="text-[11px] uppercase tracking-[0.25em] text-dim mt-1">Mission 240</div>
           </div>
         </div>

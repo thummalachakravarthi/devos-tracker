@@ -107,11 +107,11 @@ export default function Stats({ setTab }) {
   const monthDone = (h) => monthDates.filter((d) => getLog(h.id, d)?.completed).length
 
   return (
-    <div className="space-y-3">
+    <div className="grid gap-3 lg:grid-cols-2 stagger">
       {/* weekly report card */}
-      <div className="card">
+      <div className="card card-hover lg:col-span-2">
         <div className="label mb-3">This week's report card</div>
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-3 lg:grid-cols-6 gap-3">
           {[
             { k: 'Check-ins', v: `${cur.pct}%`, t: <Trend now={cur.pct} prev={prev.pct} suffix="%" /> },
             { k: 'Java', v: `${cur.javaH}h`, t: <Trend now={cur.javaH} prev={prev.javaH} suffix="h" /> },
@@ -120,7 +120,7 @@ export default function Stats({ setTab }) {
             { k: 'Course', v: `${cur.course}h`, t: <Trend now={cur.course} prev={prev.course} suffix="h" /> },
             { k: 'Water avg', v: `${cur.waterAvg}L`, t: <Trend now={cur.waterAvg} prev={prev.waterAvg} suffix="L" /> },
           ].map(({ k, v, t }) => (
-            <div key={k} className="bg-surface2 rounded-xl p-3">
+            <div key={k} className="rounded-xl p-3 border border-white/10 bg-white/5">
               <div className="text-[10px] uppercase tracking-wider text-dim">{k}</div>
               <div className="font-mono font-bold text-lg mt-0.5">{v}</div>
               <div className="mt-0.5">{t}</div>
@@ -138,7 +138,7 @@ export default function Stats({ setTab }) {
 
       {/* steps chart */}
       {stepsHabit && (
-        <div className="card">
+        <div className="card card-hover">
           <div className="label mb-1">Steps · last 7 days</div>
           <div className="h-36 -ml-4">
             <ResponsiveContainer width="100%" height="100%">
@@ -160,7 +160,7 @@ export default function Stats({ setTab }) {
       )}
 
       {/* month navigator */}
-      <div className="card">
+      <div className="card card-hover lg:col-span-2">
         <div className="flex items-center justify-between mb-1">
           <button className="btn !p-1.5" onClick={() => setYm(({ y, m }) => (m === 0 ? { y: y - 1, m: 11 } : { y, m: m - 1 }))}>
             <ChevronLeft size={16} />
@@ -221,7 +221,7 @@ export default function Stats({ setTab }) {
       </div>
 
       {/* streaks */}
-      <div className="card">
+      <div className="card card-hover">
         <div className="label mb-2">Streaks</div>
         <table className="w-full text-sm">
           <thead>
