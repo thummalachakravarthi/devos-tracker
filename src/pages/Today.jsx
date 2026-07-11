@@ -29,9 +29,13 @@ function CheckRow({ habit, date }) {
   return (
     <button
       onClick={() => toggleCheck(habit, date)}
-      className="card card-hover w-full flex items-center gap-3 text-left"
+      className="habit-card card card-hover w-full flex items-center gap-3 text-left"
+      style={{
+        background: `linear-gradient(135deg, ${habit.color}18 0%, rgba(255,255,255,0.9) 55%)`,
+        borderColor: done ? '#21C39E' : `${habit.color}55`,
+      }}
     >
-      <span className="w-10 h-10 rounded-xl grid place-items-center text-xl shrink-0" style={{ background: '#EEF2F9', boxShadow: 'inset 0 1px 2px rgba(51,78,140,.08)' }}>{habit.icon}</span>
+      <span className="habit-icon w-10 h-10 rounded-xl grid place-items-center text-xl shrink-0" style={{ background: habit.color + '26', boxShadow: `inset 0 0 0 1px ${habit.color}55, 0 6px 14px -6px ${habit.color}80` }}>{habit.icon}</span>
       <span className={`flex-1 text-sm font-medium ${done ? 'text-dim line-through' : ''}`}>
         {habit.name}
       </span>
@@ -55,9 +59,12 @@ function StepsRow({ habit, date }) {
   const [draft, setDraft] = useState('')
   const pct = Math.min(1, value / Number(habit.target))
   return (
-    <div className="card card-hover">
+    <div className="habit-card card card-hover" style={{
+      background: `linear-gradient(135deg, ${habit.color}18 0%, rgba(255,255,255,0.9) 55%)`,
+      borderColor: log?.completed ? '#21C39E' : `${habit.color}55`,
+    }}>
       <div className="flex items-center gap-3">
-        <span className="w-10 h-10 rounded-xl grid place-items-center text-xl shrink-0" style={{ background: '#EEF2F9', boxShadow: 'inset 0 1px 2px rgba(51,78,140,.08)' }}>{habit.icon}</span>
+        <span className="habit-icon w-10 h-10 rounded-xl grid place-items-center text-xl shrink-0" style={{ background: habit.color + '26', boxShadow: `inset 0 0 0 1px ${habit.color}55, 0 6px 14px -6px ${habit.color}80` }}>{habit.icon}</span>
         <div className="flex-1">
           <div className="text-sm font-medium">{habit.name}</div>
           <div className="font-mono text-xs text-dim mt-0.5">
@@ -105,9 +112,12 @@ function WaterRow({ habit, date }) {
   const value = log?.value || 0
   const target = Number(habit.target)
   return (
-    <div className="card card-hover">
+    <div className="habit-card card card-hover" style={{
+      background: `linear-gradient(135deg, ${habit.color}18 0%, rgba(255,255,255,0.9) 55%)`,
+      borderColor: log?.completed ? '#21C39E' : `${habit.color}55`,
+    }}>
       <div className="flex items-center gap-3">
-        <span className="w-10 h-10 rounded-xl grid place-items-center text-xl shrink-0" style={{ background: '#EEF2F9', boxShadow: 'inset 0 1px 2px rgba(51,78,140,.08)' }}>{habit.icon}</span>
+        <span className="habit-icon w-10 h-10 rounded-xl grid place-items-center text-xl shrink-0" style={{ background: habit.color + '26', boxShadow: `inset 0 0 0 1px ${habit.color}55, 0 6px 14px -6px ${habit.color}80` }}>{habit.icon}</span>
         <div className="flex-1">
           <div className="text-sm font-medium">{habit.name}</div>
           <div className="flex gap-1.5 mt-1.5">
@@ -139,9 +149,12 @@ function HoursRow({ habit, date }) {
   const target = Number(habit.target)
   const pct = Math.min(1, value / target)
   return (
-    <div className="card card-hover">
+    <div className="habit-card card card-hover" style={{
+      background: `linear-gradient(135deg, ${habit.color}18 0%, rgba(255,255,255,0.9) 55%)`,
+      borderColor: log?.completed ? '#21C39E' : `${habit.color}55`,
+    }}>
       <div className="flex items-center gap-3">
-        <span className="w-10 h-10 rounded-xl grid place-items-center text-xl shrink-0" style={{ background: '#EEF2F9', boxShadow: 'inset 0 1px 2px rgba(51,78,140,.08)' }}>{habit.icon}</span>
+        <span className="habit-icon w-10 h-10 rounded-xl grid place-items-center text-xl shrink-0" style={{ background: habit.color + '26', boxShadow: `inset 0 0 0 1px ${habit.color}55, 0 6px 14px -6px ${habit.color}80` }}>{habit.icon}</span>
         <div className="flex-1">
           <div className="text-sm font-medium">{habit.name}</div>
           <div className="font-mono text-xs text-dim mt-0.5">

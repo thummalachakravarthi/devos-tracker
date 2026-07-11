@@ -289,3 +289,47 @@ body {
     transition: none !important;
   }
 }
+
+/* ─── habit card sheen (horizontal moving light) ─── */
+@keyframes sheen {
+  0% { transform: translateX(-120%) skewX(-18deg); }
+  100% { transform: translateX(320%) skewX(-18deg); }
+}
+.habit-card {
+  position: relative;
+  overflow: hidden;
+}
+.habit-card::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 40%;
+  height: 100%;
+  pointer-events: none;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.14) 45%,
+    rgba(255, 255, 255, 0.28) 50%,
+    rgba(255, 255, 255, 0.14) 55%,
+    transparent 100%
+  );
+  animation: sheen 4.5s ease-in-out infinite;
+}
+.habit-card:nth-child(3n)::after   { animation-duration: 5.5s; animation-delay: .6s; }
+.habit-card:nth-child(3n+1)::after { animation-duration: 6s;   animation-delay: 1.2s; }
+.habit-card:nth-child(3n+2)::after { animation-duration: 5s;   animation-delay: .3s; }
+
+/* icon bubble gets a gentle horizontal float */
+@keyframes iconFloat {
+  0%, 100% { transform: translateX(0); }
+  50%      { transform: translateX(4px); }
+}
+.habit-icon {
+  animation: iconFloat 3.6s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .habit-card::after, .habit-icon { animation: none !important; }
+}
