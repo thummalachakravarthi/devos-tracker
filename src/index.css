@@ -35,10 +35,18 @@ body {
   inset: 0;
   z-index: -10;
   pointer-events: none;
-  background:
-    linear-gradient(180deg, rgba(8, 11, 22, 0.45) 0%, rgba(8, 11, 22, 0.75) 100%),
-    url('/bg.jpg') center / cover no-repeat fixed,
-    radial-gradient(120% 90% at 50% 0%, #16203a 0%, #0b101f 60%);
+  overflow: hidden;
+  background: #080a14;
+}
+.aurora .bg-photo {
+  position: absolute;
+  inset: 0;
+  background: url('/bg.jpg') center / cover no-repeat;
+}
+.aurora .bg-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(8, 11, 22, 0.35) 0%, rgba(8, 11, 22, 0.72) 100%);
 }
 .aurora::before,
 .aurora::after {

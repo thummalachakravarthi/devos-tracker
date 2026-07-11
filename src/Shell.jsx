@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Home, Coffee, BarChart3, ListChecks, LogOut } from 'lucide-react'
 import { supabase } from './lib/supabase'
 import { DataProvider, useData } from './DataStore'
+import { CityBackdrop, ArtToday, ArtJava, ArtStats, ArtHabits } from './components/HeroArt'
 import Today from './pages/Today'
 import JavaHQ from './pages/JavaHQ'
 import Stats from './pages/Stats'
@@ -15,10 +16,10 @@ const TABS = [
 ]
 
 const HERO = {
-  today: { src: '/heroes/today.jpg', title: "Today's Mission" },
-  java: { src: '/heroes/java.jpg', title: 'Java HQ' },
-  stats: { src: '/heroes/stats.jpg', title: 'Battle Stats' },
-  habits: { src: '/heroes/habits.jpg', title: 'The Roster' },
+  today: { src: '/heroes/today.jpg', title: "Today's Mission", Art: ArtToday },
+  java: { src: '/heroes/java.jpg', title: 'Java HQ', Art: ArtJava },
+  stats: { src: '/heroes/stats.jpg', title: 'Battle Stats', Art: ArtStats },
+  habits: { src: '/heroes/habits.jpg', title: 'The Roster', Art: ArtHabits },
 }
 
 // Shows the tab's hero photo if /public/heroes/<tab>.jpg exists; hides itself if not.
@@ -26,15 +27,19 @@ function HeroBanner({ tab }) {
   const [ok, setOk] = useState(true)
   const h = HERO[tab]
   useEffect(() => setOk(true), [tab])
-  if (!h || !ok) return null
+  if (!h) return null
   return (
     <div className="relative rounded-2xl overflow-hidden mb-3 h-40 lg:h-56 shadow-[0_22px_48px_-16px_rgba(4,8,20,.6)] anim-up">
-      <img
-        src={h.src}
-        onError={() => setOk(false)}
-        className="absolute inset-0 w-full h-full object-cover"
-        alt=""
-      />
+      {ok ? (
+        <img
+          src={h.src}
+          onError={() => setOk(false)}
+          className="absolute inset-0 w-full h-full object-cover"
+          alt=""
+        />
+      ) : (
+        <h.Art />
+      )}
       <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/15 to-transparent" />
       <div className="absolute bottom-3 left-4 lg:bottom-4 lg:left-6 font-display font-bold text-2xl lg:text-4xl text-white drop-shadow-lg">
         {h.title}
@@ -46,9 +51,9 @@ function HeroBanner({ tab }) {
 export function Aurora() {
   return (
     <div className="aurora" aria-hidden="true">
-      <div className="blob b1" />
-      <div className="blob b2" />
-      <div className="blob b3" />
+      <CityBackdrop />
+      <div className="bg-photo" />
+      <div className="bg-overlay" />
     </div>
   )
 }
