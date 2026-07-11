@@ -31,7 +31,7 @@ export default function Login() {
           <img src="/icon.svg" alt="" className="w-12 h-12 rounded-xl glow-amber" />
           <div>
             <div className="font-display font-bold text-2xl leading-none text-grad">DevOS</div>
-            <div className="text-[11px] uppercase tracking-[0.25em] text-dim mt-1">Mission 240</div>
+            <div className="text-[11px] uppercase tracking-[0.25em] text-dim mt-1">Why study hard?</div>
           </div>
         </div>
 

@@ -217,7 +217,7 @@ export default function Today({ setTab }) {
           </div>
 
           <div className="flex-1 text-center sm:text-left">
-            <div className="label">Daily ops</div>
+            <div className="label">Why study hard?</div>
             <div className="font-display font-bold text-4xl lg:text-6xl mt-1 text-grad">
               {isToday ? 'Today' : fmtNice(date)}
             </div>
