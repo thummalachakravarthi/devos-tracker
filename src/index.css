@@ -220,3 +220,61 @@ body {
     transition: none !important;
   }
 }
+
+/* ---------- v3: designer pass ---------- */
+::selection {
+  background: rgba(242, 163, 60, 0.35);
+}
+.font-mono {
+  font-variant-numeric: tabular-nums;
+}
+
+/* film grain */
+.aurora::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  opacity: 0.05;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* cursor-tracking spotlight on every card */
+.card {
+  position: relative;
+}
+.card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+  background: radial-gradient(
+    300px circle at var(--mx, 50%) var(--my, 50%),
+    rgba(242, 163, 60, 0.13),
+    transparent 65%
+  );
+}
+.card:hover::before {
+  opacity: 1;
+}
+
+/* gradient border for hero panels */
+.g-border {
+  border: 1px solid transparent;
+  background:
+    linear-gradient(rgba(11, 16, 28, 0.72), rgba(11, 16, 28, 0.72)) padding-box,
+    linear-gradient(120deg, rgba(242, 163, 60, 0.55), rgba(139, 124, 246, 0.45), rgba(67, 214, 181, 0.4)) border-box;
+}
+
+/* springy checkbox pop */
+@keyframes pop {
+  0% { transform: scale(0.4); }
+  60% { transform: scale(1.22); }
+  100% { transform: scale(1.05); }
+}
+.check-pop {
+  animation: pop 0.35s cubic-bezier(0.2, 0.7, 0.2, 1);
+}

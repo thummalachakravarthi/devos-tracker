@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Home, Coffee, BarChart3, ListChecks, LogOut } from 'lucide-react'
 import { supabase } from './lib/supabase'
 import { DataProvider, useData } from './DataStore'
@@ -138,6 +138,19 @@ function Inner({ tab, setTab }) {
 
 export default function Shell({ session }) {
   const [tab, setTab] = useState('today')
+
+  // cursor-tracking spotlight for .card elements
+  useEffect(() => {
+    const move = (e) => {
+      const c = e.target.closest?.('.card')
+      if (!c) return
+      const r = c.getBoundingClientRect()
+      c.style.setProperty('--mx', `${e.clientX - r.left}px`)
+      c.style.setProperty('--my', `${e.clientY - r.top}px`)
+    }
+    document.addEventListener('mousemove', move)
+    return () => document.removeEventListener('mousemove', move)
+  }, [])
   return (
     <DataProvider session={session}>
       <Aurora />

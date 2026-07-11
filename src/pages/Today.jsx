@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { ChevronLeft, ChevronRight, Flame, Check, Plus, Minus, Coffee, Brain } from 'lucide-react'
 import { useData } from '../DataStore'
-import { ProgressRing } from '../components/Bits'
+import { ProgressRing, CountUp } from '../components/Bits'
 import { todayISO, addDays, fmtNice, dayDiff } from '../lib/dates'
 import { currentStreak } from '../lib/stats'
 
@@ -37,8 +37,9 @@ function CheckRow({ habit, date }) {
       </span>
       <StreakBadge habit={habit} logs={logs} />
       <span
-        className={`w-7 h-7 rounded-lg grid place-items-center border transition ${
-          done ? 'bg-mint border-mint text-black scale-105' : 'border-line text-transparent'
+        key={String(done)}
+        className={`w-7 h-7 rounded-lg grid place-items-center border ${
+          done ? 'bg-mint border-mint text-black check-pop glow-mint' : 'border-line text-transparent'
         }`}
       >
         <Check size={16} strokeWidth={3} />
@@ -203,13 +204,13 @@ export default function Today({ setTab }) {
   return (
     <div>
       {/* HERO */}
-      <section className="card card-hover relative overflow-hidden p-6 lg:p-8">
+      <section className="card card-hover g-border relative overflow-hidden p-6 lg:p-8">
         <div className="flex flex-col sm:flex-row items-center gap-6 lg:gap-10">
           <div className={allDone ? 'glow-mint rounded-full' : ''}>
             <ProgressRing pct={total ? done / total : 0} size={132} stroke={10} color={allDone ? '#43D6B5' : '#F2A33C'}>
               <div className="text-center">
                 <div className="font-mono font-bold text-3xl leading-none">
-                  {done}
+                  <CountUp value={done} />
                   <span className="text-dim text-lg">/{total}</span>
                 </div>
                 <div className="text-[9px] uppercase tracking-widest text-dim mt-1">done</div>
@@ -245,7 +246,7 @@ export default function Today({ setTab }) {
           <div className="hidden md:block text-right">
             <div className="label">Mission clock</div>
             <div className="font-mono font-bold text-3xl mt-1">
-              Day {dayNum}
+              Day <CountUp value={dayNum} />
               <span className="text-dim text-lg"> / {settings.plan_days}</span>
             </div>
             <div className="progress-track h-1.5 w-44 mt-2 ml-auto">

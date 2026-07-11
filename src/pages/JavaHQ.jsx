@@ -10,7 +10,7 @@ import {
   Tooltip,
 } from 'recharts'
 import { useData } from '../DataStore'
-import { CoffeeCup, Heatmap } from '../components/Bits'
+import { CoffeeCup, Heatmap, CountUp } from '../components/Bits'
 import { todayISO, addDays, dayDiff, weekdayShort, fmtShort } from '../lib/dates'
 import { PHASES, DSA_MILESTONES, DSA_TOPICS } from '../config/plan'
 
@@ -83,6 +83,13 @@ export default function JavaHQ() {
   const nextMilestone = DSA_MILESTONES.find((m) => m.day >= dayNum) || DSA_MILESTONES.at(-1)
   const [dsaProblems, setDsaProblems] = useState('1')
   const [dsaTopic, setDsaTopic] = useState('')
+  const [customTopic, setCustomTopic] = useState(false)
+  // built-in topics + every topic you've ever logged (so new ones stick around)
+  const allTopics = useMemo(() => {
+    const set = new Set(DSA_TOPICS)
+    for (const l of dsaLogs) if (l.topic) set.add(l.topic)
+    return [...set]
+  }, [dsaLogs])
   const topicAgg = useMemo(() => {
     const m = {}
     for (const l of dsaLogs) {
@@ -99,12 +106,12 @@ export default function JavaHQ() {
   return (
     <div className="grid gap-3 lg:grid-cols-2 stagger">
       {/* Mission header */}
-      <div className="card card-hover lg:col-span-2 p-6 lg:p-8">
+      <div className="card card-hover g-border lg:col-span-2 p-6 lg:p-8">
         <div className="flex items-end justify-between">
           <div>
             <div className="label">Mission clock</div>
             <div className="font-mono font-bold text-5xl lg:text-7xl mt-1 text-grad">
-              Day {dayNum}
+              Day <CountUp value={dayNum} />
               <span className="text-2xl lg:text-4xl"> / {planDays}</span>
             </div>
           </div>
@@ -291,7 +298,7 @@ export default function JavaHQ() {
         <div className="flex items-baseline justify-between">
           <div className="label">DSA grind</div>
           <div className="font-mono text-sm">
-            <span className="text-violet font-bold">{dsaTotal}</span>
+            <span className="text-violet font-bold"><CountUp value={dsaTotal} /></span>
             <span className="text-dim"> / {nextMilestone.target} by day {nextMilestone.day}</span>
           </div>
         </div>
@@ -310,19 +317,41 @@ export default function JavaHQ() {
             value={dsaProblems}
             onChange={(e) => setDsaProblems(e.target.value)}
           />
-          <select className="input flex-1" value={dsaTopic} onChange={(e) => setDsaTopic(e.target.value)}>
-            <option value="">Topic…</option>
-            {DSA_TOPICS.map((t) => (
-              <option key={t}>{t}</option>
-            ))}
-          </select>
+          {customTopic ? (
+            <input
+              className="input flex-1"
+              autoFocus
+              placeholder="Type new topic name…"
+              value={dsaTopic}
+              onChange={(e) => setDsaTopic(e.target.value)}
+              onBlur={() => !dsaTopic.trim() && setCustomTopic(false)}
+            />
+          ) : (
+            <select
+              className="input flex-1"
+              value={dsaTopic}
+              onChange={(e) => {
+                if (e.target.value === '__new__') {
+                  setCustomTopic(true)
+                  setDsaTopic('')
+                } else setDsaTopic(e.target.value)
+              }}
+            >
+              <option value="">Topic…</option>
+              {allTopics.map((t) => (
+                <option key={t}>{t}</option>
+              ))}
+              <option value="__new__">＋ Add new topic…</option>
+            </select>
+          )}
           <button
             className="btn"
             style={{ background: '#8B7CF6', borderColor: '#8B7CF6', color: '#000' }}
             disabled={!dsaProblems || Number(dsaProblems) <= 0}
             onClick={() => {
-              logDsa(Number(dsaProblems), dsaTopic, today)
+              logDsa(Number(dsaProblems), dsaTopic.trim(), today)
               setDsaProblems('1')
+              setCustomTopic(false)
             }}
           >
             Log

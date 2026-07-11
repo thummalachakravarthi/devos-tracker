@@ -1,4 +1,31 @@
 // Small shared visual components
+import { useEffect, useRef, useState } from 'react'
+
+// Animated number: eases from previous value to the new one.
+export function CountUp({ value, duration = 700 }) {
+  const [disp, setDisp] = useState(value)
+  const prev = useRef(value)
+  useEffect(() => {
+    const reduce = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
+    const from = prev.current
+    prev.current = value
+    if (reduce || from === value) {
+      setDisp(value)
+      return
+    }
+    const t0 = performance.now()
+    let raf
+    const tick = (t) => {
+      const p = Math.min(1, (t - t0) / duration)
+      const e = 1 - Math.pow(1 - p, 3)
+      setDisp(Math.round(from + (value - from) * e))
+      if (p < 1) raf = requestAnimationFrame(tick)
+    }
+    raf = requestAnimationFrame(tick)
+    return () => cancelAnimationFrame(raf)
+  }, [value, duration])
+  return <>{disp}</>
+}
 
 export function ProgressRing({ pct = 0, size = 92, stroke = 8, color = '#F2A33C', children }) {
   const r = (size - stroke) / 2
