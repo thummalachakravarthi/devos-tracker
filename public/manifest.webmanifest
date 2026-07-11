@@ -1,0 +1,11 @@
+{
+  "name": "DevOS · Mission 240",
+  "short_name": "DevOS",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0B0E13",
+  "theme_color": "#0B0E13",
+  "icons": [
+    { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}

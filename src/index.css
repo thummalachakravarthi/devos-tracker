@@ -1,0 +1,58 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html {
+  color-scheme: dark;
+}
+
+body {
+  @apply bg-bg text-text font-body antialiased;
+}
+
+@layer components {
+  .card {
+    @apply bg-surface border border-line rounded-2xl p-4;
+  }
+  .btn {
+    @apply inline-flex items-center justify-center gap-1.5 rounded-xl px-3 py-2 text-sm font-medium bg-surface2 border border-line transition active:scale-[.98] hover:border-dim/60 disabled:opacity-40 disabled:pointer-events-none;
+  }
+  .btn-amber {
+    @apply bg-amber text-black border-amber hover:brightness-110;
+  }
+  .btn-mint {
+    @apply bg-mint text-black border-mint hover:brightness-110;
+  }
+  .chip {
+    @apply inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-surface2 border border-line text-xs text-dim;
+  }
+  .input {
+    @apply w-full rounded-xl bg-surface2 border border-line px-3 py-2 text-sm text-text placeholder:text-dim/60 outline-none focus:border-amber/70;
+  }
+  .label {
+    @apply text-xs uppercase tracking-widest text-dim font-medium;
+  }
+}
+
+:focus-visible {
+  outline: 2px solid #f2a33c;
+  outline-offset: 2px;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-thumb {
+  background: #26314a;
+  border-radius: 8px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}
