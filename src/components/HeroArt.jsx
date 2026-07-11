@@ -48,96 +48,111 @@ export function CityBackdrop() {
 // TODAY — magenta→amber sunrise over rolling waves
 // ═══════════════════════════════════════════════════════════════
 export function ArtToday() {
+  const planets = [
+    { r: 55,  size: 4.5,  color: '#a0aec0', dur: 4.5,  ring: false, name: 'Mercury' },
+    { r: 82,  size: 7,    color: '#f0b464', dur: 7,    ring: false, name: 'Venus' },
+    { r: 112, size: 8,    color: '#4ade80', dur: 9,    ring: false, name: 'Earth' },
+    { r: 145, size: 6.5,  color: '#ef4444', dur: 11.5, ring: false, name: 'Mars' },
+    { r: 190, size: 15,   color: '#fbbf24', dur: 16,   ring: false, name: 'Jupiter' },
+    { r: 235, size: 12,   color: '#fb923c', dur: 22,   ring: true,  name: 'Saturn' },
+  ]
   return (
     <svg className={bannerCls} viewBox="0 0 800 300" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
       <defs>
-        <radialGradient id="tdSpace" cx="0.5" cy="0.4" r="0.9">
+        <radialGradient id="tdSpace" cx="0.5" cy="0.5" r="0.9">
           <stop offset="0" stopColor="#1e2b7a" />
           <stop offset="0.5" stopColor="#0a1240" />
           <stop offset="1" stopColor="#020617" />
         </radialGradient>
-        <radialGradient id="tdNeb1" cx="0.5" cy="0.5" r="0.5">
-          <stop offset="0" stopColor="#22d3ee" stopOpacity="0.45" />
-          <stop offset="1" stopColor="#22d3ee" stopOpacity="0" />
+        <radialGradient id="tdSunGlow" cx="0.5" cy="0.5" r="0.5">
+          <stop offset="0" stopColor="#fef3c7" stopOpacity="1" />
+          <stop offset="0.35" stopColor="#fbbf24" stopOpacity="0.85" />
+          <stop offset="1" stopColor="#f97316" stopOpacity="0" />
         </radialGradient>
-        <radialGradient id="tdNeb2" cx="0.5" cy="0.5" r="0.5">
-          <stop offset="0" stopColor="#f472b6" stopOpacity="0.55" />
-          <stop offset="1" stopColor="#f472b6" stopOpacity="0" />
+        <radialGradient id="tdSunCore" cx="0.5" cy="0.5" r="0.5">
+          <stop offset="0" stopColor="#fffbeb" />
+          <stop offset="0.6" stopColor="#fbbf24" />
+          <stop offset="1" stopColor="#ea580c" />
         </radialGradient>
-        <radialGradient id="tdPlanet" cx="0.35" cy="0.35" r="0.7">
-          <stop offset="0" stopColor="#fbbf24" />
-          <stop offset="0.5" stopColor="#f97316" />
-          <stop offset="1" stopColor="#7c2d12" />
+        <radialGradient id="tdNeb" cx="0.5" cy="0.5" r="0.5">
+          <stop offset="0" stopColor="#c084fc" stopOpacity="0.4" />
+          <stop offset="1" stopColor="#c084fc" stopOpacity="0" />
         </radialGradient>
-        <linearGradient id="tdRing" x1="0" y1="0" x2="1" y2="0">
-          <stop offset="0" stopColor="#fde68a" stopOpacity="0" />
-          <stop offset="0.5" stopColor="#fde68a" stopOpacity="0.9" />
-          <stop offset="1" stopColor="#fde68a" stopOpacity="0" />
-        </linearGradient>
-        <linearGradient id="tdAurora" x1="0" y1="1" x2="0" y2="0">
-          <stop offset="0" stopColor="#22d3ee" stopOpacity="0" />
-          <stop offset="0.5" stopColor="#22d3ee" stopOpacity="0.35" />
-          <stop offset="1" stopColor="#a78bfa" stopOpacity="0" />
-        </linearGradient>
-        <filter id="tdBlur" x="-40%" y="-40%" width="180%" height="180%">
-          <feGaussianBlur stdDeviation="14" />
-        </filter>
       </defs>
       <rect width="800" height="300" fill="url(#tdSpace)" />
 
-      {/* nebulae */}
-      <circle cx="150" cy="80" r="150" fill="url(#tdNeb1)">
+      {/* purple nebula corner accents */}
+      <circle cx="80" cy="60" r="120" fill="url(#tdNeb)">
         <animate attributeName="opacity" values="0.6;1;0.6" dur="9s" repeatCount="indefinite" />
       </circle>
-      <circle cx="680" cy="220" r="180" fill="url(#tdNeb2)">
-        <animate attributeName="opacity" values="1;0.55;1" dur="12s" repeatCount="indefinite" />
+      <circle cx="720" cy="260" r="140" fill="url(#tdNeb)">
+        <animate attributeName="opacity" values="1;0.55;1" dur="11s" repeatCount="indefinite" />
       </circle>
 
-      {/* twinkling stars */}
+      {/* stars */}
       <g fill="#ffffff">
-        {Array.from({ length: 55 }).map((_, i) => {
-          const x = (i * 71) % 800
-          const y = (i * 29) % 260
-          const r = (i % 3) * 0.55 + 0.5
+        {Array.from({ length: 80 }).map((_, i) => {
+          const x = (i * 41) % 800
+          const y = (i * 29) % 300
+          const r = (i % 3) * 0.5 + 0.4
           return (
-            <circle key={i} cx={x} cy={y} r={r} opacity={0.4 + (i % 4) * 0.15}>
-              <animate attributeName="opacity" values="0.25;1;0.25" dur={`${2 + (i % 5)}s`} repeatCount="indefinite" />
+            <circle key={i} cx={x} cy={y} r={r} opacity={0.35 + (i % 4) * 0.15}>
+              <animate attributeName="opacity" values="0.2;0.9;0.2" dur={`${2 + (i % 5)}s`} repeatCount="indefinite" begin={`${(i * 0.13) % 3}s`} />
             </circle>
           )
         })}
       </g>
 
-      {/* shooting comet */}
-      <g>
-        <line x1="0" y1="0" x2="60" y2="20" stroke="#fef3c7" strokeWidth="2" strokeLinecap="round" opacity="0.85" />
-        <circle r="3" fill="#fffbeb" />
-        <animateTransform attributeName="transform" type="translate"
-          values="-80 20; 900 260; 900 260" keyTimes="0; 0.35; 1"
-          dur="8s" repeatCount="indefinite" />
-      </g>
-
-      {/* aurora sweep along bottom */}
-      <rect x="0" y="160" width="800" height="140" fill="url(#tdAurora)" filter="url(#tdBlur)">
-        <animate attributeName="opacity" values="0.7;1;0.7" dur="7s" repeatCount="indefinite" />
-      </rect>
-
-      {/* orbiting planet with slow rotation */}
-      <g>
-        <animateTransform attributeName="transform" type="translate"
-          values="530 150; 545 145; 530 150" dur="10s" repeatCount="indefinite" />
-        <ellipse cx="0" cy="0" rx="130" ry="18" fill="none" stroke="url(#tdRing)" strokeWidth="3"
-          transform="rotate(-18)">
-          <animateTransform attributeName="transform" type="rotate" from="-18" to="342" dur="30s" repeatCount="indefinite" />
-        </ellipse>
-        <circle r="62" fill="url(#tdPlanet)" />
-        {/* planet surface bands */}
-        <g clipPath="inset(0)">
-          <ellipse cx="0" cy="-14" rx="60" ry="6" fill="#9a3412" opacity="0.4" />
-          <ellipse cx="0" cy="8" rx="60" ry="4" fill="#7c2d12" opacity="0.55" />
-          <ellipse cx="0" cy="22" rx="55" ry="5" fill="#431407" opacity="0.5" />
+      {/* SOLAR SYSTEM — centered so it works at any banner height */}
+      <g transform="translate(400 150)">
+        {/* orbit paths (subtle) */}
+        <g fill="none" stroke="#ffffff" strokeOpacity="0.12" strokeWidth="1">
+          {planets.map((p) => (
+            <circle key={p.r} r={p.r} />
+          ))}
         </g>
-        {/* highlight */}
-        <circle r="18" cx="-22" cy="-22" fill="#ffffff" opacity="0.25" />
+
+        {/* SUN — glow + rotating core */}
+        <circle r="70" fill="url(#tdSunGlow)">
+          <animate attributeName="opacity" values="0.7;1;0.7" dur="4s" repeatCount="indefinite" />
+          <animate attributeName="r" values="66;74;66" dur="4s" repeatCount="indefinite" />
+        </circle>
+        <g>
+          <animateTransform attributeName="transform" type="rotate" from="0" to="360" dur="60s" repeatCount="indefinite" />
+          <circle r="26" fill="url(#tdSunCore)" />
+          <ellipse cx="0" cy="-6" rx="18" ry="4" fill="#fef3c7" opacity="0.5" />
+          <ellipse cx="5" cy="8" rx="12" ry="3" fill="#f59e0b" opacity="0.6" />
+        </g>
+
+        {/* PLANETS — each revolves (group rotates) and spins (planet spins) */}
+        {planets.map((p, i) => (
+          <g key={p.name}>
+            <animateTransform attributeName="transform" type="rotate"
+              from={`${i * 47} 0 0`} to={`${i * 47 + 360} 0 0`}
+              dur={`${p.dur}s`} repeatCount="indefinite" />
+            <g transform={`translate(${p.r} 0)`}>
+              {/* Saturn's ring */}
+              {p.ring && (
+                <g>
+                  <ellipse cx="0" cy="0" rx={p.size * 2.1} ry={p.size * 0.5}
+                    fill="none" stroke="#facc15" strokeWidth="2.2" opacity="0.85" transform="rotate(-14)" />
+                  <ellipse cx="0" cy="0" rx={p.size * 1.7} ry={p.size * 0.4}
+                    fill="none" stroke="#fde68a" strokeWidth="1.4" opacity="0.7" transform="rotate(-14)" />
+                </g>
+              )}
+              {/* planet body — spins on its own axis */}
+              <g>
+                <animateTransform attributeName="transform" type="rotate"
+                  from="0" to="360" dur={`${p.dur * 0.6}s`} repeatCount="indefinite" />
+                <circle r={p.size} fill={p.color} />
+                {/* dark hemisphere for depth */}
+                <path d={`M -${p.size} 0 A ${p.size} ${p.size} 0 0 1 ${p.size} 0 A ${p.size * 0.55} ${p.size} 0 0 1 -${p.size} 0 Z`}
+                  fill="#000" opacity="0.28" />
+                <circle r={p.size * 0.35} cx={-p.size * 0.3} cy={-p.size * 0.3} fill="#ffffff" opacity="0.35" />
+              </g>
+            </g>
+          </g>
+        ))}
       </g>
     </svg>
   )
@@ -151,9 +166,14 @@ export function ArtJava() {
     <svg className={bannerCls} viewBox="0 0 800 300" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
       <defs>
         <radialGradient id="jvBg" cx="0.7" cy="0.5" r="0.9">
-          <stop offset="0" stopColor="#7a1e12" />
-          <stop offset="0.6" stopColor="#2a0812" />
+          <stop offset="0" stopColor="#b45309" />
+          <stop offset="0.35" stopColor="#7a1e12" />
+          <stop offset="0.75" stopColor="#2a0812" />
           <stop offset="1" stopColor="#0d0210" />
+        </radialGradient>
+        <radialGradient id="jvRays" cx="0.7" cy="0.5" r="0.7">
+          <stop offset="0" stopColor="#fbbf24" stopOpacity="0.35" />
+          <stop offset="1" stopColor="#fbbf24" stopOpacity="0" />
         </radialGradient>
         <radialGradient id="jvCore" cx="0.5" cy="0.5" r="0.5">
           <stop offset="0" stopColor="#fff4c2" />
@@ -167,6 +187,9 @@ export function ArtJava() {
         </linearGradient>
       </defs>
       <rect width="800" height="300" fill="url(#jvBg)" />
+      <circle cx="560" cy="150" r="220" fill="url(#jvRays)">
+        <animate attributeName="opacity" values="0.7;1;0.7" dur="6s" repeatCount="indefinite" />
+      </circle>
       <g transform="translate(560 150)">
         {/* orbit rings */}
         {[150, 118, 88].map((r, i) => (
@@ -240,13 +263,28 @@ export function ArtStats() {
       </defs>
       <rect width="800" height="300" fill="url(#stBg)" />
       {/* grid glow */}
-      <g stroke="#ffffff" strokeOpacity="0.06">
+      <g stroke="#5eead4" strokeOpacity="0.12">
         {[70, 130, 190, 250].map((y) => (
-          <line key={y} x1="0" x2="800" y1={y} y2={y} />
+          <line key={y} x1="0" x2="800" y1={y} y2={y}>
+            <animate attributeName="stroke-opacity" values="0.05;0.22;0.05" dur="6s" repeatCount="indefinite" />
+          </line>
         ))}
       </g>
       {/* soft aurora over bars */}
-      <ellipse cx="400" cy="80" rx="450" ry="70" fill="#7c3aed" opacity="0.2" />
+      <ellipse cx="400" cy="80" rx="450" ry="70" fill="#7c3aed" opacity="0.28" />
+      {/* achievement confetti sparkles */}
+      <g>
+        {Array.from({ length: 22 }).map((_, i) => {
+          const x = (i * 61) % 780 + 10
+          const y = 30 + (i * 17) % 220
+          const c = ['#fbbf24','#22d3ee','#a78bfa','#f472b6','#5eead4'][i % 5]
+          return (
+            <circle key={i} cx={x} cy={y} r="1.8" fill={c}>
+              <animate attributeName="opacity" values="0;1;0" dur={`${2 + (i % 4)}s`} repeatCount="indefinite" begin={`${(i * 0.19) % 3}s`} />
+            </circle>
+          )
+        })}
+      </g>
       {/* bars */}
       {bars.map((b, i) => (
         <g key={i}>
