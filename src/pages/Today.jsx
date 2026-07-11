@@ -2,6 +2,8 @@ import { useState } from 'react'
 import { ChevronLeft, ChevronRight, Flame, Check, Plus, Minus, Coffee, Brain } from 'lucide-react'
 import { useData } from '../DataStore'
 import { ProgressRing, CountUp } from '../components/Bits'
+import { quoteForToday } from '../config/quotes'
+import { Quote as QuoteIcon } from 'lucide-react'
 import { todayISO, addDays, fmtNice, dayDiff } from '../lib/dates'
 import { currentStreak } from '../lib/stats'
 
@@ -199,8 +201,19 @@ export default function Today({ setTab }) {
   const dayNum = Math.min(settings.plan_days, Math.max(1, dayDiff(settings.plan_start_date, todayISO()) + 1))
   const allDone = total > 0 && done === total
 
+  const dq = quoteForToday(todayISO())
   return (
     <div>
+      {/* Daily quote band */}
+      <div className="card card-hover flex items-start gap-3 mb-3 anim-up bg-gradient-to-r from-amber/10 to-violet/10 border-amber/30">
+        <QuoteIcon size={28} className="text-amber shrink-0 mt-0.5" />
+        <div className="flex-1">
+          <div className="label mb-1">Fuel for today</div>
+          <p className="font-display text-lg lg:text-2xl leading-snug">"{dq.q}"</p>
+          <p className="text-xs text-dim mt-1">— {dq.a}</p>
+        </div>
+      </div>
+
       {/* HERO */}
       <section className="card card-hover g-border relative overflow-hidden p-6 lg:p-8">
         <div className="flex flex-col sm:flex-row items-center gap-6 lg:gap-10">
@@ -217,7 +230,7 @@ export default function Today({ setTab }) {
           </div>
 
           <div className="flex-1 text-center sm:text-left">
-            <div className="label">Why study hard?</div>
+            <div className="label">Daily ops</div>
             <div className="font-display font-bold text-4xl lg:text-6xl mt-1 text-grad">
               {isToday ? 'Today' : fmtNice(date)}
             </div>
