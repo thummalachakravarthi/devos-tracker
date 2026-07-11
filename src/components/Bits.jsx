@@ -34,7 +34,7 @@ export function ProgressRing({ pct = 0, size = 92, stroke = 8, color = '#F2A33C'
   return (
     <div className="relative" style={{ width: size, height: size }}>
       <svg width={size} height={size} className="-rotate-90">
-        <circle cx={size / 2} cy={size / 2} r={r} stroke="#26314A" strokeWidth={stroke} fill="none" />
+        <circle cx={size / 2} cy={size / 2} r={r} stroke="#EDEFF7" strokeWidth={stroke} fill="none" />
         <circle
           cx={size / 2}
           cy={size / 2}
@@ -66,7 +66,7 @@ export function CoffeeCup({ pct = 0, size = 120 }) {
   return (
     <svg width={size} height={size} viewBox="0 0 120 120" role="img" aria-label="Java time progress">
       {/* steam */}
-      <g stroke={full ? '#F2A33C' : '#26314A'} strokeWidth="3" strokeLinecap="round" fill="none">
+      <g stroke={full ? '#F0932C' : '#D7DAEA'} strokeWidth="3" strokeLinecap="round" fill="none">
         <path d="M42 12c0 6 5 6 5 12">
           {full && <animate attributeName="opacity" values="0.3;1;0.3" dur="2s" repeatCount="indefinite" />}
         </path>
@@ -78,7 +78,7 @@ export function CoffeeCup({ pct = 0, size = 120 }) {
       <path
         d={`M${cupX + cupW} 44 h10 a12 12 0 0 1 0 24 h-10`}
         fill="none"
-        stroke="#26314A"
+        stroke="#D7DAEA"
         strokeWidth="5"
       />
       {/* coffee fill */}
@@ -90,7 +90,7 @@ export function CoffeeCup({ pct = 0, size = 120 }) {
         y={fillY}
         width={cupW}
         height={fillH}
-        fill="#F2A33C"
+        fill="#F0932C"
         clipPath="url(#cupclip)"
         style={{ transition: 'y .5s ease, height .5s ease' }}
       />
@@ -98,7 +98,7 @@ export function CoffeeCup({ pct = 0, size = 120 }) {
       <path
         d={`M${cupX} ${cupY} h${cupW} v${cupH - 12} a12 12 0 0 1 -12 12 h-${cupW - 24} a12 12 0 0 1 -12 -12 z`}
         fill="none"
-        stroke="#3A4763"
+        stroke="#C4C9DD"
         strokeWidth="4"
       />
     </svg>
@@ -107,7 +107,7 @@ export function CoffeeCup({ pct = 0, size = 120 }) {
 
 // GitHub-style heatmap. levelFor(dateIso) -> 0..4, or -1 for "future / out of range"
 export function Heatmap({ dates, levelFor, colors, cell = 11, gap = 3 }) {
-  const palette = colors || ['#1B2231', '#5b4218', '#8a6423', '#c1892e', '#F2A33C']
+  const palette = colors || ['#EDEFF7', '#FBDCAF', '#F8C077', '#F4A94E', '#F0932C']
   return (
     <div className="overflow-x-auto pb-1">
       <div
@@ -125,7 +125,7 @@ export function Heatmap({ dates, levelFor, colors, cell = 11, gap = 3 }) {
                 width: cell,
                 height: cell,
                 background: lv < 0 ? 'transparent' : palette[lv],
-                border: lv === 0 ? '1px solid #26314A' : 'none',
+                border: lv === 0 ? '1px solid #E2E5F0' : 'none',
               }}
             />
           )

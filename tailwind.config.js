@@ -4,14 +4,14 @@ export default {
   theme: {
     extend: {
       colors: {
-        bg: '#05070C',
-        surface: '#0D1220',
-        surface2: '#161D30',
-        line: '#26314A',
-        text: '#E9EEF6',
-        dim: '#8E9AAE',
-        amber: '#F2A33C',
-        mint: '#43D6B5',
+        bg: '#F6F6FB',
+        surface: '#FFFFFF',
+        surface2: '#F3F4FA',
+        line: '#E8EAF3',
+        text: '#151A2D',
+        dim: '#667085',
+        amber: '#F0932C',
+        mint: '#21C39E',
         red: '#E5484D',
         violet: '#8B7CF6',
       },

@@ -234,16 +234,16 @@ export default function JavaHQ() {
         <div className="h-40 mt-2 -ml-4">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={weekData}>
-              <XAxis dataKey="day" tick={{ fill: '#8E9AAE', fontSize: 11 }} axisLine={false} tickLine={false} />
-              <YAxis tick={{ fill: '#8E9AAE', fontSize: 11 }} axisLine={false} tickLine={false} width={34} />
+              <XAxis dataKey="day" tick={{ fill: '#98A2B3', fontSize: 11 }} axisLine={false} tickLine={false} />
+              <YAxis tick={{ fill: '#98A2B3', fontSize: 11 }} axisLine={false} tickLine={false} width={34} />
               <Tooltip
-                cursor={{ fill: '#1B2231' }}
-                contentStyle={{ background: '#131822', border: '1px solid #26314A', borderRadius: 12 }}
-                labelStyle={{ color: '#E9EEF6' }}
+                cursor={{ fill: '#F3F4FA' }}
+                contentStyle={{ background: '#FFFFFF', border: '1px solid #E8EAF3', borderRadius: 12, boxShadow: '0 12px 30px -12px rgba(76,66,158,.25)' }}
+                labelStyle={{ color: '#151A2D' }}
                 formatter={(v) => [`${v} min`, 'Java']}
               />
-              <ReferenceLine y={target} stroke="#43D6B5" strokeDasharray="4 4" />
-              <Bar dataKey="min" fill="#F2A33C" radius={[6, 6, 0, 0]} />
+              <ReferenceLine y={target} stroke="#21C39E" strokeDasharray="4 4" />
+              <Bar dataKey="min" fill="#F0932C" radius={[6, 6, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>
@@ -346,7 +346,7 @@ export default function JavaHQ() {
           )}
           <button
             className="btn"
-            style={{ background: '#8B7CF6', borderColor: '#8B7CF6', color: '#000' }}
+            style={{ background: 'linear-gradient(135deg,#a394ff,#8B7CF6)', borderColor: 'transparent', color: '#fff', boxShadow: '0 6px 16px -6px rgba(139,124,246,.55)' }}
             disabled={!dsaProblems || Number(dsaProblems) <= 0}
             onClick={() => {
               logDsa(Number(dsaProblems), dsaTopic.trim(), today)

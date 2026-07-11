@@ -26,7 +26,7 @@ export function Aurora() {
 
 function Sidebar({ tab, setTab }) {
   return (
-    <aside className="hidden lg:flex fixed left-0 top-0 bottom-0 w-60 flex-col border-r border-white/10 bg-black/25 backdrop-blur-xl z-30">
+    <aside className="hidden lg:flex fixed left-0 top-0 bottom-0 w-60 flex-col border-r border-line bg-white/75 backdrop-blur-xl z-30">
       <div className="flex items-center gap-3 px-5 pt-6 pb-8">
         <img src="/icon.svg" alt="" className="w-10 h-10 rounded-xl glow-amber" />
         <div>
@@ -41,13 +41,13 @@ function Sidebar({ tab, setTab }) {
             onClick={() => setTab(id)}
             className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition ${
               tab === id
-                ? 'bg-white/10 text-amber shadow-[0_0_28px_-10px_rgba(242,163,60,.6)]'
-                : 'text-dim hover:text-text hover:bg-white/5'
+                ? 'bg-violet/10 text-violet shadow-[0_6px_18px_-8px_rgba(139,124,246,.5)]'
+                : 'text-dim hover:text-text hover:bg-black/5'
             }`}
           >
             <Icon size={18} strokeWidth={tab === id ? 2.4 : 1.8} />
             {label}
-            {tab === id && <span className="ml-auto w-1.5 h-1.5 rounded-full bg-amber" />}
+            {tab === id && <span className="ml-auto w-1.5 h-1.5 rounded-full bg-violet" />}
           </button>
         ))}
       </nav>
@@ -115,14 +115,14 @@ function Inner({ tab, setTab }) {
       </div>
 
       {/* mobile bottom nav */}
-      <nav className="lg:hidden fixed bottom-0 inset-x-0 z-20 bg-black/40 backdrop-blur-xl border-t border-white/10">
+      <nav className="lg:hidden fixed bottom-0 inset-x-0 z-20 bg-white/85 backdrop-blur-xl border-t border-line">
         <div className="grid grid-cols-4">
           {TABS.map(({ id, label, icon: Icon }) => (
             <button
               key={id}
               onClick={() => setTab(id)}
               className={`flex flex-col items-center gap-1 py-2.5 text-[11px] transition ${
-                tab === id ? 'text-amber' : 'text-dim'
+                tab === id ? 'text-violet' : 'text-dim'
               }`}
             >
               <Icon size={20} strokeWidth={tab === id ? 2.4 : 1.8} />
