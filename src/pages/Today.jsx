@@ -28,9 +28,8 @@ function CheckRow({ habit, date }) {
     <button
       onClick={() => toggleCheck(habit, date)}
       className="card card-hover w-full flex items-center gap-3 text-left"
-      style={{ borderLeft: `4px solid ${done ? '#21C39E' : habit.color}` }}
     >
-      <span className="w-10 h-10 rounded-xl grid place-items-center text-xl shrink-0" style={{ background: habit.color + '22' }}>{habit.icon}</span>
+      <span className="w-10 h-10 rounded-xl grid place-items-center text-xl shrink-0" style={{ background: '#EEF2F9', boxShadow: 'inset 0 1px 2px rgba(51,78,140,.08)' }}>{habit.icon}</span>
       <span className={`flex-1 text-sm font-medium ${done ? 'text-dim line-through' : ''}`}>
         {habit.name}
       </span>
@@ -54,9 +53,9 @@ function StepsRow({ habit, date }) {
   const [draft, setDraft] = useState('')
   const pct = Math.min(1, value / Number(habit.target))
   return (
-    <div className="card card-hover" style={{ borderLeft: `4px solid ${log?.completed ? '#21C39E' : habit.color}` }}>
+    <div className="card card-hover">
       <div className="flex items-center gap-3">
-        <span className="w-10 h-10 rounded-xl grid place-items-center text-xl shrink-0" style={{ background: habit.color + '22' }}>{habit.icon}</span>
+        <span className="w-10 h-10 rounded-xl grid place-items-center text-xl shrink-0" style={{ background: '#EEF2F9', boxShadow: 'inset 0 1px 2px rgba(51,78,140,.08)' }}>{habit.icon}</span>
         <div className="flex-1">
           <div className="text-sm font-medium">{habit.name}</div>
           <div className="font-mono text-xs text-dim mt-0.5">
@@ -71,7 +70,7 @@ function StepsRow({ habit, date }) {
         )}
       </div>
       <div className="progress-track h-2 mt-3">
-        <div className="progress-fill" style={{ width: `${pct * 100}%`, background: habit.color }} />
+        <div className="progress-fill" style={{ width: `${pct * 100}%` }} />
       </div>
       <div className="flex gap-2 mt-3">
         <input
@@ -104,9 +103,9 @@ function WaterRow({ habit, date }) {
   const value = log?.value || 0
   const target = Number(habit.target)
   return (
-    <div className="card card-hover" style={{ borderLeft: `4px solid ${log?.completed ? '#21C39E' : habit.color}` }}>
+    <div className="card card-hover">
       <div className="flex items-center gap-3">
-        <span className="w-10 h-10 rounded-xl grid place-items-center text-xl shrink-0" style={{ background: habit.color + '22' }}>{habit.icon}</span>
+        <span className="w-10 h-10 rounded-xl grid place-items-center text-xl shrink-0" style={{ background: '#EEF2F9', boxShadow: 'inset 0 1px 2px rgba(51,78,140,.08)' }}>{habit.icon}</span>
         <div className="flex-1">
           <div className="text-sm font-medium">{habit.name}</div>
           <div className="flex gap-1.5 mt-1.5">
@@ -114,7 +113,7 @@ function WaterRow({ habit, date }) {
               <span
                 key={i}
                 className="w-5 h-6 rounded-b-lg rounded-t-sm border border-line transition"
-                style={{ background: i < value ? '#4FA9F5' : 'transparent' }}
+                style={{ background: i < value ? '#2563EB' : 'transparent' }}
               />
             ))}
           </div>
@@ -138,9 +137,9 @@ function HoursRow({ habit, date }) {
   const target = Number(habit.target)
   const pct = Math.min(1, value / target)
   return (
-    <div className="card card-hover" style={{ borderLeft: `4px solid ${log?.completed ? '#21C39E' : habit.color}` }}>
+    <div className="card card-hover">
       <div className="flex items-center gap-3">
-        <span className="w-10 h-10 rounded-xl grid place-items-center text-xl shrink-0" style={{ background: habit.color + '22' }}>{habit.icon}</span>
+        <span className="w-10 h-10 rounded-xl grid place-items-center text-xl shrink-0" style={{ background: '#EEF2F9', boxShadow: 'inset 0 1px 2px rgba(51,78,140,.08)' }}>{habit.icon}</span>
         <div className="flex-1">
           <div className="text-sm font-medium">{habit.name}</div>
           <div className="font-mono text-xs text-dim mt-0.5">
@@ -155,7 +154,7 @@ function HoursRow({ habit, date }) {
         )}
       </div>
       <div className="progress-track h-2 mt-3">
-        <div className="progress-fill" style={{ width: `${pct * 100}%`, background: habit.color }} />
+        <div className="progress-fill" style={{ width: `${pct * 100}%` }} />
       </div>
       <div className="flex gap-2 mt-3">
         <button className="btn flex-1" onClick={() => setLogValue(habit, date, +(value + 0.5).toFixed(1))}>
@@ -206,7 +205,7 @@ export default function Today({ setTab }) {
       <section className="card card-hover g-border relative overflow-hidden p-6 lg:p-8">
         <div className="flex flex-col sm:flex-row items-center gap-6 lg:gap-10">
           <div className={allDone ? 'glow-mint rounded-full' : ''}>
-            <ProgressRing pct={total ? done / total : 0} size={132} stroke={10} color={allDone ? '#43D6B5' : '#F2A33C'}>
+            <ProgressRing pct={total ? done / total : 0} size={132} stroke={10} color={allDone ? '#2563EB' : '#2563EB'}>
               <div className="text-center">
                 <div className="font-mono font-bold text-3xl leading-none">
                   <CountUp value={done} />

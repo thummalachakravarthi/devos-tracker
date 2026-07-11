@@ -7,14 +7,14 @@ export const useData = () => useContext(Ctx)
 
 // Habits seeded on first login — pulled from your Excel checklist.
 const SEED_HABITS = [
-  { name: 'Meditation & Yoga', icon: '🧘', color: '#8B7CF6', type: 'check', target: 1, monthly_goal: 30 },
-  { name: 'Walk 10,000 steps', icon: '🚶', color: '#43D6B5', type: 'steps', target: 10000, monthly_goal: 30 },
-  { name: 'Read a book chapter', icon: '📖', color: '#F2A33C', type: 'check', target: 1, monthly_goal: 30 },
-  { name: 'Drink 4L water', icon: '💧', color: '#4FA9F5', type: 'water', target: 4, monthly_goal: 30 },
-  { name: 'Course · 2 hours', icon: '🎓', color: '#F2A33C', type: 'hours', target: 2, monthly_goal: 30 },
-  { name: 'Learn something new', icon: '💡', color: '#43D6B5', type: 'check', target: 1, monthly_goal: 10 },
-  { name: 'Study 6-hour block', icon: '📚', color: '#8B7CF6', type: 'check', target: 1, monthly_goal: 3 },
-  { name: 'Savings & Investment', icon: '💰', color: '#43D6B5', type: 'check', target: 1, monthly_goal: 10 },
+  { name: 'Meditation & Yoga', icon: '🧘', color: '#2563EB', type: 'check', target: 1, monthly_goal: 30 },
+  { name: 'Walk 10,000 steps', icon: '🚶', color: '#2563EB', type: 'steps', target: 10000, monthly_goal: 30 },
+  { name: 'Read a book chapter', icon: '📖', color: '#2563EB', type: 'check', target: 1, monthly_goal: 30 },
+  { name: 'Drink 4L water', icon: '💧', color: '#2563EB', type: 'water', target: 4, monthly_goal: 30 },
+  { name: 'Course · 2 hours', icon: '🎓', color: '#2563EB', type: 'hours', target: 2, monthly_goal: 30 },
+  { name: 'Learn something new', icon: '💡', color: '#2563EB', type: 'check', target: 1, monthly_goal: 10 },
+  { name: 'Study 6-hour block', icon: '📚', color: '#2563EB', type: 'check', target: 1, monthly_goal: 3 },
+  { name: 'Savings & Investment', icon: '💰', color: '#2563EB', type: 'check', target: 1, monthly_goal: 10 },
   { name: 'Protein powder · 2 spoons', icon: '🥄', color: '#8E9AAE', type: 'check', target: 1, monthly_goal: 30 },
   { name: 'Serum', icon: '🧴', color: '#8E9AAE', type: 'check', target: 1, monthly_goal: 30 },
   { name: 'Tablets', icon: '💊', color: '#8E9AAE', type: 'check', target: 1, monthly_goal: 30 },

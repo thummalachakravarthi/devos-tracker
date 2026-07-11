@@ -27,14 +27,14 @@ export function CountUp({ value, duration = 700 }) {
   return <>{disp}</>
 }
 
-export function ProgressRing({ pct = 0, size = 92, stroke = 8, color = '#F2A33C', children }) {
+export function ProgressRing({ pct = 0, size = 92, stroke = 8, color = '#2563EB', children }) {
   const r = (size - stroke) / 2
   const c = 2 * Math.PI * r
   const off = c * (1 - Math.min(1, Math.max(0, pct)))
   return (
     <div className="relative" style={{ width: size, height: size }}>
       <svg width={size} height={size} className="-rotate-90">
-        <circle cx={size / 2} cy={size / 2} r={r} stroke="#EDEFF7" strokeWidth={stroke} fill="none" />
+        <circle cx={size / 2} cy={size / 2} r={r} stroke="#E4E9F4" strokeWidth={stroke} fill="none" />
         <circle
           cx={size / 2}
           cy={size / 2}
@@ -66,7 +66,7 @@ export function CoffeeCup({ pct = 0, size = 120 }) {
   return (
     <svg width={size} height={size} viewBox="0 0 120 120" role="img" aria-label="Java time progress">
       {/* steam */}
-      <g stroke={full ? '#F0932C' : '#D7DAEA'} strokeWidth="3" strokeLinecap="round" fill="none">
+      <g stroke={full ? '#2563EB' : '#D7DAEA'} strokeWidth="3" strokeLinecap="round" fill="none">
         <path d="M42 12c0 6 5 6 5 12">
           {full && <animate attributeName="opacity" values="0.3;1;0.3" dur="2s" repeatCount="indefinite" />}
         </path>
@@ -90,7 +90,7 @@ export function CoffeeCup({ pct = 0, size = 120 }) {
         y={fillY}
         width={cupW}
         height={fillH}
-        fill="#F0932C"
+        fill="#2563EB"
         clipPath="url(#cupclip)"
         style={{ transition: 'y .5s ease, height .5s ease' }}
       />
@@ -107,7 +107,7 @@ export function CoffeeCup({ pct = 0, size = 120 }) {
 
 // GitHub-style heatmap. levelFor(dateIso) -> 0..4, or -1 for "future / out of range"
 export function Heatmap({ dates, levelFor, colors, cell = 11, gap = 3 }) {
-  const palette = colors || ['#EDEFF7', '#FBDCAF', '#F8C077', '#F4A94E', '#F0932C']
+  const palette = colors || ['#E4E9F4', '#C7D9FE', '#93B4FD', '#5B8DF8', '#2563EB']
   return (
     <div className="overflow-x-auto pb-1">
       <div

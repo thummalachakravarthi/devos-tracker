@@ -242,8 +242,8 @@ export default function JavaHQ() {
                 labelStyle={{ color: '#151A2D' }}
                 formatter={(v) => [`${v} min`, 'Java']}
               />
-              <ReferenceLine y={target} stroke="#21C39E" strokeDasharray="4 4" />
-              <Bar dataKey="min" fill="#F0932C" radius={[6, 6, 0, 0]} />
+              <ReferenceLine y={target} stroke="#2563EB" strokeDasharray="4 4" />
+              <Bar dataKey="min" fill="#2563EB" radius={[6, 6, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>
@@ -346,7 +346,7 @@ export default function JavaHQ() {
           )}
           <button
             className="btn"
-            style={{ background: 'linear-gradient(135deg,#a394ff,#8B7CF6)', borderColor: 'transparent', color: '#fff', boxShadow: '0 6px 16px -6px rgba(139,124,246,.55)' }}
+            style={{ background: 'linear-gradient(135deg,#4E8CFF,#2563EB)', borderColor: 'transparent', color: '#fff', boxShadow: '0 10px 22px -8px rgba(37,99,235,.6)' }}
             disabled={!dsaProblems || Number(dsaProblems) <= 0}
             onClick={() => {
               logDsa(Number(dsaProblems), dsaTopic.trim(), today)

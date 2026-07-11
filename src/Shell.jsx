@@ -41,7 +41,7 @@ function Sidebar({ tab, setTab }) {
             onClick={() => setTab(id)}
             className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition ${
               tab === id
-                ? 'bg-violet/10 text-violet shadow-[0_6px_18px_-8px_rgba(139,124,246,.5)]'
+                ? 'bg-violet/10 text-violet shadow-[0_6px_18px_-8px_rgba(37,99,235,.5)]'
                 : 'text-dim hover:text-text hover:bg-black/5'
             }`}
           >

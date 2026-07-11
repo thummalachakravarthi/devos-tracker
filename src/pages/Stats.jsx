@@ -113,12 +113,12 @@ export default function Stats({ setTab }) {
         <div className="label mb-3">This week's report card</div>
         <div className="grid grid-cols-3 lg:grid-cols-6 gap-3">
           {[
-            { k: 'Check-ins', v: `${cur.pct}%`, c: '#8B7CF6', t: <Trend now={cur.pct} prev={prev.pct} suffix="%" /> },
-            { k: 'Java', v: `${cur.javaH}h`, c: '#F0932C', t: <Trend now={cur.javaH} prev={prev.javaH} suffix="h" /> },
-            { k: 'DSA', v: cur.dsa, c: '#F26CA7', t: <Trend now={cur.dsa} prev={prev.dsa} /> },
-            { k: 'Steps', v: cur.steps.toLocaleString('en-IN'), c: '#21C39E', t: <Trend now={cur.steps} prev={prev.steps} /> },
-            { k: 'Course', v: `${cur.course}h`, c: '#4FA9F5', t: <Trend now={cur.course} prev={prev.course} suffix="h" /> },
-            { k: 'Water avg', v: `${cur.waterAvg}L`, c: '#38BDF8', t: <Trend now={cur.waterAvg} prev={prev.waterAvg} suffix="L" /> },
+            { k: 'Check-ins', v: `${cur.pct}%`, c: '#2563EB', t: <Trend now={cur.pct} prev={prev.pct} suffix="%" /> },
+            { k: 'Java', v: `${cur.javaH}h`, c: '#2563EB', t: <Trend now={cur.javaH} prev={prev.javaH} suffix="h" /> },
+            { k: 'DSA', v: cur.dsa, c: '#2563EB', t: <Trend now={cur.dsa} prev={prev.dsa} /> },
+            { k: 'Steps', v: cur.steps.toLocaleString('en-IN'), c: '#2563EB', t: <Trend now={cur.steps} prev={prev.steps} /> },
+            { k: 'Course', v: `${cur.course}h`, c: '#2563EB', t: <Trend now={cur.course} prev={prev.course} suffix="h" /> },
+            { k: 'Water avg', v: `${cur.waterAvg}L`, c: '#2563EB', t: <Trend now={cur.waterAvg} prev={prev.waterAvg} suffix="L" /> },
           ].map(({ k, v, c, t }) => (
             <div key={k} className="rounded-xl p-3 border" style={{ background: c + '14', borderColor: c + '3a' }}>
               <div className="text-[10px] uppercase tracking-wider text-dim">{k}</div>
@@ -151,8 +151,8 @@ export default function Stats({ setTab }) {
                   labelStyle={{ color: '#151A2D' }}
                   formatter={(v) => [v.toLocaleString('en-IN'), 'steps']}
                 />
-                <ReferenceLine y={Number(stepsHabit.target)} stroke="#21C39E" strokeDasharray="4 4" />
-                <Bar dataKey="steps" fill="#21C39E" radius={[6, 6, 0, 0]} />
+                <ReferenceLine y={Number(stepsHabit.target)} stroke="#2563EB" strokeDasharray="4 4" />
+                <Bar dataKey="steps" fill="#2563EB" radius={[6, 6, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -204,9 +204,9 @@ export default function Stats({ setTab }) {
                       }}
                       className="w-[18px] h-[18px] rounded-[4px] text-[8px] grid place-items-center transition disabled:opacity-30"
                       style={{
-                        background: l?.completed ? h.color : '#F3F4FA',
+                        background: l?.completed ? '#2563EB' : '#EEF2F9',
                         color: l?.completed ? '#fff' : '#98A2B3',
-                        border: l?.completed ? 'none' : '1px solid #E2E5F0',
+                        border: l?.completed ? 'none' : '1px solid #E0E6F2',
                       }}
                     >
                       {i + 1}
