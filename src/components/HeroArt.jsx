@@ -51,45 +51,94 @@ export function ArtToday() {
   return (
     <svg className={bannerCls} viewBox="0 0 800 300" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
       <defs>
-        <linearGradient id="tdBg" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor="#3d0f5c" />
-          <stop offset="0.4" stopColor="#c72d6b" />
-          <stop offset="0.75" stopColor="#f27f38" />
-          <stop offset="1" stopColor="#ffca5c" />
-        </linearGradient>
-        <radialGradient id="tdSun" cx="0.5" cy="0.5" r="0.5">
-          <stop offset="0" stopColor="#fff4c2" stopOpacity="1" />
-          <stop offset="0.4" stopColor="#ffca5c" stopOpacity="0.9" />
-          <stop offset="1" stopColor="#ff5c8a" stopOpacity="0" />
+        <radialGradient id="tdSpace" cx="0.5" cy="0.4" r="0.9">
+          <stop offset="0" stopColor="#1e2b7a" />
+          <stop offset="0.5" stopColor="#0a1240" />
+          <stop offset="1" stopColor="#020617" />
         </radialGradient>
-        <linearGradient id="tdWave" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor="#5b1a6b" stopOpacity="0.9" />
-          <stop offset="1" stopColor="#2a0736" />
+        <radialGradient id="tdNeb1" cx="0.5" cy="0.5" r="0.5">
+          <stop offset="0" stopColor="#22d3ee" stopOpacity="0.45" />
+          <stop offset="1" stopColor="#22d3ee" stopOpacity="0" />
+        </radialGradient>
+        <radialGradient id="tdNeb2" cx="0.5" cy="0.5" r="0.5">
+          <stop offset="0" stopColor="#f472b6" stopOpacity="0.55" />
+          <stop offset="1" stopColor="#f472b6" stopOpacity="0" />
+        </radialGradient>
+        <radialGradient id="tdPlanet" cx="0.35" cy="0.35" r="0.7">
+          <stop offset="0" stopColor="#fbbf24" />
+          <stop offset="0.5" stopColor="#f97316" />
+          <stop offset="1" stopColor="#7c2d12" />
+        </radialGradient>
+        <linearGradient id="tdRing" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0" stopColor="#fde68a" stopOpacity="0" />
+          <stop offset="0.5" stopColor="#fde68a" stopOpacity="0.9" />
+          <stop offset="1" stopColor="#fde68a" stopOpacity="0" />
         </linearGradient>
+        <linearGradient id="tdAurora" x1="0" y1="1" x2="0" y2="0">
+          <stop offset="0" stopColor="#22d3ee" stopOpacity="0" />
+          <stop offset="0.5" stopColor="#22d3ee" stopOpacity="0.35" />
+          <stop offset="1" stopColor="#a78bfa" stopOpacity="0" />
+        </linearGradient>
+        <filter id="tdBlur" x="-40%" y="-40%" width="180%" height="180%">
+          <feGaussianBlur stdDeviation="14" />
+        </filter>
       </defs>
-      <rect width="800" height="300" fill="url(#tdBg)" />
-      {/* rays */}
-      <g opacity="0.32">
-        {Array.from({ length: 14 }).map((_, i) => (
-          <rect key={i} x="397" y="-80" width="6" height="360" fill="#ffe19a"
-            transform={`rotate(${i * 12 - 78} 400 260)`} />
-        ))}
-      </g>
-      {/* sun */}
-      <circle cx="400" cy="260" r="200" fill="url(#tdSun)">
-        <animate attributeName="opacity" values="0.9;1;0.9" dur="6s" repeatCount="indefinite" />
+      <rect width="800" height="300" fill="url(#tdSpace)" />
+
+      {/* nebulae */}
+      <circle cx="150" cy="80" r="150" fill="url(#tdNeb1)">
+        <animate attributeName="opacity" values="0.6;1;0.6" dur="9s" repeatCount="indefinite" />
       </circle>
-      {/* shimmering water */}
-      <g stroke="#ffe19a" strokeWidth="1.6" strokeLinecap="round" opacity="0.55">
-        {Array.from({ length: 18 }).map((_, i) => (
-          <line key={i} x1={200 + i * 22} y1={220 + (i % 3) * 6} x2={220 + i * 22} y2={220 + (i % 3) * 6}>
-            <animate attributeName="opacity" values="0.2;0.9;0.2" dur={`${2 + (i % 3)}s`} repeatCount="indefinite" />
-          </line>
-        ))}
+      <circle cx="680" cy="220" r="180" fill="url(#tdNeb2)">
+        <animate attributeName="opacity" values="1;0.55;1" dur="12s" repeatCount="indefinite" />
+      </circle>
+
+      {/* twinkling stars */}
+      <g fill="#ffffff">
+        {Array.from({ length: 55 }).map((_, i) => {
+          const x = (i * 71) % 800
+          const y = (i * 29) % 260
+          const r = (i % 3) * 0.55 + 0.5
+          return (
+            <circle key={i} cx={x} cy={y} r={r} opacity={0.4 + (i % 4) * 0.15}>
+              <animate attributeName="opacity" values="0.25;1;0.25" dur={`${2 + (i % 5)}s`} repeatCount="indefinite" />
+            </circle>
+          )
+        })}
       </g>
-      {/* front wave silhouette */}
-      <path d="M0 300 L0 240 Q 200 205 400 235 T 800 220 L 800 300 Z" fill="url(#tdWave)" />
-      <path d="M0 300 L0 270 Q 250 250 500 268 T 800 262 L 800 300 Z" fill="#1a0424" />
+
+      {/* shooting comet */}
+      <g>
+        <line x1="0" y1="0" x2="60" y2="20" stroke="#fef3c7" strokeWidth="2" strokeLinecap="round" opacity="0.85" />
+        <circle r="3" fill="#fffbeb" />
+        <animateTransform attributeName="transform" type="translate"
+          values="-80 20; 900 260; 900 260" keyTimes="0; 0.35; 1"
+          dur="8s" repeatCount="indefinite" />
+      </g>
+
+      {/* aurora sweep along bottom */}
+      <rect x="0" y="160" width="800" height="140" fill="url(#tdAurora)" filter="url(#tdBlur)">
+        <animate attributeName="opacity" values="0.7;1;0.7" dur="7s" repeatCount="indefinite" />
+      </rect>
+
+      {/* orbiting planet with slow rotation */}
+      <g>
+        <animateTransform attributeName="transform" type="translate"
+          values="530 150; 545 145; 530 150" dur="10s" repeatCount="indefinite" />
+        <ellipse cx="0" cy="0" rx="130" ry="18" fill="none" stroke="url(#tdRing)" strokeWidth="3"
+          transform="rotate(-18)">
+          <animateTransform attributeName="transform" type="rotate" from="-18" to="342" dur="30s" repeatCount="indefinite" />
+        </ellipse>
+        <circle r="62" fill="url(#tdPlanet)" />
+        {/* planet surface bands */}
+        <g clipPath="inset(0)">
+          <ellipse cx="0" cy="-14" rx="60" ry="6" fill="#9a3412" opacity="0.4" />
+          <ellipse cx="0" cy="8" rx="60" ry="4" fill="#7c2d12" opacity="0.55" />
+          <ellipse cx="0" cy="22" rx="55" ry="5" fill="#431407" opacity="0.5" />
+        </g>
+        {/* highlight */}
+        <circle r="18" cx="-22" cy="-22" fill="#ffffff" opacity="0.25" />
+      </g>
     </svg>
   )
 }
@@ -281,24 +330,52 @@ export function ArtHabits() {
           )
         })}
       </g>
-      {/* edges */}
-      <g stroke="#ffffff" strokeOpacity="0.35" strokeWidth="1.5">
+      {/* edges — glow along the whole graph */}
+      <g stroke="#ffffff" strokeOpacity="0.4" strokeWidth="1.5">
         {edges.map(([a, b], i) => (
           <line key={i} x1={nodes[a].x} y1={nodes[a].y} x2={nodes[b].x} y2={nodes[b].y}>
-            <animate attributeName="stroke-opacity" values="0.15;0.5;0.15" dur={`${3 + (i % 3)}s`} repeatCount="indefinite" />
+            <animate attributeName="stroke-opacity" values="0.1;0.65;0.1" dur={`${3 + (i % 3)}s`} repeatCount="indefinite" begin={`${i * 0.15}s`} />
           </line>
         ))}
+        {/* light pulses that travel along edges */}
+        {edges.slice(0, 5).map(([a, b], i) => (
+          <circle key={`p${i}`} r="3" fill="#ffffff" opacity="0.9">
+            <animate attributeName="cx"
+              values={`${nodes[a].x};${nodes[b].x};${nodes[a].x}`}
+              dur={`${4 + i}s`} repeatCount="indefinite" begin={`${i * 0.5}s`} />
+            <animate attributeName="cy"
+              values={`${nodes[a].y};${nodes[b].y};${nodes[a].y}`}
+              dur={`${4 + i}s`} repeatCount="indefinite" begin={`${i * 0.5}s`} />
+            <animate attributeName="opacity" values="0;1;0" dur={`${4 + i}s`} repeatCount="indefinite" begin={`${i * 0.5}s`} />
+          </circle>
+        ))}
       </g>
-      {/* nodes */}
+
+      {/* nodes — pulsing halos + slow drift */}
       {nodes.map((n, i) => (
         <g key={i} transform={`translate(${n.x} ${n.y})`}>
-          <circle r="28" fill={n.c} opacity="0.45" filter="url(#hbGlow)">
-            <animate attributeName="opacity" values="0.3;0.7;0.3" dur={`${3 + i * 0.4}s`} repeatCount="indefinite" />
-          </circle>
-          <circle r="14" fill={n.c} />
-          <circle r="6" cx="-4" cy="-4" fill="#ffffff" opacity="0.7" />
+          <g>
+            <animateTransform attributeName="transform" type="translate"
+              values={`0 0; 0 ${i % 2 === 0 ? -6 : 6}; 0 0`}
+              dur={`${5 + i * 0.6}s`} repeatCount="indefinite" />
+            <circle r="34" fill={n.c} opacity="0.35" filter="url(#hbGlow)">
+              <animate attributeName="opacity" values="0.2;0.75;0.2" dur={`${3 + i * 0.4}s`} repeatCount="indefinite" />
+              <animate attributeName="r" values="28;38;28" dur={`${3 + i * 0.4}s`} repeatCount="indefinite" />
+            </circle>
+            <circle r="14" fill={n.c} />
+            <circle r="6" cx="-4" cy="-4" fill="#ffffff" opacity="0.75" />
+          </g>
         </g>
       ))}
+
+      {/* shooting star across the constellation */}
+      <g>
+        <line x1="0" y1="0" x2="45" y2="18" stroke="#fef3c7" strokeWidth="2" strokeLinecap="round" opacity="0.9" />
+        <circle r="2.5" fill="#fffbeb" />
+        <animateTransform attributeName="transform" type="translate"
+          values="-60 40; 860 200; 860 200" keyTimes="0; 0.35; 1"
+          dur="9s" repeatCount="indefinite" />
+      </g>
     </svg>
   )
 }
