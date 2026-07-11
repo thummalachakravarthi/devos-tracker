@@ -4,16 +4,16 @@ export default {
   theme: {
     extend: {
       colors: {
-        bg: '#E9EDF5',
+        bg: '#0B101F',
         surface: '#FFFFFF',
         surface2: '#EEF2F9',
         line: '#DFE5F1',
         text: '#1E2635',
         dim: '#8792A8',
-        amber: '#2563EB',
-        mint: '#2563EB',
-        red: '#E5484D',
-        violet: '#2563EB',
+        amber: '#E8B341',
+        mint: '#3FA43C',
+        red: '#D4342A',
+        violet: '#7E57C2',
       },
       fontFamily: {
         display: ['"Space Grotesk"', 'sans-serif'],

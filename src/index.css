@@ -35,7 +35,10 @@ body {
   inset: 0;
   z-index: -10;
   pointer-events: none;
-  background: linear-gradient(180deg, #ecf0f7 0%, #e7ebf4 100%);
+  background:
+    linear-gradient(180deg, rgba(8, 11, 22, 0.45) 0%, rgba(8, 11, 22, 0.75) 100%),
+    url('/bg.jpg') center / cover no-repeat fixed,
+    radial-gradient(120% 90% at 50% 0%, #16203a 0%, #0b101f 60%);
 }
 .aurora::before,
 .aurora::after {
@@ -50,11 +53,13 @@ body {
   .card {
     @apply p-4;
     border-radius: 22px;
-    background: #ffffff;
-    border: 1px solid rgba(255, 255, 255, 0.9);
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid rgba(255, 255, 255, 0.65);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
     box-shadow:
-      0 2px 6px rgba(51, 78, 140, 0.06),
-      0 18px 40px -14px rgba(51, 78, 140, 0.18);
+      0 2px 6px rgba(4, 8, 20, 0.25),
+      0 22px 48px -16px rgba(4, 8, 20, 0.55);
     transition: transform 0.25s ease, box-shadow 0.25s ease;
   }
   .card-hover:hover {
@@ -75,17 +80,60 @@ body {
     color: #2563eb;
     box-shadow: 0 3px 7px rgba(51, 78, 140, 0.09), 0 14px 26px -10px rgba(37, 99, 235, 0.32);
   }
-  .btn-amber,
-  .btn-mint {
+  /* ---- Avengers button roster ---- */
+  .btn-amber {
+    /* Iron Man — primary actions */
     @apply text-white;
-    background: linear-gradient(135deg, #4e8cff, #2563eb);
-    border-color: transparent;
-    box-shadow: 0 10px 22px -8px rgba(37, 99, 235, 0.6);
+    background: linear-gradient(135deg, #e8b341 0%, #d4342a 55%, #9c1c1c 100%);
+    border-color: rgba(232, 179, 65, 0.7);
+    box-shadow: 0 10px 24px -8px rgba(212, 52, 42, 0.65);
   }
-  .btn-amber:hover,
-  .btn-mint:hover {
+  .btn-mint {
+    /* Hulk — DSA smashing */
+    @apply text-white;
+    background: linear-gradient(135deg, #7ed957, #2e7d32);
+    border-color: rgba(126, 217, 87, 0.6);
+    box-shadow: 0 10px 24px -8px rgba(46, 125, 50, 0.65);
+  }
+  .btn-cap {
+    /* Captain America — steps & water */
+    @apply text-white;
+    background: linear-gradient(135deg, #5ea9ff, #1f5fd6);
+    border-bottom: 2px solid #d4342a;
+    box-shadow: 0 10px 24px -8px rgba(31, 95, 214, 0.65);
+  }
+  .btn-strange {
+    /* Doctor Strange — time (hours) */
+    @apply text-white;
+    background: linear-gradient(135deg, #ffb55c, #e65100);
+    border-color: rgba(255, 181, 92, 0.7);
+    box-shadow: 0 10px 24px -8px rgba(230, 81, 0, 0.6);
+  }
+  .btn-widow {
+    /* Black Widow — reset / minus */
+    @apply text-white;
+    background: linear-gradient(135deg, #3a3f4b, #14161c);
+    border-color: rgba(211, 47, 47, 0.6);
+    box-shadow: 0 10px 24px -8px rgba(0, 0, 0, 0.6);
+  }
+  .btn-spidey {
+    /* Spider-Man — new habit */
+    @apply text-white;
+    background: linear-gradient(135deg, #ff5252, #c62828);
+    border-color: rgba(21, 101, 192, 0.8);
+    box-shadow: 0 10px 24px -8px rgba(21, 101, 192, 0.55);
+  }
+  .btn-thanos {
+    /* Thanos — sign out (snap yourself away) */
+    @apply text-white;
+    background: linear-gradient(135deg, #8e6bd8, #5e35b1);
+    border-color: rgba(255, 213, 79, 0.65);
+    box-shadow: 0 10px 24px -8px rgba(94, 53, 177, 0.65);
+  }
+  .btn-amber:hover, .btn-mint:hover, .btn-cap:hover, .btn-strange:hover,
+  .btn-widow:hover, .btn-spidey:hover, .btn-thanos:hover {
     color: #fff;
-    filter: brightness(1.06);
+    filter: brightness(1.08);
   }
   .chip {
     @apply inline-flex items-center gap-1 px-2.5 py-1 text-xs;
@@ -133,7 +181,7 @@ body {
 .stagger > *:nth-child(14) { animation-delay: 0.54s; }
 
 .text-grad {
-  background: linear-gradient(90deg, #2563eb, #60a5fa, #2563eb);
+  background: linear-gradient(90deg, #e8b341, #d4342a, #e8b341);
   background-size: 250% 100%;
   -webkit-background-clip: text;
   background-clip: text;
@@ -155,7 +203,7 @@ body {
   height: 100%;
   border-radius: 9999px;
   overflow: hidden;
-  background: linear-gradient(135deg, #4e8cff, #2563eb);
+  background: linear-gradient(135deg, #e8b341, #d4342a);
   transition: width 0.6s cubic-bezier(0.2, 0.7, 0.2, 1);
 }
 .progress-fill::after {
@@ -181,7 +229,7 @@ body {
   pointer-events: none;
   background: radial-gradient(
     280px circle at var(--mx, 50%) var(--my, 50%),
-    rgba(37, 99, 235, 0.08),
+    rgba(232, 179, 65, 0.12),
     transparent 65%
   );
 }
@@ -191,10 +239,13 @@ body {
 
 /* hero: clean white with a touch more elevation (no gradient border in this style) */
 .g-border {
-  border: 1px solid rgba(255, 255, 255, 0.95);
-  box-shadow:
-    0 3px 8px rgba(51, 78, 140, 0.07),
-    0 26px 54px -18px rgba(51, 78, 140, 0.24);
+  border: 1px solid transparent;
+  background:
+    linear-gradient(rgba(255, 255, 255, 0.92), rgba(255, 255, 255, 0.92)) padding-box,
+    linear-gradient(120deg, rgba(232, 179, 65, 0.9), rgba(212, 52, 42, 0.8)) border-box;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: 0 3px 8px rgba(4, 8, 20, 0.3), 0 26px 54px -18px rgba(4, 8, 20, 0.6);
 }
 
 .check-pop {
@@ -202,14 +253,14 @@ body {
 }
 
 ::selection {
-  background: rgba(37, 99, 235, 0.25);
+  background: rgba(232, 179, 65, 0.4);
 }
 .font-mono {
   font-variant-numeric: tabular-nums;
 }
 
 :focus-visible {
-  outline: 2px solid #2563eb;
+  outline: 2px solid #e8b341;
   outline-offset: 2px;
 }
 

@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Plus, ArrowUp, ArrowDown, Archive, ArchiveRestore, Pencil, X } from 'lucide-react'
 import { useData } from '../DataStore'
 
-const COLORS = ['#2563EB', '#5B8DF8', '#93B4FD', '#8E9AAE', '#E5484D', '#1E2635']
+const COLORS = ['#D4342A', '#E8B341', '#2E7D32', '#1F5FD6', '#7E57C2', '#1E2635']
 const TYPES = [
   { id: 'check', label: 'Checkbox', targetLabel: null },
   { id: 'steps', label: 'Steps count', targetLabel: 'Daily steps target' },
@@ -123,7 +123,7 @@ export default function Habits() {
           }}
         />
       ) : (
-        <button className="btn btn-amber w-full" onClick={() => setAdding(true)}>
+        <button className="btn btn-spidey w-full" onClick={() => setAdding(true)}>
           <Plus size={16} /> New habit
         </button>
       )}

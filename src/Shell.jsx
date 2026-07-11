@@ -26,7 +26,7 @@ export function Aurora() {
 
 function Sidebar({ tab, setTab }) {
   return (
-    <aside className="hidden lg:flex fixed left-0 top-0 bottom-0 w-60 flex-col border-r border-line bg-white/75 backdrop-blur-xl z-30">
+    <aside className="hidden lg:flex fixed left-0 top-0 bottom-0 w-60 flex-col border-r border-white/20 bg-white/80 backdrop-blur-xl z-30">
       <div className="flex items-center gap-3 px-5 pt-6 pb-8">
         <img src="/icon.svg" alt="" className="w-10 h-10 rounded-xl glow-amber" />
         <div>
@@ -41,19 +41,20 @@ function Sidebar({ tab, setTab }) {
             onClick={() => setTab(id)}
             className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition ${
               tab === id
-                ? 'bg-violet/10 text-violet shadow-[0_6px_18px_-8px_rgba(37,99,235,.5)]'
+                ? 'bg-red/10 text-red shadow-[0_6px_18px_-8px_rgba(212,52,42,.5)]'
                 : 'text-dim hover:text-text hover:bg-black/5'
             }`}
           >
             <Icon size={18} strokeWidth={tab === id ? 2.4 : 1.8} />
             {label}
-            {tab === id && <span className="ml-auto w-1.5 h-1.5 rounded-full bg-violet" />}
+            {tab === id && <span className="ml-auto w-1.5 h-1.5 rounded-full bg-red" />}
           </button>
         ))}
       </nav>
       <button
-        className="m-3 btn justify-start !px-3 text-dim"
+        className="m-3 btn btn-thanos justify-start !px-3"
         onClick={() => supabase.auth.signOut()}
+        title="Snap yourself out"
       >
         <LogOut size={16} /> Sign out
       </button>
@@ -91,7 +92,7 @@ function Inner({ tab, setTab }) {
 
       <div className="lg:pl-60">
         {/* mobile header */}
-        <header className="lg:hidden flex items-center justify-between px-4 pt-4 pb-2">
+        <header className="lg:hidden flex items-center justify-between mx-3 mt-3 mb-1 px-3 py-2 rounded-2xl bg-white/80 backdrop-blur-xl border border-white/50 shadow-lg">
           <div className="flex items-center gap-2">
             <img src="/icon.svg" alt="" className="w-8 h-8 rounded-lg" />
             <div>
@@ -115,14 +116,14 @@ function Inner({ tab, setTab }) {
       </div>
 
       {/* mobile bottom nav */}
-      <nav className="lg:hidden fixed bottom-0 inset-x-0 z-20 bg-white/85 backdrop-blur-xl border-t border-line">
+      <nav className="lg:hidden fixed bottom-0 inset-x-0 z-20 bg-white/85 backdrop-blur-xl border-t border-white/40">
         <div className="grid grid-cols-4">
           {TABS.map(({ id, label, icon: Icon }) => (
             <button
               key={id}
               onClick={() => setTab(id)}
               className={`flex flex-col items-center gap-1 py-2.5 text-[11px] transition ${
-                tab === id ? 'text-violet' : 'text-dim'
+                tab === id ? 'text-red' : 'text-dim'
               }`}
             >
               <Icon size={20} strokeWidth={tab === id ? 2.4 : 1.8} />

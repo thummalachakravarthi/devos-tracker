@@ -164,7 +164,7 @@ export default function JavaHQ() {
             {[30, 60, 90].map((m) => (
               <button
                 key={m}
-                className="btn"
+                className="btn btn-amber"
                 onClick={() => {
                   logJava(m, note || null, today)
                   setNote('')
@@ -242,8 +242,8 @@ export default function JavaHQ() {
                 labelStyle={{ color: '#151A2D' }}
                 formatter={(v) => [`${v} min`, 'Java']}
               />
-              <ReferenceLine y={target} stroke="#2563EB" strokeDasharray="4 4" />
-              <Bar dataKey="min" fill="#2563EB" radius={[6, 6, 0, 0]} />
+              <ReferenceLine y={target} stroke="#E8B341" strokeDasharray="4 4" />
+              <Bar dataKey="min" fill="#D4342A" radius={[6, 6, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>
@@ -346,7 +346,7 @@ export default function JavaHQ() {
           )}
           <button
             className="btn"
-            style={{ background: 'linear-gradient(135deg,#4E8CFF,#2563EB)', borderColor: 'transparent', color: '#fff', boxShadow: '0 10px 22px -8px rgba(37,99,235,.6)' }}
+            style={{ background: 'linear-gradient(135deg,#7ED957,#2E7D32)', borderColor: 'transparent', color: '#fff', boxShadow: '0 10px 22px -8px rgba(46,125,50,.6)' }}
             disabled={!dsaProblems || Number(dsaProblems) <= 0}
             onClick={() => {
               logDsa(Number(dsaProblems), dsaTopic.trim(), today)

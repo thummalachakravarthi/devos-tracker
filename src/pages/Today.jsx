@@ -83,7 +83,7 @@ function StepsRow({ habit, date }) {
           onKeyDown={(e) => e.key === 'Enter' && draft && (setLogValue(habit, date, Number(draft)), setDraft(''))}
         />
         <button
-          className="btn btn-mint"
+          className="btn btn-cap"
           disabled={!draft}
           onClick={() => {
             setLogValue(habit, date, Number(draft))
@@ -113,16 +113,16 @@ function WaterRow({ habit, date }) {
               <span
                 key={i}
                 className="w-5 h-6 rounded-b-lg rounded-t-sm border border-line transition"
-                style={{ background: i < value ? '#2563EB' : 'transparent' }}
+                style={{ background: i < value ? '#4FC3F7' : 'transparent' }}
               />
             ))}
           </div>
         </div>
         <StreakBadge habit={habit} logs={logs} />
-        <button className="btn !px-2.5" onClick={() => setLogValue(habit, date, value - 1)} disabled={value <= 0}>
+        <button className="btn btn-widow !px-2.5" onClick={() => setLogValue(habit, date, value - 1)} disabled={value <= 0}>
           <Minus size={16} />
         </button>
-        <button className="btn btn-mint !px-2.5" onClick={() => setLogValue(habit, date, value + 1)} disabled={value >= target}>
+        <button className="btn btn-cap !px-2.5" onClick={() => setLogValue(habit, date, value + 1)} disabled={value >= target}>
           <Plus size={16} />
         </button>
       </div>
@@ -157,13 +157,13 @@ function HoursRow({ habit, date }) {
         <div className="progress-fill" style={{ width: `${pct * 100}%` }} />
       </div>
       <div className="flex gap-2 mt-3">
-        <button className="btn flex-1" onClick={() => setLogValue(habit, date, +(value + 0.5).toFixed(1))}>
+        <button className="btn btn-strange flex-1" onClick={() => setLogValue(habit, date, +(value + 0.5).toFixed(1))}>
           +30 min
         </button>
-        <button className="btn flex-1" onClick={() => setLogValue(habit, date, +(value + 1).toFixed(1))}>
+        <button className="btn btn-strange flex-1" onClick={() => setLogValue(habit, date, +(value + 1).toFixed(1))}>
           +1 hr
         </button>
-        <button className="btn !px-2.5" onClick={() => setLogValue(habit, date, 0)} disabled={value === 0}>
+        <button className="btn btn-widow !px-2.5" onClick={() => setLogValue(habit, date, 0)} disabled={value === 0}>
           Reset
         </button>
       </div>
@@ -205,7 +205,7 @@ export default function Today({ setTab }) {
       <section className="card card-hover g-border relative overflow-hidden p-6 lg:p-8">
         <div className="flex flex-col sm:flex-row items-center gap-6 lg:gap-10">
           <div className={allDone ? 'glow-mint rounded-full' : ''}>
-            <ProgressRing pct={total ? done / total : 0} size={132} stroke={10} color={allDone ? '#2563EB' : '#2563EB'}>
+            <ProgressRing pct={total ? done / total : 0} size={132} stroke={10} color={allDone ? '#3FA43C' : '#D4342A'}>
               <div className="text-center">
                 <div className="font-mono font-bold text-3xl leading-none">
                   <CountUp value={done} />
@@ -265,10 +265,10 @@ export default function Today({ setTab }) {
                 {Math.floor(javaMin / 60)}h {javaMin % 60}m / {Math.floor(javaTarget / 60)}h
               </div>
             </div>
-            <button className="btn" onClick={() => logJava(30, null, date)}>
+            <button className="btn btn-amber" onClick={() => logJava(30, null, date)}>
               +30m
             </button>
-            <button className="btn" onClick={() => logJava(60, null, date)}>
+            <button className="btn btn-amber" onClick={() => logJava(60, null, date)}>
               +1h
             </button>
           </div>
@@ -290,7 +290,7 @@ export default function Today({ setTab }) {
               <div className="text-sm font-medium">DSA problems</div>
               <div className="font-mono text-xs text-dim mt-0.5">{dsaCount} solved this day</div>
             </div>
-            <button className="btn" onClick={() => logDsa(1, null, date)}>
+            <button className="btn btn-mint" onClick={() => logDsa(1, null, date)}>
               +1 problem
             </button>
           </div>
