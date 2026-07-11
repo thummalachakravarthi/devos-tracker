@@ -75,3 +75,17 @@ Every future `git push` to `main` auto-redeploys. That's the whole pipeline.
 | "Couldn't load data" after login | `schema.sql` not run, or run partially → re-run it in SQL Editor |
 | Sign-up says "check your email" | You left email confirmation ON — either confirm via the mail or disable it (step 1.4) |
 | Vercel build fails | Env vars not set in Vercel → add both `VITE_*` vars, redeploy |
+
+## Theme photos (Avengers mode)
+
+Drop your own images into `public/` — the app picks them up automatically, no code changes:
+
+| File | Where it shows |
+|---|---|
+| `public/bg.jpg` | Full-screen backdrop behind everything |
+| `public/heroes/today.jpg` | Banner on the Today tab |
+| `public/heroes/java.jpg` | Banner on Java HQ |
+| `public/heroes/stats.jpg` | Banner on Stats |
+| `public/heroes/habits.jpg` | Banner on Habits |
+
+Missing files are skipped gracefully. Easiest way: GitHub → repo → `public` folder → **Add file → Upload files** → commit. Vercel redeploys on its own.

@@ -14,6 +14,35 @@ const TABS = [
   { id: 'habits', label: 'Habits', icon: ListChecks },
 ]
 
+const HERO = {
+  today: { src: '/heroes/today.jpg', title: "Today's Mission" },
+  java: { src: '/heroes/java.jpg', title: 'Java HQ' },
+  stats: { src: '/heroes/stats.jpg', title: 'Battle Stats' },
+  habits: { src: '/heroes/habits.jpg', title: 'The Roster' },
+}
+
+// Shows the tab's hero photo if /public/heroes/<tab>.jpg exists; hides itself if not.
+function HeroBanner({ tab }) {
+  const [ok, setOk] = useState(true)
+  const h = HERO[tab]
+  useEffect(() => setOk(true), [tab])
+  if (!h || !ok) return null
+  return (
+    <div className="relative rounded-2xl overflow-hidden mb-3 h-40 lg:h-56 shadow-[0_22px_48px_-16px_rgba(4,8,20,.6)] anim-up">
+      <img
+        src={h.src}
+        onError={() => setOk(false)}
+        className="absolute inset-0 w-full h-full object-cover"
+        alt=""
+      />
+      <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/15 to-transparent" />
+      <div className="absolute bottom-3 left-4 lg:bottom-4 lg:left-6 font-display font-bold text-2xl lg:text-4xl text-white drop-shadow-lg">
+        {h.title}
+      </div>
+    </div>
+  )
+}
+
 export function Aurora() {
   return (
     <div className="aurora" aria-hidden="true">
@@ -106,6 +135,7 @@ function Inner({ tab, setTab }) {
         </header>
 
         <main className="max-w-7xl mx-auto px-4 lg:px-8 pt-2 lg:pt-8 pb-28 lg:pb-14">
+          <HeroBanner tab={tab} />
           <div key={tab} className="anim-up">
             {tab === 'today' && <Today setTab={setTab} />}
             {tab === 'java' && <JavaHQ />}
