@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Plus, ArrowUp, ArrowDown, Archive, ArchiveRestore, Pencil, X } from 'lucide-react'
 import { useData } from '../DataStore'
 
-const COLORS = ['#D4342A', '#E8B341', '#2E7D32', '#1F5FD6', '#7E57C2', '#1E2635']
+const COLORS = ['#0284C7', '#0EA5E9', '#2E7D32', '#1F5FD6', '#6366F1', '#1E2635']
 const TYPES = [
   { id: 'check', label: 'Checkbox', targetLabel: null },
   { id: 'steps', label: 'Steps count', targetLabel: 'Daily steps target' },

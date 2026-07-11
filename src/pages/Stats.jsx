@@ -113,8 +113,8 @@ export default function Stats({ setTab }) {
         <div className="label mb-3">This week's report card</div>
         <div className="grid grid-cols-3 lg:grid-cols-6 gap-3">
           {[
-            { k: 'Check-ins', v: `${cur.pct}%`, c: '#E8B341', t: <Trend now={cur.pct} prev={prev.pct} suffix="%" /> },
-            { k: 'Java', v: `${cur.javaH}h`, c: '#D4342A', t: <Trend now={cur.javaH} prev={prev.javaH} suffix="h" /> },
+            { k: 'Check-ins', v: `${cur.pct}%`, c: '#0EA5E9', t: <Trend now={cur.pct} prev={prev.pct} suffix="%" /> },
+            { k: 'Java', v: `${cur.javaH}h`, c: '#0284C7', t: <Trend now={cur.javaH} prev={prev.javaH} suffix="h" /> },
             { k: 'DSA', v: cur.dsa, c: '#2E7D32', t: <Trend now={cur.dsa} prev={prev.dsa} /> },
             { k: 'Steps', v: cur.steps.toLocaleString('en-IN'), c: '#1F5FD6', t: <Trend now={cur.steps} prev={prev.steps} /> },
             { k: 'Course', v: `${cur.course}h`, c: '#E65100', t: <Trend now={cur.course} prev={prev.course} suffix="h" /> },
@@ -151,7 +151,7 @@ export default function Stats({ setTab }) {
                   labelStyle={{ color: '#151A2D' }}
                   formatter={(v) => [v.toLocaleString('en-IN'), 'steps']}
                 />
-                <ReferenceLine y={Number(stepsHabit.target)} stroke="#E8B341" strokeDasharray="4 4" />
+                <ReferenceLine y={Number(stepsHabit.target)} stroke="#0EA5E9" strokeDasharray="4 4" />
                 <Bar dataKey="steps" fill="#1F5FD6" radius={[6, 6, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
@@ -204,7 +204,7 @@ export default function Stats({ setTab }) {
                       }}
                       className="w-[18px] h-[18px] rounded-[4px] text-[8px] grid place-items-center transition disabled:opacity-30"
                       style={{
-                        background: l?.completed ? '#D4342A' : '#EEF2F9',
+                        background: l?.completed ? '#0284C7' : '#EEF2F9',
                         color: l?.completed ? '#fff' : '#98A2B3',
                         border: l?.completed ? 'none' : '1px solid #E0E6F2',
                       }}

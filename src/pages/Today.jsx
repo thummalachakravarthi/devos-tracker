@@ -30,12 +30,8 @@ function CheckRow({ habit, date }) {
     <button
       onClick={() => toggleCheck(habit, date)}
       className="habit-card card card-hover w-full flex items-center gap-3 text-left"
-      style={{
-        background: `linear-gradient(135deg, ${habit.color}18 0%, rgba(255,255,255,0.9) 55%)`,
-        borderColor: done ? '#21C39E' : `${habit.color}55`,
-      }}
     >
-      <span className="habit-icon w-10 h-10 rounded-xl grid place-items-center text-xl shrink-0" style={{ background: habit.color + '26', boxShadow: `inset 0 0 0 1px ${habit.color}55, 0 6px 14px -6px ${habit.color}80` }}>{habit.icon}</span>
+      <span className="habit-icon w-10 h-10 rounded-xl grid place-items-center text-xl shrink-0 bg-white/70 shadow-inner border border-sky-200/60">{habit.icon}</span>
       <span className={`flex-1 text-sm font-medium ${done ? 'text-dim line-through' : ''}`}>
         {habit.name}
       </span>
@@ -59,12 +55,9 @@ function StepsRow({ habit, date }) {
   const [draft, setDraft] = useState('')
   const pct = Math.min(1, value / Number(habit.target))
   return (
-    <div className="habit-card card card-hover" style={{
-      background: `linear-gradient(135deg, ${habit.color}18 0%, rgba(255,255,255,0.9) 55%)`,
-      borderColor: log?.completed ? '#21C39E' : `${habit.color}55`,
-    }}>
+    <div className="habit-card card card-hover">
       <div className="flex items-center gap-3">
-        <span className="habit-icon w-10 h-10 rounded-xl grid place-items-center text-xl shrink-0" style={{ background: habit.color + '26', boxShadow: `inset 0 0 0 1px ${habit.color}55, 0 6px 14px -6px ${habit.color}80` }}>{habit.icon}</span>
+        <span className="habit-icon w-10 h-10 rounded-xl grid place-items-center text-xl shrink-0 bg-white/70 shadow-inner border border-sky-200/60">{habit.icon}</span>
         <div className="flex-1">
           <div className="text-sm font-medium">{habit.name}</div>
           <div className="font-mono text-xs text-dim mt-0.5">
@@ -112,12 +105,9 @@ function WaterRow({ habit, date }) {
   const value = log?.value || 0
   const target = Number(habit.target)
   return (
-    <div className="habit-card card card-hover" style={{
-      background: `linear-gradient(135deg, ${habit.color}18 0%, rgba(255,255,255,0.9) 55%)`,
-      borderColor: log?.completed ? '#21C39E' : `${habit.color}55`,
-    }}>
+    <div className="habit-card card card-hover">
       <div className="flex items-center gap-3">
-        <span className="habit-icon w-10 h-10 rounded-xl grid place-items-center text-xl shrink-0" style={{ background: habit.color + '26', boxShadow: `inset 0 0 0 1px ${habit.color}55, 0 6px 14px -6px ${habit.color}80` }}>{habit.icon}</span>
+        <span className="habit-icon w-10 h-10 rounded-xl grid place-items-center text-xl shrink-0 bg-white/70 shadow-inner border border-sky-200/60">{habit.icon}</span>
         <div className="flex-1">
           <div className="text-sm font-medium">{habit.name}</div>
           <div className="flex gap-1.5 mt-1.5">
@@ -149,12 +139,9 @@ function HoursRow({ habit, date }) {
   const target = Number(habit.target)
   const pct = Math.min(1, value / target)
   return (
-    <div className="habit-card card card-hover" style={{
-      background: `linear-gradient(135deg, ${habit.color}18 0%, rgba(255,255,255,0.9) 55%)`,
-      borderColor: log?.completed ? '#21C39E' : `${habit.color}55`,
-    }}>
+    <div className="habit-card card card-hover">
       <div className="flex items-center gap-3">
-        <span className="habit-icon w-10 h-10 rounded-xl grid place-items-center text-xl shrink-0" style={{ background: habit.color + '26', boxShadow: `inset 0 0 0 1px ${habit.color}55, 0 6px 14px -6px ${habit.color}80` }}>{habit.icon}</span>
+        <span className="habit-icon w-10 h-10 rounded-xl grid place-items-center text-xl shrink-0 bg-white/70 shadow-inner border border-sky-200/60">{habit.icon}</span>
         <div className="flex-1">
           <div className="text-sm font-medium">{habit.name}</div>
           <div className="font-mono text-xs text-dim mt-0.5">
@@ -231,7 +218,7 @@ export default function Today({ setTab }) {
       <section className="card card-hover g-border relative overflow-hidden p-6 lg:p-8">
         <div className="flex flex-col sm:flex-row items-center gap-6 lg:gap-10">
           <div className={allDone ? 'glow-mint rounded-full' : ''}>
-            <ProgressRing pct={total ? done / total : 0} size={132} stroke={10} color={allDone ? '#3FA43C' : '#D4342A'}>
+            <ProgressRing pct={total ? done / total : 0} size={132} stroke={10} color={allDone ? '#38BDF8' : '#0284C7'}>
               <div className="text-center">
                 <div className="font-mono font-bold text-3xl leading-none">
                   <CountUp value={done} />

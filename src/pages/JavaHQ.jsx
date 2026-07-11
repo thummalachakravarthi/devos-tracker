@@ -242,8 +242,8 @@ export default function JavaHQ() {
                 labelStyle={{ color: '#151A2D' }}
                 formatter={(v) => [`${v} min`, 'Java']}
               />
-              <ReferenceLine y={target} stroke="#E8B341" strokeDasharray="4 4" />
-              <Bar dataKey="min" fill="#D4342A" radius={[6, 6, 0, 0]} />
+              <ReferenceLine y={target} stroke="#0EA5E9" strokeDasharray="4 4" />
+              <Bar dataKey="min" fill="#0284C7" radius={[6, 6, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>

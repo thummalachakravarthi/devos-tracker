@@ -66,7 +66,7 @@ export function CoffeeCup({ pct = 0, size = 120 }) {
   return (
     <svg width={size} height={size} viewBox="0 0 120 120" role="img" aria-label="Java time progress">
       {/* steam */}
-      <g stroke={full ? '#E8B341' : '#D7DAEA'} strokeWidth="3" strokeLinecap="round" fill="none">
+      <g stroke={full ? '#0EA5E9' : '#D7DAEA'} strokeWidth="3" strokeLinecap="round" fill="none">
         <path d="M42 12c0 6 5 6 5 12">
           {full && <animate attributeName="opacity" values="0.3;1;0.3" dur="2s" repeatCount="indefinite" />}
         </path>
@@ -90,7 +90,7 @@ export function CoffeeCup({ pct = 0, size = 120 }) {
         y={fillY}
         width={cupW}
         height={fillH}
-        fill="#D4342A"
+        fill="#0284C7"
         clipPath="url(#cupclip)"
         style={{ transition: 'y .5s ease, height .5s ease' }}
       />
@@ -107,7 +107,7 @@ export function CoffeeCup({ pct = 0, size = 120 }) {
 
 // GitHub-style heatmap. levelFor(dateIso) -> 0..4, or -1 for "future / out of range"
 export function Heatmap({ dates, levelFor, colors, cell = 11, gap = 3 }) {
-  const palette = colors || ['#EDE9E2', '#F3D9A0', '#E8A75B', '#D95F33', '#C62828']
+  const palette = colors || ['#EDE9E2', '#F3D9A0', '#E8A75B', '#D95F33', '#0284C7']
   return (
     <div className="overflow-x-auto pb-1">
       <div

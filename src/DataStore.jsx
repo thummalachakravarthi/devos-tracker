@@ -7,17 +7,17 @@ export const useData = () => useContext(Ctx)
 
 // Habits seeded on first login — pulled from your Excel checklist.
 const SEED_HABITS = [
-  { name: 'Meditation & Yoga', icon: '🧘', color: '#A78BFA', type: 'check', target: 1, monthly_goal: 30 },
-  { name: 'Walk 10,000 steps', icon: '🚶', color: '#22D3EE', type: 'steps', target: 10000, monthly_goal: 30 },
-  { name: 'Read a book chapter', icon: '📖', color: '#F59E0B', type: 'check', target: 1, monthly_goal: 30 },
-  { name: 'Drink 4L water', icon: '💧', color: '#38BDF8', type: 'water', target: 4, monthly_goal: 30 },
-  { name: 'Course · 2 hours', icon: '🎓', color: '#F472B6', type: 'hours', target: 2, monthly_goal: 30 },
-  { name: 'Learn something new', icon: '💡', color: '#FBBF24', type: 'check', target: 1, monthly_goal: 10 },
-  { name: 'Study 6-hour block', icon: '📚', color: '#8B5CF6', type: 'check', target: 1, monthly_goal: 3 },
-  { name: 'Savings & Investment', icon: '💰', color: '#34D399', type: 'check', target: 1, monthly_goal: 10 },
-  { name: 'Protein powder · 2 spoons', icon: '🥄', color: '#94A3B8', type: 'check', target: 1, monthly_goal: 30 },
-  { name: 'Serum', icon: '🧴', color: '#F87171', type: 'check', target: 1, monthly_goal: 30 },
-  { name: 'Tablets', icon: '💊', color: '#60A5FA', type: 'check', target: 1, monthly_goal: 30 },
+  { name: 'Meditation & Yoga', icon: '🧘', color: '#0EA5E9', type: 'check', target: 1, monthly_goal: 30 },
+  { name: 'Walk 10,000 steps', icon: '🚶', color: '#0EA5E9', type: 'steps', target: 10000, monthly_goal: 30 },
+  { name: 'Read a book chapter', icon: '📖', color: '#0EA5E9', type: 'check', target: 1, monthly_goal: 30 },
+  { name: 'Drink 4L water', icon: '💧', color: '#0EA5E9', type: 'water', target: 4, monthly_goal: 30 },
+  { name: 'Course · 2 hours', icon: '🎓', color: '#0EA5E9', type: 'hours', target: 2, monthly_goal: 30 },
+  { name: 'Learn something new', icon: '💡', color: '#0EA5E9', type: 'check', target: 1, monthly_goal: 10 },
+  { name: 'Study 6-hour block', icon: '📚', color: '#0EA5E9', type: 'check', target: 1, monthly_goal: 3 },
+  { name: 'Savings & Investment', icon: '💰', color: '#0EA5E9', type: 'check', target: 1, monthly_goal: 10 },
+  { name: 'Protein powder · 2 spoons', icon: '🥄', color: '#0EA5E9', type: 'check', target: 1, monthly_goal: 30 },
+  { name: 'Serum', icon: '🧴', color: '#0EA5E9', type: 'check', target: 1, monthly_goal: 30 },
+  { name: 'Tablets', icon: '💊', color: '#0EA5E9', type: 'check', target: 1, monthly_goal: 30 },
 ]
 
 export function DataProvider({ session, children }) {

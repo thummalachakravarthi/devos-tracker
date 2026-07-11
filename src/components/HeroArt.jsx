@@ -277,7 +277,7 @@ export function ArtStats() {
         {Array.from({ length: 22 }).map((_, i) => {
           const x = (i * 61) % 780 + 10
           const y = 30 + (i * 17) % 220
-          const c = ['#fbbf24','#22d3ee','#a78bfa','#f472b6','#5eead4'][i % 5]
+          const c = ['#fbbf24','#22d3ee','#a78bfa','#38bdf8','#5eead4'][i % 5]
           return (
             <circle key={i} cx={x} cy={y} r="1.8" fill={c}>
               <animate attributeName="opacity" values="0;1;0" dur={`${2 + (i % 4)}s`} repeatCount="indefinite" begin={`${(i * 0.19) % 3}s`} />
@@ -319,7 +319,7 @@ export function ArtStats() {
 // ═══════════════════════════════════════════════════════════════
 export function ArtHabits() {
   const nodes = [
-    { x: 100, y: 100, c: '#f472b6' },  // pink
+    { x: 100, y: 100, c: '#38bdf8' },  // pink
     { x: 200, y: 200, c: '#22d3ee' },  // cyan
     { x: 320, y: 90, c: '#fbbf24' },   // amber
     { x: 420, y: 210, c: '#34d399' },  // green
@@ -337,8 +337,8 @@ export function ArtHabits() {
           <stop offset="1" stopColor="#08041a" />
         </radialGradient>
         <radialGradient id="hbNeb1" cx="0.5" cy="0.5" r="0.5">
-          <stop offset="0" stopColor="#f472b6" stopOpacity="0.5" />
-          <stop offset="1" stopColor="#f472b6" stopOpacity="0" />
+          <stop offset="0" stopColor="#38bdf8" stopOpacity="0.5" />
+          <stop offset="1" stopColor="#38bdf8" stopOpacity="0" />
         </radialGradient>
         <radialGradient id="hbNeb2" cx="0.5" cy="0.5" r="0.5">
           <stop offset="0" stopColor="#60a5fa" stopOpacity="0.55" />
