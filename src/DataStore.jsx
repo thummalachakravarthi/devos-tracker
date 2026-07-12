@@ -214,6 +214,27 @@ export function DataProvider({ session, children }) {
     await supabase.from('settings').update(patch).eq('user_id', uid)
   }
 
+  // ---------- nuclear: reset all logged data ----------
+  async function resetAllData() {
+    // wipe every table row belonging to this user
+    await Promise.all([
+      supabase.from('habit_logs').delete().eq('user_id', uid),
+      supabase.from('java_sessions').delete().eq('user_id', uid),
+      supabase.from('dsa_logs').delete().eq('user_id', uid),
+    ])
+    // restart mission clock at today
+    const today = todayISO()
+    await supabase.from('settings').update({ plan_start_date: today }).eq('user_id', uid)
+    // clear level-up detector so next level-up still fires confetti
+    try { localStorage.removeItem('devos:lastLevel') } catch {}
+    // clear in-memory state
+    setLogs({})
+    setJavaSessions([])
+    setDsaLogs([])
+    setSettings((s) => ({ ...s, plan_start_date: today }))
+    setUiDate(today)
+  }
+
   const activeHabits = useMemo(
     () => habits.filter((h) => !h.archived).sort((a, b) => a.sort_order - b.sort_order),
     [habits]
@@ -244,6 +265,7 @@ export function DataProvider({ session, children }) {
     updateHabit,
     moveHabit,
     updateSettings,
+    resetAllData,
   }
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>
