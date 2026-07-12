@@ -135,44 +135,58 @@ function Stat({ icon, label, value, suffix = '', isText = false }) {
   )
 }
 
-// ═══════ ACHIEVEMENTS GRID ═══════
+// ═══════ DAILY WINS — resets every day ═══════
 export function Achievements() {
-  const { javaSessions, dsaLogs, logs: habitLogs, activeHabits } = useData()
-  const xp = computeXp({ javaSessions, dsaLogs, habitLogs })
-  const lvl = levelFromXp(xp.total)
-  const streak = computeGlobalStreak({ javaSessions, dsaLogs, habitLogs }, todayISO())
-  const stats = computeAchievementStats({
-    javaSessions, dsaLogs, habitLogs, activeHabits, level: lvl.level, streak,
-  })
+  const { javaSessions, dsaLogs, logs: habitLogs, activeHabits, settings } = useData()
+  const today = todayISO()
 
-  const results = ACHIEVEMENTS.map((a) => ({ ...a, unlocked: !!a.check(stats) }))
-  const unlockedCount = results.filter((r) => r.unlocked).length
+  // today-only stats
+  const javaMinToday = javaSessions.filter(s => s.session_date === today).reduce((a, s) => a + s.minutes, 0)
+  const dsaToday = dsaLogs.filter(l => l.log_date === today).reduce((a, l) => a + l.problems, 0)
+  const habitsDoneToday = activeHabits.filter(h => habitLogs[h.id]?.[today]?.completed).length
+  const totalHabits = activeHabits.length
+  const streak = computeGlobalStreak({ javaSessions, dsaLogs, habitLogs }, today)
+
+  const wins = [
+    { icon: '☀️', name: 'Started the day',   done: javaMinToday >= 1 || dsaToday >= 1 || habitsDoneToday >= 1, hint: 'Any activity logged today' },
+    { icon: '☕', name: 'Java · 1 hour',     done: javaMinToday >= 60,  hint: `${Math.floor(javaMinToday/60)}h ${javaMinToday%60}m so far` },
+    { icon: '🎯', name: '3-hour target',    done: javaMinToday >= settings.daily_java_minutes, hint: `Target: ${Math.floor(settings.daily_java_minutes/60)}h` },
+    { icon: '🧠', name: 'DSA solved',        done: dsaToday >= 1,       hint: dsaToday > 0 ? `${dsaToday} today` : 'Solve one problem' },
+    { icon: '✅', name: 'Half habits',       done: totalHabits > 0 && habitsDoneToday >= Math.ceil(totalHabits / 2), hint: `${habitsDoneToday}/${totalHabits} habits` },
+    { icon: '⭐', name: 'Perfect day',       done: totalHabits > 0 && habitsDoneToday === totalHabits && javaMinToday >= settings.daily_java_minutes, hint: 'Everything + Java target' },
+  ]
+  const doneCount = wins.filter(w => w.done).length
 
   return (
     <section className="card card-hover">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
           <Trophy size={16} className="text-amber" />
-          <div className="label">Achievements</div>
+          <div className="label">Today's Wins</div>
+          {streak >= 2 && (
+            <span className="chip !text-amber !border-amber/30">
+              <Flame size={11} /> {streak}d streak
+            </span>
+          )}
         </div>
         <div className="font-mono text-xs text-dim">
-          <span className="text-text font-bold">{unlockedCount}</span> / {results.length}
+          <span className="text-text font-bold">{doneCount}</span> / {wins.length}
         </div>
       </div>
-      <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-3">
-        {results.map((a) => (
+      <div className="grid grid-cols-3 md:grid-cols-6 gap-2.5">
+        {wins.map((w) => (
           <div
-            key={a.id}
+            key={w.name}
             className={`text-center rounded-xl p-3 border transition ${
-              a.unlocked
-                ? 'bg-white/5 border-white/10 badge-unlocked'
-                : 'bg-black/20 border-white/5 badge-locked'
+              w.done
+                ? 'bg-mint/10 border-mint/40 badge-unlocked'
+                : 'bg-white/[.02] border-white/8 opacity-60'
             }`}
-            title={`${a.name} — ${a.desc}`}
+            title={w.hint}
           >
-            <div className="text-3xl leading-none">{a.icon}</div>
-            <div className="text-[11px] font-medium mt-2 leading-tight">{a.name}</div>
-            <div className="text-[9px] text-dim mt-1 leading-tight">{a.desc}</div>
+            <div className="text-2xl leading-none">{w.icon}</div>
+            <div className="text-[11px] font-medium mt-1.5 leading-tight">{w.name}</div>
+            <div className="text-[9px] text-dim mt-0.5 leading-tight">{w.hint}</div>
           </div>
         ))}
       </div>
