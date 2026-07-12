@@ -1,5 +1,6 @@
 import { useMemo, useState, useRef } from 'react'
 import { TrendingUp, TrendingDown, Minus, Trophy, Flame, Zap } from 'lucide-react'
+import Stats from './Stats'
 import { useData } from '../DataStore'
 import { todayISO, addDays, dayDiff, fmtShort, fmtNice, parseISO } from '../lib/dates'
 
@@ -362,6 +363,12 @@ export default function Insights() {
           value={dowAvg[worstDow] > 0 || cntDow[worstDow] > 0 ? dowNames[worstDow] : '—'}
           hint={cntDow[worstDow] ? `${dowAvg[worstDow].toFixed(1)}${M.unit} avg` : 'log more data'}
         />
+      </div>
+
+      {/* ── Weekly report card + monthly heatmap + streaks (from the old Stats tab) ── */}
+      <div className="mt-6 pt-6 border-t border-white/8">
+        <div className="label mb-3">Deep dive</div>
+        <Stats />
       </div>
     </div>
   )

@@ -17,7 +17,6 @@ const TABS = [
   { id: 'command', label: 'Command', icon: CommandIcon },
   { id: 'java', label: 'Java HQ', icon: Coffee },
   { id: 'insights', label: 'Insights', icon: LineChart },
-  { id: 'stats', label: 'Stats', icon: BarChart3 },
   { id: 'habits', label: 'Habits', icon: ListChecks },
 ]
 
@@ -164,7 +163,7 @@ function Inner({ tab, setTab }) {
 
       {/* mobile bottom nav */}
       <nav className="lg:hidden fixed bottom-0 inset-x-0 z-20 bg-white/85 backdrop-blur-xl border-t border-white/40">
-        <div className="grid grid-cols-7">
+        <div className="grid grid-cols-6">
           {TABS.map(({ id, label, icon: Icon }) => (
             <button
               key={id}

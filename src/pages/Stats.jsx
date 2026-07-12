@@ -28,7 +28,7 @@ function Trend({ now, prev, suffix = '', invert = false }) {
   )
 }
 
-export default function Stats({ setTab }) {
+export default function Stats({ setTab = () => {} }) {
   const { activeHabits, logs, getLog, javaSessions, dsaLogs, settings, setUiDate } = useData()
   const today = todayISO()
   const now = new Date()
