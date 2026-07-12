@@ -2,8 +2,9 @@ import { useState } from 'react'
 import { ChevronLeft, ChevronRight, Flame, Check, Plus, Minus, Coffee, Brain } from 'lucide-react'
 import { useData } from '../DataStore'
 import { ProgressRing, CountUp } from '../components/Bits'
-import { quoteForToday } from '../config/quotes'
+import { MissionControl, Achievements } from '../components/MissionControl'
 import { Quote as QuoteIcon } from 'lucide-react'
+import { quoteForToday } from '../config/quotes'
 import { todayISO, addDays, fmtNice, dayDiff } from '../lib/dates'
 import { currentStreak } from '../lib/stats'
 
@@ -204,15 +205,8 @@ export default function Today({ setTab }) {
   const dq = quoteForToday(todayISO())
   return (
     <div>
-      {/* Daily quote band */}
-      <div className="card card-hover flex items-start gap-3 mb-3 anim-up bg-gradient-to-r from-amber/10 to-violet/10 border-amber/30">
-        <QuoteIcon size={28} className="text-amber shrink-0 mt-0.5" />
-        <div className="flex-1">
-          <div className="label mb-1">Fuel for today</div>
-          <p className="font-display text-lg lg:text-2xl leading-snug">"{dq.q}"</p>
-          <p className="text-xs text-dim mt-1">— {dq.a}</p>
-        </div>
-      </div>
+      {/* MISSION CONTROL */}
+      <MissionControl />
 
       {/* HERO */}
       <section className="card card-hover g-border relative overflow-hidden p-6 lg:p-8">
@@ -308,6 +302,11 @@ export default function Today({ setTab }) {
             </button>
           </div>
         </div>
+      </div>
+
+      {/* ACHIEVEMENTS */}
+      <div className="mt-3">
+        <Achievements />
       </div>
 
       {/* HABITS GRID */}

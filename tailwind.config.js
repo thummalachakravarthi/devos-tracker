@@ -4,16 +4,16 @@ export default {
   theme: {
     extend: {
       colors: {
-        bg: '#E0F2FE',
-        surface: '#FFFFFF',
-        surface2: '#F0F9FF',
-        line: '#BAE6FD',
-        text: '#0C4A6E',
-        dim: '#64748B',
-        amber: '#0EA5E9',
-        mint: '#38BDF8',
-        red: '#0284C7',
-        violet: '#6366F1',
+        bg: '#08090C',
+        surface: '#0F1218',
+        surface2: '#141821',
+        line: '#232833',
+        text: '#E9EEF8',
+        dim: '#8B94A8',
+        amber: '#4C7BFF',
+        mint: '#22C55E',
+        red: '#F43F5E',
+        violet: '#9358FF',
       },
       fontFamily: {
         display: ['"Space Grotesk"', 'sans-serif'],
