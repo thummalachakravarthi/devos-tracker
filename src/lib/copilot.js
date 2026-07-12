@@ -3,7 +3,7 @@
 
 const KEY_STORAGE = 'devos:geminiKey'
 const CHAT_STORAGE = 'devos:copilotChat'
-const MODEL = 'gemini-2.5-flash'
+const MODEL = 'gemini-flash-latest'
 
 export const getKey = () => localStorage.getItem(KEY_STORAGE) || ''
 export const setKey = (k) => localStorage.setItem(KEY_STORAGE, k.trim())
