@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Home, Coffee, BarChart3, ListChecks, LogOut, Timer, Command as CommandIcon, LineChart, Zap } from 'lucide-react'
+import { Home, Coffee, BarChart3, ListChecks, LogOut, Timer, Command as CommandIcon, LineChart, Sword } from 'lucide-react'
 import { supabase } from './lib/supabase'
 import { DataProvider, useData } from './DataStore'
 import { CityBackdrop, ArtToday, ArtJava, ArtStats, ArtHabits, ArtFocus, ArtCommand } from './components/HeroArt'
@@ -16,7 +16,7 @@ import CopilotWidget from './components/CopilotWidget'
 const TABS = [
   { id: 'today', label: 'Today', icon: Home },
   { id: 'focus', label: 'Focus', icon: Timer },
-  { id: 'challenges', label: 'Rise', icon: Zap },
+  { id: 'challenges', label: 'Rise', icon: Sword },
   { id: 'command', label: 'Command', icon: CommandIcon },
   { id: 'java', label: 'Java HQ', icon: Coffee },
   { id: 'insights', label: 'Insights', icon: LineChart },
