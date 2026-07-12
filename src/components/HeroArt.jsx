@@ -643,180 +643,217 @@ export function ArtCommand() {
   )
 }
 // ═══════════════════════════════════════════════════════════════
-// RISE — warriors clashing at dawn (crossed swords, silhouettes, sparks, dust)
+// RISE — actual fight scene: an agile red hero vs a hulking green brute,
+// throwing punches, dodging, staggering. Original characters, not IP.
 // ═══════════════════════════════════════════════════════════════
 export function ArtRise() {
   return (
     <svg className={bannerCls} viewBox="0 0 800 300" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
       <defs>
-        {/* dawn battlefield sky */}
         <linearGradient id="rsSky" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor="#3a0f0f" />
-          <stop offset="0.35" stopColor="#7a1e12" />
-          <stop offset="0.7" stopColor="#c2410c" />
-          <stop offset="1" stopColor="#f59e0b" />
+          <stop offset="0" stopColor="#1a0510" />
+          <stop offset="0.4" stopColor="#4a0e18" />
+          <stop offset="1" stopColor="#7a1a0d" />
         </linearGradient>
-        {/* huge crimson sun */}
-        <radialGradient id="rsSun" cx="0.5" cy="0.5" r="0.5">
+        <radialGradient id="rsMoon" cx="0.5" cy="0.5" r="0.5">
           <stop offset="0" stopColor="#fef3c7" />
-          <stop offset="0.4" stopColor="#f97316" stopOpacity="0.85" />
-          <stop offset="1" stopColor="#dc2626" stopOpacity="0" />
+          <stop offset="0.5" stopColor="#f59e0b" stopOpacity="0.7" />
+          <stop offset="1" stopColor="#f59e0b" stopOpacity="0" />
         </radialGradient>
-        {/* blade gradient — polished steel */}
-        <linearGradient id="rsBlade" x1="0" y1="0" x2="1" y2="0">
-          <stop offset="0" stopColor="#e5e7eb" />
-          <stop offset="0.5" stopColor="#ffffff" />
-          <stop offset="1" stopColor="#94a3b8" />
-        </linearGradient>
-        <linearGradient id="rsBlade2" x1="0" y1="0" x2="1" y2="0">
-          <stop offset="0" stopColor="#94a3b8" />
-          <stop offset="0.5" stopColor="#ffffff" />
-          <stop offset="1" stopColor="#e5e7eb" />
-        </linearGradient>
-        <filter id="rsGlow" x="-30%" y="-30%" width="160%" height="160%">
-          <feGaussianBlur stdDeviation="2" />
+        <filter id="rsImpact" x="-50%" y="-50%" width="200%" height="200%">
+          <feGaussianBlur stdDeviation="3" />
         </filter>
-        <filter id="rsDust" x="-30%" y="-30%" width="160%" height="160%">
-          <feGaussianBlur stdDeviation="8" />
+        <filter id="rsSmoke" x="-30%" y="-30%" width="160%" height="160%">
+          <feGaussianBlur stdDeviation="6" />
         </filter>
       </defs>
 
-      {/* dawn sky */}
       <rect width="800" height="300" fill="url(#rsSky)" />
 
-      {/* massive rising sun */}
-      <circle cx="400" cy="230" r="220" fill="url(#rsSun)">
-        <animate attributeName="opacity" values="0.85;1;0.85" dur="4s" repeatCount="indefinite" />
+      {/* full moon behind them */}
+      <circle cx="400" cy="90" r="80" fill="url(#rsMoon)">
+        <animate attributeName="opacity" values="0.85;1;0.85" dur="5s" repeatCount="indefinite" />
       </circle>
 
-      {/* dust cloud around the clash */}
-      <ellipse cx="400" cy="180" rx="180" ry="45" fill="#78350f" opacity="0.35" filter="url(#rsDust)">
-        <animate attributeName="opacity" values="0.25;0.55;0.25" dur="3s" repeatCount="indefinite" />
-        <animate attributeName="rx" values="170;200;170" dur="3s" repeatCount="indefinite" />
+      {/* city skyline silhouette */}
+      <path d="M 0 260 L 40 240 L 70 260 L 100 220 L 140 260 L 180 210 L 220 260 L 260 230 L 310 260 L 350 200 L 400 260 L 450 190 L 500 260 L 540 220 L 590 260 L 640 230 L 700 260 L 750 240 L 800 260 L 800 300 L 0 300 Z"
+        fill="#0a0308" />
+
+      {/* rooftop battleground */}
+      <rect x="0" y="255" width="800" height="45" fill="#170410" />
+      <rect x="0" y="255" width="800" height="3" fill="#3a0a1a" />
+
+      {/* dust cloud swirling around the fighters */}
+      <ellipse cx="400" cy="248" rx="220" ry="35" fill="#78350f" opacity="0.35" filter="url(#rsSmoke)">
+        <animate attributeName="opacity" values="0.25;0.55;0.25" dur="1.6s" repeatCount="indefinite" />
+        <animate attributeName="rx" values="200;240;200" dur="1.6s" repeatCount="indefinite" />
       </ellipse>
 
-      {/* CENTER — CROSSED SWORDS CLASH */}
-      <g transform="translate(400 155)">
-        {/* clash flash — expanding shockwave */}
-        <circle r="18" fill="#fef3c7">
-          <animate attributeName="r" values="14;30;14" dur="0.9s" repeatCount="indefinite" />
-          <animate attributeName="opacity" values="0.9;0.4;0.9" dur="0.9s" repeatCount="indefinite" />
-        </circle>
-        <circle r="12" fill="#ffffff" filter="url(#rsGlow)">
-          <animate attributeName="opacity" values="1;0.6;1" dur="0.9s" repeatCount="indefinite" />
-        </circle>
+      {/* ═════ LEFT FIGHTER — Red agile hero ═════ */}
+      {/* Whole body group cycles: charge → punch → recoil → dodge */}
+      <g>
+        <animateTransform attributeName="transform" type="translate"
+          values="240 0; 310 0; 305 0; 280 0; 240 0"
+          keyTimes="0; 0.35; 0.5; 0.75; 1"
+          dur="3.2s" repeatCount="indefinite" />
 
-        {/* SWORD 1 — from top-left */}
-        <g transform="rotate(-35)">
-          {/* blade */}
-          <rect x="-4" y="-105" width="8" height="100" fill="url(#rsBlade)" />
-          <polygon points="-4,-105 4,-105 0,-115" fill="#f8fafc" />
-          {/* highlight */}
-          <rect x="-1" y="-105" width="1.5" height="100" fill="#ffffff" opacity="0.7" />
-          {/* crossguard */}
-          <rect x="-16" y="-5" width="32" height="4" fill="#78350f" rx="1" />
-          {/* grip */}
-          <rect x="-3" y="-1" width="6" height="26" fill="#7c2d12" />
-          <line x1="-3" y1="6" x2="3" y2="6" stroke="#292524" strokeWidth="0.6" />
-          <line x1="-3" y1="12" x2="3" y2="12" stroke="#292524" strokeWidth="0.6" />
-          <line x1="-3" y1="18" x2="3" y2="18" stroke="#292524" strokeWidth="0.6" />
-          {/* pommel */}
-          <circle cx="0" cy="28" r="4" fill="#facc15" stroke="#78350f" strokeWidth="1" />
-          {/* clash micro-recoil */}
-          <animateTransform attributeName="transform" type="rotate"
-            values="-35;-30;-35" dur="0.9s" repeatCount="indefinite" />
+        {/* body */}
+        <g transform="translate(60 210)">
+          {/* legs — lunge stance */}
+          <path d="M -8 30 L -20 60 L -14 62 L -2 32 Z" fill="#b91c1c" />
+          <path d="M 8 30 L 20 55 L 26 55 L 14 32 Z" fill="#dc2626" />
+          {/* boots */}
+          <ellipse cx="-16" cy="61" rx="7" ry="3" fill="#7f1d1d" />
+          <ellipse cx="23" cy="55" rx="7" ry="3" fill="#7f1d1d" />
+
+          {/* torso — red with black chest emblem */}
+          <path d="M -14 -12 L -18 30 L 18 30 L 14 -12 Z" fill="#dc2626" />
+          <path d="M -14 -12 L -18 30 L 18 30 L 14 -12 Z" fill="#7f1d1d" opacity="0.3" />
+          {/* chest emblem — abstract, not any real character */}
+          <path d="M -6 -2 L 0 10 L 6 -2 L 0 4 Z" fill="#0a0308" />
+          <circle cx="0" cy="12" r="2" fill="#0a0308" />
+
+          {/* head — full-face mask, big white eye lenses */}
+          <ellipse cx="0" cy="-22" rx="12" ry="14" fill="#dc2626" />
+          <path d="M -8 -25 Q 0 -30 8 -25" stroke="#7f1d1d" strokeWidth="1" fill="none" />
+          <ellipse cx="-4" cy="-24" rx="3" ry="4" fill="#ffffff" />
+          <ellipse cx="4" cy="-24" rx="3" ry="4" fill="#ffffff" />
+          <ellipse cx="-4" cy="-24" rx="1.2" ry="2" fill="#0a0308" />
+          <ellipse cx="4" cy="-24" rx="1.2" ry="2" fill="#0a0308" />
+
+          {/* THROWING RIGHT ARM — animated: cocked → thrown → retract */}
+          <g>
+            <animateTransform attributeName="transform" type="rotate"
+              values="-30 15 -5; 60 15 -5; 60 15 -5; -30 15 -5; -30 15 -5"
+              keyTimes="0; 0.35; 0.5; 0.75; 1"
+              dur="3.2s" repeatCount="indefinite" />
+            <path d="M 12 -8 L 20 5 L 45 -5 L 40 -15 Z" fill="#dc2626" />
+            <path d="M 40 -15 L 60 -12 L 62 -6 L 50 -2 Z" fill="#dc2626" />
+            {/* fist */}
+            <circle cx="60" cy="-10" r="10" fill="#dc2626" />
+            <circle cx="60" cy="-10" r="10" fill="#7f1d1d" opacity="0.35" />
+            {/* knuckle lines */}
+            <line x1="53" y1="-14" x2="55" y2="-8" stroke="#7f1d1d" strokeWidth="1" />
+            <line x1="58" y1="-16" x2="59" y2="-8" stroke="#7f1d1d" strokeWidth="1" />
+            <line x1="63" y1="-16" x2="63" y2="-8" stroke="#7f1d1d" strokeWidth="1" />
+            {/* motion blur trail on the fist */}
+            <ellipse cx="45" cy="-10" rx="20" ry="4" fill="#ffffff" opacity="0.35">
+              <animate attributeName="opacity" values="0;0.55;0" dur="3.2s" keyTimes="0.3;0.4;0.5" repeatCount="indefinite" />
+            </ellipse>
+          </g>
+
+          {/* LEFT ARM — guarding */}
+          <path d="M -12 -8 L -25 5 L -22 15 L -8 5 Z" fill="#dc2626" />
+          <circle cx="-25" cy="8" r="7" fill="#dc2626" />
         </g>
+      </g>
 
-        {/* SWORD 2 — from top-right */}
-        <g transform="rotate(35)">
-          <rect x="-4" y="-105" width="8" height="100" fill="url(#rsBlade2)" />
-          <polygon points="-4,-105 4,-105 0,-115" fill="#f8fafc" />
-          <rect x="-1" y="-105" width="1.5" height="100" fill="#ffffff" opacity="0.7" />
-          <rect x="-16" y="-5" width="32" height="4" fill="#78350f" rx="1" />
-          <rect x="-3" y="-1" width="6" height="26" fill="#7c2d12" />
-          <line x1="-3" y1="6" x2="3" y2="6" stroke="#292524" strokeWidth="0.6" />
-          <line x1="-3" y1="12" x2="3" y2="12" stroke="#292524" strokeWidth="0.6" />
-          <line x1="-3" y1="18" x2="3" y2="18" stroke="#292524" strokeWidth="0.6" />
-          <circle cx="0" cy="28" r="4" fill="#dc2626" stroke="#78350f" strokeWidth="1" />
-          <animateTransform attributeName="transform" type="rotate"
-            values="35;30;35" dur="0.9s" repeatCount="indefinite" />
+      {/* ═════ RIGHT FIGHTER — Green muscle brute ═════ */}
+      {/* Cycles: brace → get hit → recoil back → return */}
+      <g>
+        <animateTransform attributeName="transform" type="translate"
+          values="0 0; 20 0; 60 -4; 40 -2; 0 0"
+          keyTimes="0; 0.35; 0.55; 0.75; 1"
+          dur="3.2s" repeatCount="indefinite" />
+
+        <g transform="translate(590 210)">
+          {/* HUGE legs planted wide */}
+          <path d="M -25 20 L -40 62 L -25 62 L -12 22 Z" fill="#166534" />
+          <path d="M 25 20 L 40 62 L 25 62 L 12 22 Z" fill="#15803d" />
+          {/* boots */}
+          <ellipse cx="-32" cy="62" rx="11" ry="4" fill="#052e16" />
+          <ellipse cx="32" cy="62" rx="11" ry="4" fill="#052e16" />
+          {/* torn purple shorts */}
+          <path d="M -22 15 L -25 30 L 25 30 L 22 15 Z" fill="#5b21b6" />
+          <path d="M -15 30 L -18 35 L -12 32 Z" fill="#5b21b6" />
+          <path d="M 15 30 L 18 35 L 12 32 Z" fill="#5b21b6" />
+
+          {/* massive torso */}
+          <path d="M -32 -25 L -30 20 L 30 20 L 32 -25 Q 0 -35 -32 -25 Z" fill="#16a34a" />
+          {/* chest shadow */}
+          <path d="M -32 -25 L -30 20 L 30 20 L 32 -25 Q 0 -35 -32 -25 Z" fill="#052e16" opacity="0.25" />
+          {/* pec definition */}
+          <path d="M -20 -15 Q -10 -8 -2 -12 L -2 5 L -20 5 Z" fill="#052e16" opacity="0.3" />
+          <path d="M 20 -15 Q 10 -8 2 -12 L 2 5 L 20 5 Z" fill="#052e16" opacity="0.3" />
+          <path d="M -6 -8 L -6 15 M 6 -8 L 6 15" stroke="#052e16" opacity="0.4" strokeWidth="1.5" />
+
+          {/* head — snarling green face, small compared to body */}
+          <ellipse cx="0" cy="-40" rx="15" ry="14" fill="#16a34a" />
+          {/* jagged black hair on top */}
+          <path d="M -14 -48 L -10 -55 L -6 -50 L -2 -56 L 2 -50 L 6 -55 L 10 -50 L 14 -48 Z" fill="#0a0a0a" />
+          {/* angry brow */}
+          <path d="M -10 -42 L -3 -44" stroke="#052e16" strokeWidth="2" strokeLinecap="round" />
+          <path d="M 3 -44 L 10 -42" stroke="#052e16" strokeWidth="2" strokeLinecap="round" />
+          {/* eyes glowing */}
+          <circle cx="-5" cy="-39" r="2" fill="#fef3c7" />
+          <circle cx="5" cy="-39" r="2" fill="#fef3c7" />
+          {/* teeth-gritted mouth */}
+          <path d="M -6 -32 L 6 -32 L 5 -30 L -5 -30 Z" fill="#ffffff" />
+          <path d="M -4 -32 L -4 -30 M 0 -32 L 0 -30 M 4 -32 L 4 -30" stroke="#0a0308" strokeWidth="0.5" />
+
+          {/* HUGE arms — right one guarding, left one wound up */}
+          <g>
+            {/* left arm — cocked back to throw */}
+            <animateTransform attributeName="transform" type="rotate"
+              values="30 -25 -10; 30 -25 -10; -50 -25 -10; -50 -25 -10; 30 -25 -10"
+              keyTimes="0; 0.4; 0.65; 0.8; 1"
+              dur="3.2s" repeatCount="indefinite" />
+            <path d="M -28 -15 L -45 5 L -40 20 L -22 5 Z" fill="#15803d" />
+            <path d="M -40 20 L -55 30 L -50 40 L -35 30 Z" fill="#15803d" />
+            {/* massive fist */}
+            <circle cx="-52" cy="35" r="14" fill="#16a34a" />
+            <circle cx="-52" cy="35" r="14" fill="#052e16" opacity="0.2" />
+            <line x1="-60" y1="30" x2="-58" y2="40" stroke="#052e16" strokeWidth="1.2" />
+            <line x1="-55" y1="27" x2="-54" y2="40" stroke="#052e16" strokeWidth="1.2" />
+            <line x1="-50" y1="27" x2="-50" y2="40" stroke="#052e16" strokeWidth="1.2" />
+            <line x1="-45" y1="29" x2="-46" y2="40" stroke="#052e16" strokeWidth="1.2" />
+          </g>
+
+          {/* right arm — up to block */}
+          <path d="M 28 -20 L 42 -5 L 38 8 L 22 -5 Z" fill="#15803d" />
+          <circle cx="42" cy="-2" r="12" fill="#16a34a" />
         </g>
+      </g>
 
-        {/* SPARKS flying out from clash point */}
+      {/* ═════ IMPACT FLASH — when the red hero's punch lands ═════ */}
+      <g transform="translate(560 200)">
+        <circle r="0" fill="#fef3c7" filter="url(#rsImpact)">
+          <animate attributeName="r" values="0;0;35;25;0" keyTimes="0; 0.4; 0.5; 0.6; 0.75" dur="3.2s" repeatCount="indefinite" />
+          <animate attributeName="opacity" values="0;0;1;0.6;0" keyTimes="0; 0.4; 0.5; 0.6; 0.75" dur="3.2s" repeatCount="indefinite" />
+        </circle>
+        <circle r="0" fill="#ffffff">
+          <animate attributeName="r" values="0;0;20;12;0" keyTimes="0; 0.42; 0.5; 0.6; 0.7" dur="3.2s" repeatCount="indefinite" />
+        </circle>
+        {/* impact star burst */}
         <g>
-          {Array.from({ length: 10 }).map((_, i) => {
-            const angle = (i / 10) * Math.PI * 2 + 0.2
-            const dist = 40 + (i % 3) * 20
-            const dx = Math.cos(angle) * dist
-            const dy = Math.sin(angle) * dist
-            const dur = 0.7 + (i % 4) * 0.15
-            return (
-              <circle key={i} r="1.5" fill="#fef3c7">
-                <animate attributeName="cx" values={`0;${dx}`} dur={`${dur}s`} repeatCount="indefinite" />
-                <animate attributeName="cy" values={`0;${dy}`} dur={`${dur}s`} repeatCount="indefinite" />
-                <animate attributeName="opacity" values="1;0" dur={`${dur}s`} repeatCount="indefinite" />
-                <animate attributeName="r" values="2;0.5" dur={`${dur}s`} repeatCount="indefinite" />
-              </circle>
-            )
+          <animate attributeName="opacity" values="0;0;1;0" keyTimes="0; 0.45; 0.5; 0.65" dur="3.2s" repeatCount="indefinite" />
+          {Array.from({ length: 8 }).map((_, i) => {
+            const angle = (i / 8) * Math.PI * 2
+            const x = Math.cos(angle) * 22
+            const y = Math.sin(angle) * 22
+            return <line key={i} x1="0" y1="0" x2={x} y2={y} stroke="#fef3c7" strokeWidth="2.5" strokeLinecap="round" />
           })}
         </g>
+        {/* POW! text zapping in */}
+        <g transform="translate(-6 -30)">
+          <animate attributeName="opacity" values="0;0;1;0.8;0" keyTimes="0; 0.45; 0.5; 0.6; 0.7" dur="3.2s" repeatCount="indefinite" />
+          <text fontFamily="Space Grotesk, sans-serif" fontWeight="900" fontSize="26" fill="#fbbf24" stroke="#7f1d1d" strokeWidth="1.5" transform="rotate(-8)">POW!</text>
+        </g>
       </g>
 
-      {/* LEFT WARRIOR SILHOUETTE — charging with sword raised */}
-      <g transform="translate(180 220)">
-        {/* body */}
-        <path d="M 0 -40 L -6 -20 L -8 5 L -4 8 L 0 -10 L 4 8 L 8 5 L 6 -20 Z" fill="#0f0f0f" />
-        {/* head with helmet + plume */}
-        <circle cx="0" cy="-46" r="7" fill="#0f0f0f" />
-        <path d="M -5 -52 L -3 -60 L -1 -55 L 1 -60 L 3 -52 Z" fill="#dc2626" />
-        {/* arm forward with sword */}
-        <path d="M 5 -35 L 20 -50 L 22 -47 L 7 -32 Z" fill="#0f0f0f" />
-        <line x1="20" y1="-50" x2="55" y2="-85" stroke="url(#rsBlade)" strokeWidth="3" strokeLinecap="round" />
-        {/* legs mid-stride */}
-        <path d="M -3 8 L -8 30 L -4 32 L 1 12 Z" fill="#0f0f0f" />
-        <path d="M 3 8 L 10 25 L 6 28 L 0 12 Z" fill="#0f0f0f" />
-        {/* charging bob */}
-        <animateTransform attributeName="transform" type="translate"
-          values="180 220; 180 216; 180 220" dur="0.6s" repeatCount="indefinite" />
-      </g>
-
-      {/* RIGHT WARRIOR SILHOUETTE — charging with sword raised */}
-      <g transform="translate(620 220) scale(-1 1)">
-        <path d="M 0 -40 L -6 -20 L -8 5 L -4 8 L 0 -10 L 4 8 L 8 5 L 6 -20 Z" fill="#0f0f0f" />
-        <circle cx="0" cy="-46" r="7" fill="#0f0f0f" />
-        <path d="M -5 -52 L -3 -60 L -1 -55 L 1 -60 L 3 -52 Z" fill="#facc15" />
-        <path d="M 5 -35 L 20 -50 L 22 -47 L 7 -32 Z" fill="#0f0f0f" />
-        <line x1="20" y1="-50" x2="55" y2="-85" stroke="url(#rsBlade2)" strokeWidth="3" strokeLinecap="round" />
-        <path d="M -3 8 L -8 30 L -4 32 L 1 12 Z" fill="#0f0f0f" />
-        <path d="M 3 8 L 10 25 L 6 28 L 0 12 Z" fill="#0f0f0f" />
-        <animateTransform attributeName="transform" type="translate"
-          values="0 0; 0 -4; 0 0" dur="0.6s" repeatCount="indefinite" additive="sum" />
-      </g>
-
-      {/* ground silhouette */}
-      <path d="M 0 265 Q 200 260 400 268 T 800 262 L 800 300 L 0 300 Z" fill="#1c0a0a" />
-      <path d="M 0 285 Q 300 278 600 288 T 800 283 L 800 300 L 0 300 Z" fill="#0a0505" />
-
-      {/* battle banners */}
-      <g transform="translate(80 60)">
-        <line x1="0" y1="0" x2="0" y2="120" stroke="#292524" strokeWidth="3" />
-        <path d="M 0 5 L 25 5 L 22 20 L 25 35 L 0 35 Z" fill="#dc2626">
-          <animate attributeName="d"
-            values="M 0 5 L 25 5 L 22 20 L 25 35 L 0 35 Z;
-                    M 0 5 L 28 8 L 20 22 L 28 38 L 0 35 Z;
-                    M 0 5 L 25 5 L 22 20 L 25 35 L 0 35 Z"
-            dur="4s" repeatCount="indefinite" />
-        </path>
-      </g>
-      <g transform="translate(720 60)">
-        <line x1="0" y1="0" x2="0" y2="120" stroke="#292524" strokeWidth="3" />
-        <path d="M 0 5 L -25 5 L -22 20 L -25 35 L 0 35 Z" fill="#facc15">
-          <animate attributeName="d"
-            values="M 0 5 L -25 5 L -22 20 L -25 35 L 0 35 Z;
-                    M 0 5 L -28 8 L -20 22 L -28 38 L 0 35 Z;
-                    M 0 5 L -25 5 L -22 20 L -25 35 L 0 35 Z"
-            dur="4s" repeatCount="indefinite" />
-        </path>
+      {/* SPARKS radiating from impact */}
+      <g transform="translate(560 200)">
+        {Array.from({ length: 8 }).map((_, i) => {
+          const angle = (i / 8) * Math.PI * 2 + 0.1
+          const dist = 45 + (i % 3) * 15
+          return (
+            <circle key={i} r="0" fill="#fef3c7">
+              <animate attributeName="cx" values={`0;0;${Math.cos(angle)*dist}`} keyTimes="0;0.45;0.65" dur="3.2s" repeatCount="indefinite" />
+              <animate attributeName="cy" values={`0;0;${Math.sin(angle)*dist}`} keyTimes="0;0.45;0.65" dur="3.2s" repeatCount="indefinite" />
+              <animate attributeName="r" values="0;0;2.5;0" keyTimes="0;0.45;0.5;0.65" dur="3.2s" repeatCount="indefinite" />
+            </circle>
+          )
+        })}
       </g>
     </svg>
   )
