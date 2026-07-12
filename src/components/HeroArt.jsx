@@ -417,3 +417,122 @@ export function ArtHabits() {
     </svg>
   )
 }
+// ═══════════════════════════════════════════════════════════════
+// FOCUS — flow-state visualization: perspective tunnel + pulsing rings + inward particles
+// (very different from Java's amber orbital core: cool cyan/violet, meditative not molten)
+// ═══════════════════════════════════════════════════════════════
+export function ArtFocus() {
+  return (
+    <svg className={bannerCls} viewBox="0 0 800 300" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+      <defs>
+        <radialGradient id="fcBg" cx="0.5" cy="0.5" r="0.9">
+          <stop offset="0" stopColor="#0d1a3a" />
+          <stop offset="0.55" stopColor="#050a1c" />
+          <stop offset="1" stopColor="#02040c" />
+        </radialGradient>
+        <radialGradient id="fcCore" cx="0.5" cy="0.5" r="0.5">
+          <stop offset="0" stopColor="#e0f2fe" />
+          <stop offset="0.3" stopColor="#67e8f9" />
+          <stop offset="0.7" stopColor="#3b82f6" stopOpacity="0.7" />
+          <stop offset="1" stopColor="#6366f1" stopOpacity="0" />
+        </radialGradient>
+        <linearGradient id="fcRing" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0" stopColor="#22d3ee" />
+          <stop offset="0.5" stopColor="#818cf8" />
+          <stop offset="1" stopColor="#22d3ee" />
+        </linearGradient>
+        <filter id="fcBlur" x="-30%" y="-30%" width="160%" height="160%">
+          <feGaussianBlur stdDeviation="2.5" />
+        </filter>
+      </defs>
+      <rect width="800" height="300" fill="url(#fcBg)" />
+
+      {/* perspective tunnel — concentric ellipses receding into the distance */}
+      <g transform="translate(400 150)">
+        {Array.from({ length: 10 }).map((_, i) => {
+          const r = 40 + i * 32
+          const opacity = 0.45 - i * 0.035
+          const dur = 6 + i * 0.4
+          return (
+            <ellipse
+              key={i}
+              cx="0" cy="0"
+              rx={r} ry={r * 0.55}
+              fill="none"
+              stroke="url(#fcRing)"
+              strokeWidth="1.2"
+              opacity={opacity}
+            >
+              <animate attributeName="rx"
+                values={`${r};${r + 8};${r}`}
+                dur={`${dur}s`} repeatCount="indefinite" />
+              <animate attributeName="ry"
+                values={`${r * 0.55};${(r + 8) * 0.55};${r * 0.55}`}
+                dur={`${dur}s`} repeatCount="indefinite" />
+              <animate attributeName="opacity"
+                values={`${opacity};${opacity + 0.15};${opacity}`}
+                dur={`${dur}s`} repeatCount="indefinite" />
+            </ellipse>
+          )
+        })}
+
+        {/* brain-wave pulses — three rings expanding outward, staggered like a heartbeat */}
+        {[0, 1.6, 3.2].map((delay, i) => (
+          <circle
+            key={i}
+            cx="0" cy="0" r="30"
+            fill="none"
+            stroke="#67e8f9"
+            strokeWidth="2"
+          >
+            <animate attributeName="r"
+              values="30;220"
+              dur="4.8s" begin={`${delay}s`} repeatCount="indefinite" />
+            <animate attributeName="opacity"
+              values="0.8;0"
+              dur="4.8s" begin={`${delay}s`} repeatCount="indefinite" />
+            <animate attributeName="stroke-width"
+              values="3;0.5"
+              dur="4.8s" begin={`${delay}s`} repeatCount="indefinite" />
+          </circle>
+        ))}
+
+        {/* glowing focused core */}
+        <circle r="55" fill="url(#fcCore)">
+          <animate attributeName="opacity" values="0.85;1;0.85" dur="3s" repeatCount="indefinite" />
+          <animate attributeName="r" values="52;58;52" dur="3s" repeatCount="indefinite" />
+        </circle>
+        <circle r="14" fill="#f0f9ff" filter="url(#fcBlur)">
+          <animate attributeName="opacity" values="0.9;1;0.9" dur="1.5s" repeatCount="indefinite" />
+        </circle>
+      </g>
+
+      {/* inward-drifting particles from screen edges toward center — "attention converging" */}
+      <g fill="#a5f3fc">
+        {Array.from({ length: 14 }).map((_, i) => {
+          const angle = (i / 14) * Math.PI * 2
+          const startR = 380
+          const sx = 400 + Math.cos(angle) * startR
+          const sy = 150 + Math.sin(angle) * startR * 0.55
+          const dur = 4 + (i % 4) * 1.2
+          const delay = (i * 0.35) % 4
+          return (
+            <circle key={i} r="1.8" opacity="0">
+              <animate attributeName="cx" values={`${sx};400`} dur={`${dur}s`} begin={`${delay}s`} repeatCount="indefinite" />
+              <animate attributeName="cy" values={`${sy};150`} dur={`${dur}s`} begin={`${delay}s`} repeatCount="indefinite" />
+              <animate attributeName="opacity" values="0;0.9;0" dur={`${dur}s`} begin={`${delay}s`} repeatCount="indefinite" />
+              <animate attributeName="r" values="1;3;0.5" dur={`${dur}s`} begin={`${delay}s`} repeatCount="indefinite" />
+            </circle>
+          )
+        })}
+      </g>
+
+      {/* soft grid glow at bottom, like a stage floor */}
+      <g stroke="#22d3ee" strokeOpacity="0.08" strokeWidth="1">
+        {Array.from({ length: 8 }).map((_, i) => (
+          <line key={i} x1={i * 100} y1="300" x2="400" y2="180" />
+        ))}
+      </g>
+    </svg>
+  )
+}

@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { Home, Coffee, BarChart3, ListChecks, LogOut, Timer, Command as CommandIcon, LineChart } from 'lucide-react'
 import { supabase } from './lib/supabase'
 import { DataProvider, useData } from './DataStore'
-import { CityBackdrop, ArtToday, ArtJava, ArtStats, ArtHabits } from './components/HeroArt'
+import { CityBackdrop, ArtToday, ArtJava, ArtStats, ArtHabits, ArtFocus } from './components/HeroArt'
 import Today from './pages/Today'
 import JavaHQ from './pages/JavaHQ'
 import Stats from './pages/Stats'
@@ -22,7 +22,7 @@ const TABS = [
 
 const HERO = {
   today: { src: '/heroes/today.jpg', title: "Today's Mission", Art: ArtToday },
-  focus: { src: '/heroes/focus.jpg', title: 'Focus Lab', Art: ArtJava },
+  focus: { src: '/heroes/focus.jpg', title: 'Focus Lab', Art: ArtFocus },
   command: { src: '/heroes/command.jpg', title: 'Command Center', Art: ArtStats },
   insights: { src: '/heroes/insights.jpg', title: 'Analyst Desk', Art: ArtStats },
   java: { src: '/heroes/java.jpg', title: 'Java HQ', Art: ArtJava },
