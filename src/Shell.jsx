@@ -149,6 +149,8 @@ function Inner({ tab, setTab }) {
           <HeroBanner tab={tab} />
           <div key={tab} className="anim-up">
             {tab === 'today' && <Today setTab={setTab} />}
+            {tab === 'focus' && <Focus />}
+            {tab === 'command' && <Command />}
             {tab === 'java' && <JavaHQ />}
             {tab === 'stats' && <Stats setTab={setTab} />}
             {tab === 'habits' && <Habits />}
