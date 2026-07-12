@@ -10,6 +10,7 @@ import Habits from './pages/Habits'
 import Focus from './pages/Focus'
 import Command from './pages/Command'
 import Insights from './pages/Insights'
+import CopilotWidget from './components/CopilotWidget'
 
 const TABS = [
   { id: 'today', label: 'Today', icon: Home },
@@ -179,6 +180,8 @@ function Inner({ tab, setTab }) {
         </div>
         <div className="h-[env(safe-area-inset-bottom)]" />
       </nav>
+
+      <CopilotWidget />
     </>
   )
 }
