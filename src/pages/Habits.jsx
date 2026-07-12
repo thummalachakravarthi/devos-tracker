@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Plus, ArrowUp, ArrowDown, Archive, ArchiveRestore, Pencil, X, RotateCcw, AlertTriangle } from 'lucide-react'
+import LifeGarden from '../components/LifeGarden'
 import { useData } from '../DataStore'
 
 const COLORS = ['#0284C7', '#0EA5E9', '#2E7D32', '#1F5FD6', '#6366F1', '#1E2635']
@@ -116,6 +117,7 @@ export default function Habits() {
 
   return (
     <div className="space-y-3">
+      <LifeGarden />
       {adding ? (
         <HabitForm
           onCancel={() => setAdding(false)}
