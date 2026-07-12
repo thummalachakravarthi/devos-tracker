@@ -3,7 +3,7 @@
 
 const KEY_STORAGE = 'devos:geminiKey'
 const CHAT_STORAGE = 'devos:copilotChat'
-const MODEL = 'gemini-flash-latest'
+const MODEL = 'gemini-flash-lite-latest'
 
 export const getKey = () => localStorage.getItem(KEY_STORAGE) || ''
 export const setKey = (k) => localStorage.setItem(KEY_STORAGE, k.trim())
@@ -154,4 +154,65 @@ export async function callGemini({ apiKey, systemPrompt, history, userMessage })
     .filter(p => p.functionCall)
     .map(p => ({ name: p.functionCall.name, args: p.functionCall.args || {} }))
   return { text, toolCalls }
+}
+
+// Streaming version — yields text chunks as they arrive.
+// Tool calls come at the end (Gemini returns them in the final chunk with the aggregated content).
+export async function callGeminiStream({ apiKey, systemPrompt, history, userMessage, onChunk }) {
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:streamGenerateContent?alt=sse&key=${encodeURIComponent(apiKey)}`
+  const body = {
+    system_instruction: { parts: [{ text: systemPrompt }] },
+    contents: [
+      ...history.map(m => ({
+        role: m.role === 'assistant' ? 'model' : 'user',
+        parts: [{ text: m.text }],
+      })),
+      { role: 'user', parts: [{ text: userMessage }] },
+    ],
+    tools: [{ function_declarations: TOOLS }],
+    generation_config: { temperature: 0.7, max_output_tokens: 800 },
+  }
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  })
+  if (!res.ok) {
+    const err = await res.text()
+    throw new Error(`Gemini API ${res.status}: ${err.slice(0, 200)}`)
+  }
+
+  const reader = res.body.getReader()
+  const decoder = new TextDecoder()
+  let buffer = ''
+  let fullText = ''
+  const toolCalls = []
+
+  while (true) {
+    const { done, value } = await reader.read()
+    if (done) break
+    buffer += decoder.decode(value, { stream: true })
+    // Split into SSE events (lines starting with "data:")
+    let idx
+    while ((idx = buffer.indexOf('\n')) !== -1) {
+      const line = buffer.slice(0, idx).trim()
+      buffer = buffer.slice(idx + 1)
+      if (!line.startsWith('data:')) continue
+      const payload = line.slice(5).trim()
+      if (!payload || payload === '[DONE]') continue
+      try {
+        const data = JSON.parse(payload)
+        const parts = data?.candidates?.[0]?.content?.parts || []
+        for (const p of parts) {
+          if (p.text) {
+            fullText += p.text
+            onChunk?.(p.text)
+          } else if (p.functionCall) {
+            toolCalls.push({ name: p.functionCall.name, args: p.functionCall.args || {} })
+          }
+        }
+      } catch { /* partial JSON — ignore */ }
+    }
+  }
+  return { text: fullText.trim(), toolCalls }
 }

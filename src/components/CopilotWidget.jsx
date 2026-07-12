@@ -6,7 +6,7 @@ import { computeXp, levelFromXp, computeGlobalStreak } from '../lib/gamify'
 import {
   getKey, setKey, clearKey,
   loadChat, saveChat, clearChat,
-  buildSystemPrompt, buildSnapshot, callGemini,
+  buildSystemPrompt, buildSnapshot, callGemini, callGeminiStream,
 } from '../lib/copilot'
 
 // Match user-typed habit fuzzy → real habit
@@ -57,22 +57,41 @@ export default function CopilotWidget() {
     setMessages(next)
     setInput('')
     setBusy(true)
+    // Insert an empty assistant bubble we\'ll stream into
+    setMessages((m) => [...m, { role: 'assistant', text: '', streaming: true }])
     try {
       const sys = buildSystemPrompt(snapshot)
-      const { text, toolCalls } = await callGemini({
+      let acc = ''
+      const { toolCalls } = await callGeminiStream({
         apiKey: currentKey,
         systemPrompt: sys,
         history: messages,
         userMessage: msg,
+        onChunk: (chunk) => {
+          acc += chunk
+          setMessages((m) => {
+            const copy = m.slice()
+            const last = copy[copy.length - 1]
+            if (last && last.streaming) copy[copy.length - 1] = { ...last, text: acc }
+            return copy
+          })
+        },
       })
-      const reply = { role: 'assistant', text: text || '' }
-      setMessages((m) => [...m, reply])
-      if (toolCalls.length) {
-        // queue the first tool for user confirmation
-        setPending(toolCalls[0])
-      }
+      // finalize streaming flag
+      setMessages((m) => {
+        const copy = m.slice()
+        const last = copy[copy.length - 1]
+        if (last && last.streaming) copy[copy.length - 1] = { role: 'assistant', text: acc || last.text }
+        return copy
+      })
+      if (toolCalls.length) setPending(toolCalls[0])
     } catch (e) {
-      setMessages((m) => [...m, { role: 'assistant', text: `⚠️ ${e.message}`, error: true }])
+      setMessages((m) => {
+        const copy = m.slice()
+        const last = copy[copy.length - 1]
+        if (last && last.streaming) copy.pop()
+        return [...copy, { role: 'assistant', text: `⚠️ ${e.message}`, error: true }]
+      })
     } finally {
       setBusy(false)
     }
