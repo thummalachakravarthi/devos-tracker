@@ -1,11 +1,12 @@
 import { useMemo, useState, useEffect } from 'react'
 import {
   History, StickyNote, CalendarRange, Map, Building2, Plus, Trash2,
-  ChevronRight, TrendingUp, TrendingDown, Minus
+  ChevronRight, TrendingUp, TrendingDown, Minus, Radio, Target
 } from 'lucide-react'
 import { useData } from '../DataStore'
 import { supabase } from '../lib/supabase'
 import { todayISO, addDays, dayDiff, startOfWeek, weekdayShort, fmtNice, fmtShort } from '../lib/dates'
+
 import { PHASES } from '../config/plan'
 
 // ═══════════════════════════════════════════════════════════
@@ -407,48 +408,138 @@ function CompanyTargets() {
 }
 
 // ═══════════════════════════════════════════════════════════
-// COMMAND PAGE — tabbed shell
+// MISSION BRIEFING — the headline "so, what should I do today?" box
+// ═══════════════════════════════════════════════════════════
+function MissionBriefing() {
+  const { javaSessions, dsaLogs, logs, activeHabits, settings } = useData()
+  const today = todayISO()
+  const y = addDays(today, -1)
+
+  const stats = (day) => ({
+    java: javaSessions.filter(s => s.session_date === day).reduce((a, s) => a + s.minutes, 0),
+    dsa: dsaLogs.filter(l => l.log_date === day).reduce((a, l) => a + l.problems, 0),
+    habits: activeHabits.filter(h => logs[h.id]?.[day]?.completed).length,
+  })
+  const t = stats(today)
+  const yStats = stats(y)
+  const target = settings.daily_java_minutes
+  const totalHabits = activeHabits.length
+  const dayNum = Math.min(settings.plan_days, Math.max(1, dayDiff(settings.plan_start_date, today) + 1))
+  const daysLeft = Math.max(0, settings.plan_days - dayNum)
+  const phase = PHASES.find(p => dayNum >= p.from && dayNum <= p.to)
+
+  // Priorities — smart list based on what's missing today
+  const priorities = []
+  if (t.java < target) {
+    const gap = target - t.java
+    priorities.push({
+      icon: '☕',
+      label: `Log ${Math.floor(gap/60)}h ${gap % 60}m of Java`,
+      hint: `Target ${Math.floor(target/60)}h · you're at ${Math.floor(t.java/60)}h ${t.java % 60}m`,
+      severity: gap > target * 0.5 ? 'high' : 'med',
+    })
+  }
+  if (t.dsa < 3) {
+    priorities.push({
+      icon: '🧠',
+      label: `Solve ${3 - t.dsa} more DSA problem${3 - t.dsa === 1 ? '' : 's'}`,
+      hint: t.dsa ? `${t.dsa} done today, aim for 3` : 'None solved yet today',
+      severity: t.dsa === 0 ? 'high' : 'low',
+    })
+  }
+  if (totalHabits > 0 && t.habits < totalHabits) {
+    priorities.push({
+      icon: '✅',
+      label: `${totalHabits - t.habits} habit${totalHabits - t.habits === 1 ? '' : 's'} left`,
+      hint: `${t.habits}/${totalHabits} done today`,
+      severity: 'low',
+    })
+  }
+  if (!priorities.length) {
+    priorities.push({ icon: '🏆', label: 'You crushed it. Rest.', hint: 'All targets met — keep the streak alive tomorrow.', severity: 'good' })
+  }
+
+  // Debrief lines — yesterday's honest report
+  const debriefLines = []
+  const yPerfect = totalHabits > 0 && yStats.habits === totalHabits && yStats.java >= target && yStats.dsa >= 1
+  if (yPerfect) debriefLines.push(`⭐ Perfect day. ${yStats.java} min Java, ${yStats.dsa} DSA, all habits.`)
+  else if (yStats.java + yStats.dsa + yStats.habits === 0) debriefLines.push(`⚠️ Nothing logged. Don't let today follow suit.`)
+  else {
+    debriefLines.push(`☕ Java: ${Math.floor(yStats.java/60)}h ${yStats.java%60}m ${yStats.java >= target ? '✓' : `(${Math.floor((target-yStats.java)/60)}h short)`}`)
+    debriefLines.push(`🧠 DSA: ${yStats.dsa} solved ${yStats.dsa >= 1 ? '✓' : '✗'}`)
+    if (totalHabits > 0) debriefLines.push(`✅ Habits: ${yStats.habits}/${totalHabits}`)
+  }
+
+  const dow = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][new Date().getDay()]
+
+  return (
+    <section className="card g-border p-5 lg:p-7 anim-up">
+      <div className="flex items-start justify-between gap-4 flex-wrap mb-1">
+        <div>
+          <div className="label mb-1 flex items-center gap-2">
+            <Radio size={11} className="text-mint" />
+            <span>Command Center · {dow} · {fmtNice(today)}</span>
+          </div>
+          <h1 className="font-display font-bold text-3xl lg:text-5xl text-grad leading-tight">
+            Mission Briefing
+          </h1>
+        </div>
+        <div className="text-right">
+          <div className="label">Day</div>
+          <div className="font-mono font-bold text-3xl">{dayNum}<span className="text-dim text-sm"> / {settings.plan_days}</span></div>
+          <div className="text-[10px] text-dim">{daysLeft} left · {phase?.name.split('·')[0] || 'Prep'}</div>
+        </div>
+      </div>
+
+      {/* PRIORITIES — the "here's what to do next" list */}
+      <div className="mt-5">
+        <div className="label mb-2 flex items-center gap-1.5">
+          <Target size={11} className="text-amber" /> Priorities
+        </div>
+        <ul className="space-y-2">
+          {priorities.map((p, i) => (
+            <li key={i}
+              className={`flex items-start gap-3 rounded-xl p-3 border ${
+                p.severity === 'high' ? 'bg-red/10 border-red/30' :
+                p.severity === 'med'  ? 'bg-amber/10 border-amber/25' :
+                p.severity === 'good' ? 'bg-mint/10 border-mint/30' :
+                'bg-white/[.03] border-white/8'
+              }`}>
+              <span className="text-xl leading-none">{p.icon}</span>
+              <div className="flex-1 min-w-0">
+                <div className="text-sm font-medium">{p.label}</div>
+                <div className="text-[11px] text-dim mt-0.5">{p.hint}</div>
+              </div>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      {/* DEBRIEF — yesterday's report */}
+      <div className="mt-5 pt-4 border-t border-white/6">
+        <div className="label mb-2 flex items-center gap-1.5">
+          <History size={11} className="text-violet" /> Yesterday's debrief
+        </div>
+        <ul className="text-sm text-dim space-y-1">
+          {debriefLines.map((line, i) => <li key={i}>{line}</li>)}
+        </ul>
+      </div>
+    </section>
+  )
+}
+
+// ═══════════════════════════════════════════════════════════
+// COMMAND PAGE — single column, everything visible, no tabs
 // ═══════════════════════════════════════════════════════════
 export default function Command() {
-  const [tab, setTab] = useState('recap')
-  const tabs = [
-    { id: 'recap', label: 'Recap', icon: History },
-    { id: 'notes', label: 'Notes', icon: StickyNote },
-    { id: 'review', label: 'Weekly', icon: CalendarRange },
-    { id: 'roadmap', label: 'Roadmap', icon: Map },
-    { id: 'targets', label: 'Targets', icon: Building2 },
-  ]
   return (
-    <div>
-      <section className="card g-border p-5 lg:p-6 anim-up mb-3">
-        <div className="flex items-center justify-between">
-          <div>
-            <div className="label mb-1">Command Center</div>
-            <h1 className="font-display font-bold text-3xl lg:text-4xl text-grad">Debrief</h1>
-          </div>
-        </div>
-        <div className="flex gap-1 mt-5 p-1 rounded-xl bg-white/5 border border-white/8 overflow-x-auto">
-          {tabs.map(({ id, label, icon: Icon }) => (
-            <button
-              key={id}
-              onClick={() => setTab(id)}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition ${
-                tab === id ? 'bg-amber text-black' : 'text-dim hover:text-text'
-              }`}
-            >
-              <Icon size={13} />
-              {label}
-            </button>
-          ))}
-        </div>
-      </section>
-      <div key={tab} className="anim-up">
-        {tab === 'recap' && <YesterdayRecap />}
-        {tab === 'notes' && <SessionNotes />}
-        {tab === 'review' && <WeeklyReview />}
-        {tab === 'roadmap' && <Roadmap />}
-        {tab === 'targets' && <CompanyTargets />}
-      </div>
+    <div className="space-y-3">
+      <MissionBriefing />
+      <YesterdayRecap />
+      <WeeklyReview />
+      <Roadmap />
+      <SessionNotes />
+      <CompanyTargets />
     </div>
   )
 }

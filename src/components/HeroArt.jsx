@@ -536,3 +536,109 @@ export function ArtFocus() {
     </svg>
   )
 }
+// ═══════════════════════════════════════════════════════════════
+// COMMAND — tactical radar sweep + HUD grid (a "war room" screen)
+// ═══════════════════════════════════════════════════════════════
+export function ArtCommand() {
+  return (
+    <svg className={bannerCls} viewBox="0 0 800 300" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+      <defs>
+        <radialGradient id="cmBg" cx="0.5" cy="0.5" r="0.9">
+          <stop offset="0" stopColor="#0a2418" />
+          <stop offset="0.6" stopColor="#031610" />
+          <stop offset="1" stopColor="#010805" />
+        </radialGradient>
+        <linearGradient id="cmSweep" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0" stopColor="#4ade80" stopOpacity="0" />
+          <stop offset="1" stopColor="#4ade80" stopOpacity="0.55" />
+        </linearGradient>
+        <radialGradient id="cmGlow" cx="0.5" cy="0.5" r="0.5">
+          <stop offset="0" stopColor="#86efac" stopOpacity="0.6" />
+          <stop offset="1" stopColor="#4ade80" stopOpacity="0" />
+        </radialGradient>
+      </defs>
+      <rect width="800" height="300" fill="url(#cmBg)" />
+
+      {/* HUD grid — tactical map crosshatch */}
+      <g stroke="#4ade80" strokeOpacity="0.08">
+        {Array.from({ length: 20 }).map((_, i) => (
+          <line key={`v${i}`} x1={i * 40} y1="0" x2={i * 40} y2="300" />
+        ))}
+        {Array.from({ length: 8 }).map((_, i) => (
+          <line key={`h${i}`} x1="0" y1={i * 40} x2="800" y2={i * 40} />
+        ))}
+      </g>
+
+      {/* RADAR — the star of the show */}
+      <g transform="translate(400 150)">
+        {/* range rings */}
+        {[40, 80, 120, 160].map((r) => (
+          <circle key={r} r={r} fill="none" stroke="#4ade80" strokeOpacity="0.35" strokeWidth="1" />
+        ))}
+        {/* crosshairs */}
+        <line x1="-180" y1="0" x2="180" y2="0" stroke="#4ade80" strokeOpacity="0.28" strokeWidth="1" />
+        <line x1="0" y1="-140" x2="0" y2="140" stroke="#4ade80" strokeOpacity="0.28" strokeWidth="1" />
+
+        {/* soft glow behind sweep */}
+        <circle r="160" fill="url(#cmGlow)">
+          <animate attributeName="opacity" values="0.6;1;0.6" dur="4s" repeatCount="indefinite" />
+        </circle>
+
+        {/* the rotating sweep — a wedge */}
+        <g>
+          <animateTransform attributeName="transform" type="rotate" from="0" to="360" dur="4.5s" repeatCount="indefinite" />
+          <path d="M 0 0 L 160 0 A 160 160 0 0 1 138.6 -80 Z" fill="url(#cmSweep)" />
+          <line x1="0" y1="0" x2="160" y2="0" stroke="#86efac" strokeWidth="2" opacity="0.95" />
+        </g>
+
+        {/* center pip */}
+        <circle r="4" fill="#4ade80" />
+        <circle r="8" fill="none" stroke="#4ade80" strokeOpacity="0.5" strokeWidth="1.5">
+          <animate attributeName="r" values="6;14;6" dur="2.5s" repeatCount="indefinite" />
+          <animate attributeName="opacity" values="0.6;0;0.6" dur="2.5s" repeatCount="indefinite" />
+        </circle>
+
+        {/* blip contacts detected on the radar, flashing */}
+        {[
+          { x: 95, y: -50, delay: 0 },
+          { x: -70, y: 90, delay: 1.2 },
+          { x: 130, y: 60, delay: 2.4 },
+          { x: -110, y: -30, delay: 3.1 },
+          { x: 40, y: 110, delay: 0.6 },
+        ].map((b, i) => (
+          <g key={i} transform={`translate(${b.x} ${b.y})`}>
+            <circle r="4" fill="#86efac">
+              <animate attributeName="opacity" values="1;0.15;1" dur="4.5s" begin={`${b.delay}s`} repeatCount="indefinite" />
+              <animate attributeName="r" values="3;5;3" dur="4.5s" begin={`${b.delay}s`} repeatCount="indefinite" />
+            </circle>
+          </g>
+        ))}
+      </g>
+
+      {/* left-side HUD readouts (fake tactical text) */}
+      <g fontFamily="JetBrains Mono, monospace" fontSize="10" fill="#4ade80" fillOpacity="0.55">
+        <text x="20" y="30">SYS_STATUS: OK</text>
+        <text x="20" y="45">MISSION_D240</text>
+        <text x="20" y="60">TRACK: 5</text>
+        <text x="20" y="270">SCAN 04.5s</text>
+        <text x="20" y="285">TZ: LOCAL</text>
+      </g>
+
+      {/* right-side HUD */}
+      <g fontFamily="JetBrains Mono, monospace" fontSize="10" fill="#4ade80" fillOpacity="0.55" textAnchor="end">
+        <text x="780" y="30">◈ COMMAND</text>
+        <text x="780" y="45">DEBRIEF-01</text>
+        <text x="780" y="270">ONLINE</text>
+        <text x="780" y="285">SEC ▮▮▮▯▯</text>
+      </g>
+
+      {/* corner brackets — tactical UI style */}
+      <g stroke="#4ade80" strokeWidth="2" fill="none" opacity="0.6">
+        <path d="M 12 12 L 12 32 M 12 12 L 32 12" />
+        <path d="M 788 12 L 788 32 M 788 12 L 768 12" />
+        <path d="M 12 288 L 12 268 M 12 288 L 32 288" />
+        <path d="M 788 288 L 788 268 M 788 288 L 768 288" />
+      </g>
+    </svg>
+  )
+}
