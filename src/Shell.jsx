@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Home, Coffee, BarChart3, ListChecks, LogOut, Timer, Command as CommandIcon } from 'lucide-react'
+import { Home, Coffee, BarChart3, ListChecks, LogOut, Timer, Command as CommandIcon, LineChart } from 'lucide-react'
 import { supabase } from './lib/supabase'
 import { DataProvider, useData } from './DataStore'
 import { CityBackdrop, ArtToday, ArtJava, ArtStats, ArtHabits } from './components/HeroArt'
@@ -9,12 +9,14 @@ import Stats from './pages/Stats'
 import Habits from './pages/Habits'
 import Focus from './pages/Focus'
 import Command from './pages/Command'
+import Insights from './pages/Insights'
 
 const TABS = [
   { id: 'today', label: 'Today', icon: Home },
   { id: 'focus', label: 'Focus', icon: Timer },
   { id: 'command', label: 'Command', icon: CommandIcon },
   { id: 'java', label: 'Java HQ', icon: Coffee },
+  { id: 'insights', label: 'Insights', icon: LineChart },
   { id: 'stats', label: 'Stats', icon: BarChart3 },
   { id: 'habits', label: 'Habits', icon: ListChecks },
 ]
@@ -23,6 +25,7 @@ const HERO = {
   today: { src: '/heroes/today.jpg', title: "Today's Mission", Art: ArtToday },
   focus: { src: '/heroes/focus.jpg', title: 'Focus Lab', Art: ArtJava },
   command: { src: '/heroes/command.jpg', title: 'Command Center', Art: ArtStats },
+  insights: { src: '/heroes/insights.jpg', title: 'Analyst Desk', Art: ArtStats },
   java: { src: '/heroes/java.jpg', title: 'Java HQ', Art: ArtJava },
   stats: { src: '/heroes/stats.jpg', title: 'Battle Stats', Art: ArtStats },
   habits: { src: '/heroes/habits.jpg', title: 'The Roster', Art: ArtHabits },
@@ -151,6 +154,7 @@ function Inner({ tab, setTab }) {
             {tab === 'today' && <Today setTab={setTab} />}
             {tab === 'focus' && <Focus />}
             {tab === 'command' && <Command />}
+            {tab === 'insights' && <Insights />}
             {tab === 'java' && <JavaHQ />}
             {tab === 'stats' && <Stats setTab={setTab} />}
             {tab === 'habits' && <Habits />}
@@ -160,7 +164,7 @@ function Inner({ tab, setTab }) {
 
       {/* mobile bottom nav */}
       <nav className="lg:hidden fixed bottom-0 inset-x-0 z-20 bg-white/85 backdrop-blur-xl border-t border-white/40">
-        <div className="grid grid-cols-6">
+        <div className="grid grid-cols-7">
           {TABS.map(({ id, label, icon: Icon }) => (
             <button
               key={id}
