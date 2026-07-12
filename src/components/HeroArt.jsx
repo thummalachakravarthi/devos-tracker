@@ -642,3 +642,182 @@ export function ArtCommand() {
     </svg>
   )
 }
+// ═══════════════════════════════════════════════════════════════
+// RISE — warriors clashing at dawn (crossed swords, silhouettes, sparks, dust)
+// ═══════════════════════════════════════════════════════════════
+export function ArtRise() {
+  return (
+    <svg className={bannerCls} viewBox="0 0 800 300" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+      <defs>
+        {/* dawn battlefield sky */}
+        <linearGradient id="rsSky" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor="#3a0f0f" />
+          <stop offset="0.35" stopColor="#7a1e12" />
+          <stop offset="0.7" stopColor="#c2410c" />
+          <stop offset="1" stopColor="#f59e0b" />
+        </linearGradient>
+        {/* huge crimson sun */}
+        <radialGradient id="rsSun" cx="0.5" cy="0.5" r="0.5">
+          <stop offset="0" stopColor="#fef3c7" />
+          <stop offset="0.4" stopColor="#f97316" stopOpacity="0.85" />
+          <stop offset="1" stopColor="#dc2626" stopOpacity="0" />
+        </radialGradient>
+        {/* blade gradient — polished steel */}
+        <linearGradient id="rsBlade" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0" stopColor="#e5e7eb" />
+          <stop offset="0.5" stopColor="#ffffff" />
+          <stop offset="1" stopColor="#94a3b8" />
+        </linearGradient>
+        <linearGradient id="rsBlade2" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0" stopColor="#94a3b8" />
+          <stop offset="0.5" stopColor="#ffffff" />
+          <stop offset="1" stopColor="#e5e7eb" />
+        </linearGradient>
+        <filter id="rsGlow" x="-30%" y="-30%" width="160%" height="160%">
+          <feGaussianBlur stdDeviation="2" />
+        </filter>
+        <filter id="rsDust" x="-30%" y="-30%" width="160%" height="160%">
+          <feGaussianBlur stdDeviation="8" />
+        </filter>
+      </defs>
+
+      {/* dawn sky */}
+      <rect width="800" height="300" fill="url(#rsSky)" />
+
+      {/* massive rising sun */}
+      <circle cx="400" cy="230" r="220" fill="url(#rsSun)">
+        <animate attributeName="opacity" values="0.85;1;0.85" dur="4s" repeatCount="indefinite" />
+      </circle>
+
+      {/* dust cloud around the clash */}
+      <ellipse cx="400" cy="180" rx="180" ry="45" fill="#78350f" opacity="0.35" filter="url(#rsDust)">
+        <animate attributeName="opacity" values="0.25;0.55;0.25" dur="3s" repeatCount="indefinite" />
+        <animate attributeName="rx" values="170;200;170" dur="3s" repeatCount="indefinite" />
+      </ellipse>
+
+      {/* CENTER — CROSSED SWORDS CLASH */}
+      <g transform="translate(400 155)">
+        {/* clash flash — expanding shockwave */}
+        <circle r="18" fill="#fef3c7">
+          <animate attributeName="r" values="14;30;14" dur="0.9s" repeatCount="indefinite" />
+          <animate attributeName="opacity" values="0.9;0.4;0.9" dur="0.9s" repeatCount="indefinite" />
+        </circle>
+        <circle r="12" fill="#ffffff" filter="url(#rsGlow)">
+          <animate attributeName="opacity" values="1;0.6;1" dur="0.9s" repeatCount="indefinite" />
+        </circle>
+
+        {/* SWORD 1 — from top-left */}
+        <g transform="rotate(-35)">
+          {/* blade */}
+          <rect x="-4" y="-105" width="8" height="100" fill="url(#rsBlade)" />
+          <polygon points="-4,-105 4,-105 0,-115" fill="#f8fafc" />
+          {/* highlight */}
+          <rect x="-1" y="-105" width="1.5" height="100" fill="#ffffff" opacity="0.7" />
+          {/* crossguard */}
+          <rect x="-16" y="-5" width="32" height="4" fill="#78350f" rx="1" />
+          {/* grip */}
+          <rect x="-3" y="-1" width="6" height="26" fill="#7c2d12" />
+          <line x1="-3" y1="6" x2="3" y2="6" stroke="#292524" strokeWidth="0.6" />
+          <line x1="-3" y1="12" x2="3" y2="12" stroke="#292524" strokeWidth="0.6" />
+          <line x1="-3" y1="18" x2="3" y2="18" stroke="#292524" strokeWidth="0.6" />
+          {/* pommel */}
+          <circle cx="0" cy="28" r="4" fill="#facc15" stroke="#78350f" strokeWidth="1" />
+          {/* clash micro-recoil */}
+          <animateTransform attributeName="transform" type="rotate"
+            values="-35;-30;-35" dur="0.9s" repeatCount="indefinite" />
+        </g>
+
+        {/* SWORD 2 — from top-right */}
+        <g transform="rotate(35)">
+          <rect x="-4" y="-105" width="8" height="100" fill="url(#rsBlade2)" />
+          <polygon points="-4,-105 4,-105 0,-115" fill="#f8fafc" />
+          <rect x="-1" y="-105" width="1.5" height="100" fill="#ffffff" opacity="0.7" />
+          <rect x="-16" y="-5" width="32" height="4" fill="#78350f" rx="1" />
+          <rect x="-3" y="-1" width="6" height="26" fill="#7c2d12" />
+          <line x1="-3" y1="6" x2="3" y2="6" stroke="#292524" strokeWidth="0.6" />
+          <line x1="-3" y1="12" x2="3" y2="12" stroke="#292524" strokeWidth="0.6" />
+          <line x1="-3" y1="18" x2="3" y2="18" stroke="#292524" strokeWidth="0.6" />
+          <circle cx="0" cy="28" r="4" fill="#dc2626" stroke="#78350f" strokeWidth="1" />
+          <animateTransform attributeName="transform" type="rotate"
+            values="35;30;35" dur="0.9s" repeatCount="indefinite" />
+        </g>
+
+        {/* SPARKS flying out from clash point */}
+        <g>
+          {Array.from({ length: 10 }).map((_, i) => {
+            const angle = (i / 10) * Math.PI * 2 + 0.2
+            const dist = 40 + (i % 3) * 20
+            const dx = Math.cos(angle) * dist
+            const dy = Math.sin(angle) * dist
+            const dur = 0.7 + (i % 4) * 0.15
+            return (
+              <circle key={i} r="1.5" fill="#fef3c7">
+                <animate attributeName="cx" values={`0;${dx}`} dur={`${dur}s`} repeatCount="indefinite" />
+                <animate attributeName="cy" values={`0;${dy}`} dur={`${dur}s`} repeatCount="indefinite" />
+                <animate attributeName="opacity" values="1;0" dur={`${dur}s`} repeatCount="indefinite" />
+                <animate attributeName="r" values="2;0.5" dur={`${dur}s`} repeatCount="indefinite" />
+              </circle>
+            )
+          })}
+        </g>
+      </g>
+
+      {/* LEFT WARRIOR SILHOUETTE — charging with sword raised */}
+      <g transform="translate(180 220)">
+        {/* body */}
+        <path d="M 0 -40 L -6 -20 L -8 5 L -4 8 L 0 -10 L 4 8 L 8 5 L 6 -20 Z" fill="#0f0f0f" />
+        {/* head with helmet + plume */}
+        <circle cx="0" cy="-46" r="7" fill="#0f0f0f" />
+        <path d="M -5 -52 L -3 -60 L -1 -55 L 1 -60 L 3 -52 Z" fill="#dc2626" />
+        {/* arm forward with sword */}
+        <path d="M 5 -35 L 20 -50 L 22 -47 L 7 -32 Z" fill="#0f0f0f" />
+        <line x1="20" y1="-50" x2="55" y2="-85" stroke="url(#rsBlade)" strokeWidth="3" strokeLinecap="round" />
+        {/* legs mid-stride */}
+        <path d="M -3 8 L -8 30 L -4 32 L 1 12 Z" fill="#0f0f0f" />
+        <path d="M 3 8 L 10 25 L 6 28 L 0 12 Z" fill="#0f0f0f" />
+        {/* charging bob */}
+        <animateTransform attributeName="transform" type="translate"
+          values="180 220; 180 216; 180 220" dur="0.6s" repeatCount="indefinite" />
+      </g>
+
+      {/* RIGHT WARRIOR SILHOUETTE — charging with sword raised */}
+      <g transform="translate(620 220) scale(-1 1)">
+        <path d="M 0 -40 L -6 -20 L -8 5 L -4 8 L 0 -10 L 4 8 L 8 5 L 6 -20 Z" fill="#0f0f0f" />
+        <circle cx="0" cy="-46" r="7" fill="#0f0f0f" />
+        <path d="M -5 -52 L -3 -60 L -1 -55 L 1 -60 L 3 -52 Z" fill="#facc15" />
+        <path d="M 5 -35 L 20 -50 L 22 -47 L 7 -32 Z" fill="#0f0f0f" />
+        <line x1="20" y1="-50" x2="55" y2="-85" stroke="url(#rsBlade2)" strokeWidth="3" strokeLinecap="round" />
+        <path d="M -3 8 L -8 30 L -4 32 L 1 12 Z" fill="#0f0f0f" />
+        <path d="M 3 8 L 10 25 L 6 28 L 0 12 Z" fill="#0f0f0f" />
+        <animateTransform attributeName="transform" type="translate"
+          values="0 0; 0 -4; 0 0" dur="0.6s" repeatCount="indefinite" additive="sum" />
+      </g>
+
+      {/* ground silhouette */}
+      <path d="M 0 265 Q 200 260 400 268 T 800 262 L 800 300 L 0 300 Z" fill="#1c0a0a" />
+      <path d="M 0 285 Q 300 278 600 288 T 800 283 L 800 300 L 0 300 Z" fill="#0a0505" />
+
+      {/* battle banners */}
+      <g transform="translate(80 60)">
+        <line x1="0" y1="0" x2="0" y2="120" stroke="#292524" strokeWidth="3" />
+        <path d="M 0 5 L 25 5 L 22 20 L 25 35 L 0 35 Z" fill="#dc2626">
+          <animate attributeName="d"
+            values="M 0 5 L 25 5 L 22 20 L 25 35 L 0 35 Z;
+                    M 0 5 L 28 8 L 20 22 L 28 38 L 0 35 Z;
+                    M 0 5 L 25 5 L 22 20 L 25 35 L 0 35 Z"
+            dur="4s" repeatCount="indefinite" />
+        </path>
+      </g>
+      <g transform="translate(720 60)">
+        <line x1="0" y1="0" x2="0" y2="120" stroke="#292524" strokeWidth="3" />
+        <path d="M 0 5 L -25 5 L -22 20 L -25 35 L 0 35 Z" fill="#facc15">
+          <animate attributeName="d"
+            values="M 0 5 L -25 5 L -22 20 L -25 35 L 0 35 Z;
+                    M 0 5 L -28 8 L -20 22 L -28 38 L 0 35 Z;
+                    M 0 5 L -25 5 L -22 20 L -25 35 L 0 35 Z"
+            dur="4s" repeatCount="indefinite" />
+        </path>
+      </g>
+    </svg>
+  )
+}
