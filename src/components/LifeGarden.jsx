@@ -9,7 +9,7 @@ const STAGE_EMOJI = {
   2:  '🌿',
   3:  '🪴',
   4:  '🌳',
-  5:  '🌸',
+  5:  '🌻',
   '-1': '🥀',
 }
 
@@ -87,21 +87,21 @@ export default function LifeGarden() {
             background: 'radial-gradient(circle at 50% 40%, rgba(254,243,199,0.35) 0%, transparent 60%)',
             animation: 'sunPulse 5s ease-in-out infinite' }} />
 
-        {/* live plant grid — positioned over the soil bed in the painted image (~68–96% Y) */}
+        {/* live plant grid — anchored to the soil bed so plants grow FROM the ground */}
         <div className="absolute pointer-events-auto"
-          style={{ left: '11%', right: '19%', top: '70%', bottom: '4%' }}>
-          <div className="h-full grid grid-cols-10 sm:grid-cols-12 grid-rows-5 gap-x-1 gap-y-1">
+          style={{ left: '11%', right: '19%', top: '78%', bottom: '2%' }}>
+          <div className="h-full grid grid-cols-10 sm:grid-cols-12 grid-rows-2 gap-x-1 gap-y-0 items-end">
             {plants.map((p, i) => {
               const isToday = i === plants.length - 1
               const emoji = STAGE_EMOJI[p.score]
               const seed = (i * 37) % 100
               const swayDur = 3 + (seed / 100) * 3
               const swayDelay = (seed / 50)
-              const size = p.score === 5 ? 'text-2xl sm:text-3xl'
-                : p.score === 4 ? 'text-xl sm:text-2xl'
-                : p.score === 3 ? 'text-lg sm:text-xl'
-                : p.score === 2 ? 'text-base sm:text-lg'
-                : p.score === 1 ? 'text-sm sm:text-base'
+              const size = p.score === 5 ? 'text-xl sm:text-2xl'
+                : p.score === 4 ? 'text-lg sm:text-xl'
+                : p.score === 3 ? 'text-base sm:text-lg'
+                : p.score === 2 ? 'text-sm sm:text-base'
+                : p.score === 1 ? 'text-xs sm:text-sm'
                 : 'text-xs'
               return (
                 <div key={p.date}
@@ -117,7 +117,7 @@ export default function LifeGarden() {
                         transformOrigin: 'bottom center',
                         animation: p.score === -1 ? 'none' : `plantSway ${swayDur}s ease-in-out ${swayDelay}s infinite`,
                         filter: p.score === 5
-                          ? 'drop-shadow(0 0 6px rgba(244,114,182,0.7)) drop-shadow(0 2px 3px rgba(0,0,0,0.4))'
+                          ? 'drop-shadow(0 0 6px rgba(251,191,36,0.75)) drop-shadow(0 2px 3px rgba(0,0,0,0.4))'
                           : 'drop-shadow(0 2px 3px rgba(0,0,0,0.45))',
                       }}
                     >{emoji}</span>
@@ -151,10 +151,10 @@ export default function LifeGarden() {
       </div>
 
       <div className="px-4 py-3 flex flex-wrap gap-3 text-[11px] text-dim border-t border-white/6">
-        <span>🌱 sprout → 🌿 herb → 🪴 growing → 🌳 tree → 🌸 perfect day</span>
+        <span>🌱 sprout → 🌿 herb → 🪴 growing → 🌳 tree → 🌻 perfect day</span>
         <span className="ml-auto flex flex-wrap gap-3">
           <span>🌳 <span className="font-mono text-mint">{alive}</span> growing</span>
-          {flowering > 0 && <span>🌸 <span className="font-mono text-pink-400">{flowering}</span> in bloom</span>}
+          {flowering > 0 && <span>🌻 <span className="font-mono text-pink-400">{flowering}</span> in bloom</span>}
           {wilted > 0 && <span>🥀 <span className="font-mono text-red">{wilted}</span> wilted</span>}
         </span>
       </div>
