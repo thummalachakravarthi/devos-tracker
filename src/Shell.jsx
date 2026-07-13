@@ -26,7 +26,7 @@ const TABS = [
 const HERO = {
   today: { src: '/heroes/today.jpg', title: "Today's Mission", Art: ArtToday },
   focus: { src: '/heroes/focus.jpg', title: 'Focus Lab', Art: ArtFocus },
-  challenges: { src: '/heroes/challenges.jpg', title: 'Rise Up', Art: ArtRise },
+  challenges: { src: null, title: 'Rise Up', Art: ArtRise },
   command: { src: '/heroes/command.jpg', title: 'Command Center', Art: ArtCommand },
   insights: { src: '/heroes/insights.jpg', title: 'Analyst Desk', Art: ArtStats },
   java: { src: '/heroes/java.jpg', title: 'Java HQ', Art: ArtJava },
@@ -40,9 +40,10 @@ function HeroBanner({ tab }) {
   const h = HERO[tab]
   useEffect(() => setOk(true), [tab])
   if (!h) return null
+  const useImg = ok && h.src
   return (
     <div className="relative rounded-2xl overflow-hidden mb-3 h-40 lg:h-56 shadow-[0_22px_48px_-16px_rgba(4,8,20,.6)] anim-up">
-      {ok ? (
+      {useImg ? (
         <img
           src={h.src}
           onError={() => setOk(false)}
