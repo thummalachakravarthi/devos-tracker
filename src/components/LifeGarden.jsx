@@ -58,12 +58,6 @@ export default function LifeGarden() {
   const wilted = plants.filter(p => p.score === -1).length
   const forestHealth = Math.round((alive / DAYS) * 100)
 
-  const clouds = [
-    { x: 8,  y: 12, s: 22, dur: 90, delay: 0 },
-    { x: 45, y: 18, s: 18, dur: 120, delay: -40 },
-    { x: 78, y: 10, s: 24, dur: 105, delay: -75 },
-  ]
-
   return (
     <section className="card card-hover overflow-hidden !p-0">
       <div className="p-4 pb-3 flex items-center justify-between">
@@ -80,53 +74,22 @@ export default function LifeGarden() {
       </div>
 
       <div className="relative w-full aspect-[3/2] sm:aspect-[16/7] overflow-hidden">
-        <div className="absolute inset-x-0 top-0 h-[62%]"
-          style={{ background: 'linear-gradient(180deg, #7dd3fc 0%, #bae6fd 60%, #e0f2fe 100%)' }} />
+        {/* painted garden backdrop */}
+        <img
+          src="/heroes/life-garden.png"
+          alt=""
+          className="absolute inset-0 w-full h-full object-cover select-none pointer-events-none"
+          draggable="false"
+        />
+        {/* subtle sun glow overlay on top of the painted sun to make it breathe */}
+        <div className="absolute pointer-events-none"
+          style={{ left: '78%', top: '8%', width: '18%', height: '30%',
+            background: 'radial-gradient(circle at 50% 40%, rgba(254,243,199,0.35) 0%, transparent 60%)',
+            animation: 'sunPulse 5s ease-in-out infinite' }} />
 
-        <div className="absolute" style={{ left: '82%', top: '10%' }}>
-          <div className="w-14 h-14 rounded-full"
-            style={{
-              background: 'radial-gradient(circle, #fef3c7 0%, #fbbf24 55%, transparent 75%)',
-              boxShadow: '0 0 40px 10px rgba(251, 191, 36, 0.35)',
-              animation: 'sunPulse 5s ease-in-out infinite',
-            }} />
-        </div>
-
-        <svg viewBox="0 0 200 40" preserveAspectRatio="none"
-          className="absolute inset-x-0" style={{ top: '38%', height: '15%' }}>
-          <path d="M0 30 Q 30 5 60 18 T 120 15 T 200 22 L 200 40 L 0 40 Z" fill="#5eb85c" opacity="0.55" />
-          <path d="M0 34 Q 40 20 80 27 T 160 24 T 200 30 L 200 40 L 0 40 Z" fill="#4a9b4a" opacity="0.7" />
-        </svg>
-
-        {clouds.map((c, i) => (
-          <div key={i} className="absolute pointer-events-none"
-            style={{
-              top: `${c.y}%`,
-              width: `${c.s}%`,
-              animation: `cloudDrift ${c.dur}s linear infinite`,
-              animationDelay: `${c.delay}s`,
-            }}>
-            <svg viewBox="0 0 100 40" className="w-full">
-              <ellipse cx="30" cy="25" rx="20" ry="12" fill="#ffffff" opacity="0.9" />
-              <ellipse cx="55" cy="20" rx="22" ry="14" fill="#ffffff" opacity="0.95" />
-              <ellipse cx="75" cy="26" rx="18" ry="11" fill="#ffffff" opacity="0.85" />
-            </svg>
-          </div>
-        ))}
-
-        <div className="absolute inset-x-0 bottom-0 h-[42%]"
-          style={{ background: 'linear-gradient(180deg, #86efac 0%, #22c55e 45%, #15803d 100%)' }} />
-
-        <svg className="absolute inset-x-0 bottom-0 h-[42%] w-full" viewBox="0 0 200 40" preserveAspectRatio="none">
-          <defs>
-            <pattern id="blades" x="0" y="0" width="4" height="12" patternUnits="userSpaceOnUse">
-              <path d="M 2 12 L 2 6 M 0 12 L 0 8 M 3.5 12 L 3.5 9" stroke="#166534" strokeOpacity="0.28" strokeWidth="0.4" strokeLinecap="round" />
-            </pattern>
-          </defs>
-          <rect width="200" height="40" fill="url(#blades)" />
-        </svg>
-
-        <div className="absolute inset-x-0 bottom-0 h-[42%] px-[2%] pb-[2%] pt-[8%]">
+        {/* live plant grid — positioned over the soil bed in the painted image (~68–96% Y) */}
+        <div className="absolute pointer-events-auto"
+          style={{ left: '11%', right: '19%', top: '70%', bottom: '4%' }}>
           <div className="h-full grid grid-cols-10 sm:grid-cols-12 grid-rows-5 gap-x-1 gap-y-1">
             {plants.map((p, i) => {
               const isToday = i === plants.length - 1
@@ -145,20 +108,22 @@ export default function LifeGarden() {
                   title={`${p.date} · ${p.score === -1 ? 'wilted' : p.score === 0 ? 'no activity' : `growth stage ${p.score}/5`}`}
                   className="relative flex items-end justify-center">
                   {p.score === 0 ? (
-                    <div className="w-3 h-1 rounded-full" style={{ background: '#5c3d1f', opacity: 0.6 }} />
+                    <div className="w-3 h-1 rounded-full" style={{ background: '#5c3d1f', opacity: 0.5 }} />
                   ) : (
                     <span
-                      className={`leading-none drop-shadow-sm ${size}`}
+                      className={`leading-none ${size}`}
                       style={{
                         display: 'inline-block',
                         transformOrigin: 'bottom center',
                         animation: p.score === -1 ? 'none' : `plantSway ${swayDur}s ease-in-out ${swayDelay}s infinite`,
-                        filter: p.score === 5 ? 'drop-shadow(0 0 6px rgba(244,114,182,0.65))' : undefined,
+                        filter: p.score === 5
+                          ? 'drop-shadow(0 0 6px rgba(244,114,182,0.7)) drop-shadow(0 2px 3px rgba(0,0,0,0.4))'
+                          : 'drop-shadow(0 2px 3px rgba(0,0,0,0.45))',
                       }}
                     >{emoji}</span>
                   )}
                   {isToday && (
-                    <div className="absolute -top-3 left-1/2 -translate-x-1/2 text-[8px] font-bold text-amber uppercase tracking-widest bg-black/40 px-1 rounded backdrop-blur-sm whitespace-nowrap">
+                    <div className="absolute -top-3 left-1/2 -translate-x-1/2 text-[8px] font-bold text-amber uppercase tracking-widest bg-black/50 px-1 rounded backdrop-blur-sm whitespace-nowrap">
                       today
                     </div>
                   )}
@@ -168,8 +133,21 @@ export default function LifeGarden() {
           </div>
         </div>
 
-        <div className="absolute pointer-events-none text-2xl"
-          style={{ left: '20%', top: '30%', animation: 'butterflyFly 22s ease-in-out infinite' }}>🦋</div>
+        {/* floating pollen/light sparkles drifting up from the bed for atmosphere */}
+        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+          {[0,1,2,3,4,5].map(i => (
+            <div key={i} className="absolute rounded-full"
+              style={{
+                left: `${15 + i * 12}%`,
+                bottom: '20%',
+                width: '3px', height: '3px',
+                background: 'rgba(254, 243, 199, 0.9)',
+                boxShadow: '0 0 6px rgba(254, 243, 199, 0.8)',
+                animation: `pollenRise ${9 + i}s ease-in ${i * 1.5}s infinite`,
+                opacity: 0,
+              }} />
+          ))}
+        </div>
       </div>
 
       <div className="px-4 py-3 flex flex-wrap gap-3 text-[11px] text-dim border-t border-white/6">
@@ -186,20 +164,15 @@ export default function LifeGarden() {
           0%, 100% { transform: rotate(-2deg); }
           50%      { transform: rotate(2deg); }
         }
-        @keyframes cloudDrift {
-          0%   { transform: translateX(-30%); }
-          100% { transform: translateX(130vw); }
-        }
         @keyframes sunPulse {
-          0%, 100% { opacity: 0.9; transform: scale(1); }
-          50%      { opacity: 1;   transform: scale(1.06); }
+          0%, 100% { opacity: 0.75; }
+          50%      { opacity: 1; }
         }
-        @keyframes butterflyFly {
-          0%   { transform: translate(0, 0) rotate(-5deg); }
-          25%  { transform: translate(80px, -20px) rotate(10deg); }
-          50%  { transform: translate(160px, 30px) rotate(-10deg); }
-          75%  { transform: translate(60px, 60px) rotate(15deg); }
-          100% { transform: translate(0, 0) rotate(-5deg); }
+        @keyframes pollenRise {
+          0%   { transform: translateY(0) translateX(0); opacity: 0; }
+          15%  { opacity: 0.9; }
+          85%  { opacity: 0.6; }
+          100% { transform: translateY(-140px) translateX(20px); opacity: 0; }
         }
       `}</style>
     </section>
