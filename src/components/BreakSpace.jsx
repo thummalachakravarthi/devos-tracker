@@ -1,10 +1,9 @@
 import { useEffect, useRef, useState } from 'react'
-import { Wind, Square, Heart, Moon, PersonStanding, Eye, Sparkles, Play, Pause, RotateCcw, Info } from 'lucide-react'
+import { Wind, Square, Heart, Moon, Play, Pause, X, Info } from 'lucide-react'
 
 // ═══════════════════════════════════════════════════════════════
-// Break Space — 7 restorative modes for post-focus recovery.
-// 4 breathing techniques + stretch prompt + eye rest + gratitude.
-// Meant to sit below the Pomodoro timer on the Focus page.
+// Break Space — 4 breathing techniques, immersive Oak-style visual.
+// Full-screen takeover when active. Big gradient orb + expanding rings.
 // ═══════════════════════════════════════════════════════════════
 
 const MODES = [
@@ -12,481 +11,386 @@ const MODES = [
     id: 'sigh',
     label: 'Quick reset',
     icon: Wind,
-    color: '#f59e0b',
+    palette: { core: '#f97316', mid: '#dc2626', outer: '#7c2d12', bg1: '#1c0808', bg2: '#450a0a' },
     duration: 60,
-    type: 'breath',
     fullName: 'Physiological Sigh',
-    why: 'Fastest known way to lower stress in real time (Stanford, Huberman Lab). Two short inhales through the nose, then one long slow exhale. Even 1–2 cycles measurably drops heart rate.',
-    when: 'You feel spiked — frustrated, anxious, overwhelmed. 30 seconds beats 5 minutes of anything else.',
-    // Phases: double-inhale pattern, then long exhale
+    subtitle: 'Two short inhales, one long slow exhale',
+    why: 'Fastest known way to lower stress in real time (Stanford, Huberman Lab). The double-inhale re-inflates collapsed air sacs; the long exhale drops your heart rate within seconds.',
+    when: 'When you feel spiked — frustrated, anxious, overwhelmed. Even 30 seconds works.',
     phases: [
-      { name: 'Breathe in', dur: 1.5, from: 0.3, to: 0.75 },
-      { name: 'Top up', dur: 0.7, from: 0.75, to: 1 },
-      { name: 'Breathe out slowly', dur: 4, from: 1, to: 0.3 },
-      { name: 'Rest', dur: 0.5, from: 0.3, to: 0.3 },
+      { name: 'Breathe in', dur: 1.5, from: 0.35, to: 0.75, hint: 'through the nose' },
+      { name: 'Top up', dur: 0.7, from: 0.75, to: 1, hint: 'one more short inhale' },
+      { name: 'Long exhale', dur: 4, from: 1, to: 0.35, hint: 'through the mouth' },
+      { name: 'Rest', dur: 0.5, from: 0.35, to: 0.35, hint: '' },
     ],
   },
   {
     id: 'box',
     label: 'Sharpen',
     icon: Square,
-    color: '#38bdf8',
+    palette: { core: '#22d3ee', mid: '#0891b2', outer: '#155e75', bg1: '#04141a', bg2: '#083344' },
     duration: 180,
-    type: 'breath',
-    fullName: 'Box Breathing (4-4-4-4)',
-    why: 'Used by US Navy SEALs and first responders before high-stakes tasks. Equal inhale, hold, exhale, hold. Trains focus and steady nervous-system control.',
-    when: 'You have another work block coming and need to sharpen up, not wind down.',
+    fullName: 'Box Breathing',
+    subtitle: 'Equal 4-second inhale, hold, exhale, hold',
+    why: 'Used by US Navy SEALs and first responders before high-stakes tasks. Trains steady nervous-system control and sharpens focus without over-relaxing you.',
+    when: 'You have another work block coming and need to lock in.',
     phases: [
-      { name: 'Breathe in', dur: 4, from: 0.3, to: 1 },
-      { name: 'Hold', dur: 4, from: 1, to: 1 },
-      { name: 'Breathe out', dur: 4, from: 1, to: 0.3 },
-      { name: 'Hold', dur: 4, from: 0.3, to: 0.3 },
+      { name: 'Breathe in', dur: 4, from: 0.35, to: 1, hint: '' },
+      { name: 'Hold', dur: 4, from: 1, to: 1, hint: 'stay full' },
+      { name: 'Breathe out', dur: 4, from: 1, to: 0.35, hint: '' },
+      { name: 'Hold', dur: 4, from: 0.35, to: 0.35, hint: 'stay empty' },
     ],
   },
   {
     id: 'coherent',
     label: 'Balance',
     icon: Heart,
-    color: '#10b981',
+    palette: { core: '#34d399', mid: '#10b981', outer: '#065f46', bg1: '#03150e', bg2: '#064e3b' },
     duration: 300,
-    type: 'breath',
-    fullName: 'Coherent Breathing (5-5)',
-    why: 'About 6 breaths per minute. Research (Brown & Gerbarg, Columbia) shows sustained practice improves heart-rate variability and reduces anxiety and depression markers.',
-    when: 'Default option. When you\'re not sure which to pick, this one. Gentle, safe, any time.',
+    fullName: 'Coherent Breathing',
+    subtitle: '5 seconds in, 5 seconds out',
+    why: 'Around 6 breaths per minute — the pace that maximizes heart-rate variability. Sustained practice (Brown & Gerbarg, Columbia) improves mood and lowers anxiety.',
+    when: 'Default choice. When unsure which to pick, pick this.',
     phases: [
-      { name: 'Breathe in', dur: 5, from: 0.3, to: 1 },
-      { name: 'Breathe out', dur: 5, from: 1, to: 0.3 },
+      { name: 'Breathe in', dur: 5, from: 0.35, to: 1, hint: '' },
+      { name: 'Breathe out', dur: 5, from: 1, to: 0.35, hint: '' },
     ],
   },
   {
     id: 'four78',
     label: 'Wind down',
     icon: Moon,
-    color: '#a78bfa',
+    palette: { core: '#a78bfa', mid: '#7c3aed', outer: '#4c1d95', bg1: '#0a0416', bg2: '#1e1b4b' },
     duration: 240,
-    type: 'breath',
     fullName: '4-7-8 Breathing',
-    why: 'Popularized by Dr. Andrew Weil, based on pranayama. The long exhale activates the parasympathetic nervous system (rest state). Also used to fall asleep faster.',
-    when: 'You feel wired or anxious after a stressful work block. Or at the end of the day.',
+    subtitle: '4 in, hold 7, out 8',
+    why: 'Popularized by Dr. Andrew Weil. The long exhale flips you into the parasympathetic (rest) state. Widely used to fall asleep faster.',
+    when: 'You feel wired or anxious. End of the day.',
     phases: [
-      { name: 'Breathe in', dur: 4, from: 0.3, to: 1 },
-      { name: 'Hold', dur: 7, from: 1, to: 1 },
-      { name: 'Breathe out', dur: 8, from: 1, to: 0.3 },
+      { name: 'Breathe in', dur: 4, from: 0.35, to: 1, hint: 'through the nose' },
+      { name: 'Hold', dur: 7, from: 1, to: 1, hint: 'stay still' },
+      { name: 'Breathe out', dur: 8, from: 1, to: 0.35, hint: 'through the mouth, slow' },
     ],
   },
-  {
-    id: 'stretch',
-    label: 'Stretch',
-    icon: PersonStanding,
-    color: '#f97316',
-    duration: 180,
-    type: 'stretch',
-    fullName: 'Desk Stretch Sequence',
-    why: 'Long sitting compresses the spine, shortens hip flexors, and stiffens the neck and shoulders. Even 2 minutes of movement restores blood flow and posture.',
-    when: 'After any Pomodoro. Especially if you\'ve been hunched over the phone or laptop.',
-  },
-  {
-    id: 'eye',
-    label: 'Eye rest',
-    icon: Eye,
-    color: '#60a5fa',
-    duration: 20,
-    type: 'eye',
-    fullName: '20-20-20 Rule',
-    why: 'Recommended by the American Academy of Ophthalmology. Every 20 minutes of screen time, look at something 20 feet away for 20 seconds. Prevents digital eye strain.',
-    when: 'You\'ve been staring at code or the phone. Especially if your eyes feel dry or tired.',
-  },
-  {
-    id: 'gratitude',
-    label: 'Gratitude',
-    icon: Sparkles,
-    color: '#fbbf24',
-    duration: 90,
-    type: 'gratitude',
-    fullName: 'One good thing',
-    why: 'Research (Emmons, UC Davis) shows regular gratitude practice improves mood, sleep quality, and long-term wellbeing. Written works better than mental notes.',
-    when: 'End of the workday, after a hard block, or anytime you\'re stuck in a negative loop.',
-  },
 ]
 
-const STRETCHES = [
-  { name: 'Neck rolls', instr: 'Slowly roll your head in a full circle. 3 clockwise, 3 counter-clockwise.', dur: 30 },
-  { name: 'Shoulder shrugs', instr: 'Lift shoulders to ears, hold 2s, drop hard. Repeat 8 times.', dur: 30 },
-  { name: 'Seated spinal twist', instr: 'Right hand on left knee, twist gently left. Hold 15s. Switch sides.', dur: 30 },
-  { name: 'Wrist & finger stretch', instr: 'Extend arm, palm up, pull fingers back with other hand. Hold 15s each side.', dur: 30 },
-  { name: 'Stand & reach', instr: 'Stand, interlace fingers overhead, palms up. Reach tall. Hold 20s.', dur: 30 },
-  { name: 'Hip flexor stretch', instr: 'Step one foot back into a lunge. Hold 15s. Switch sides.', dur: 30 },
-]
+const fmt = (secs) => {
+  const s = Math.max(0, Math.floor(secs))
+  const m = Math.floor(s / 60)
+  return `${String(m).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`
+}
 
-// ─── Breathing mode ─────────────────────────────────────────────
-function BreathingMode({ mode, running, elapsed, onDone }) {
+// ═══════════════════════════════════════════════════════════════
+// Immersive full-screen breathing session (renders as overlay)
+// ═══════════════════════════════════════════════════════════════
+function BreathingSession({ mode, onClose }) {
+  const [running, setRunning] = useState(true)
+  const [elapsed, setElapsed] = useState(0)
   const [phaseIdx, setPhaseIdx] = useState(0)
   const [phaseElapsed, setPhaseElapsed] = useState(0)
-  const startedAt = useRef(null)
+  const [showWhy, setShowWhy] = useState(false)
+  const startRef = useRef(Date.now())
+  const pausedAtRef = useRef(0)
 
   useEffect(() => {
-    if (!running) { startedAt.current = null; return }
-    if (!startedAt.current) startedAt.current = Date.now() - phaseElapsed * 1000
+    if (!running) return
+    const id = setInterval(() => {
+      setElapsed((Date.now() - startRef.current) / 1000 - pausedAtRef.current)
+    }, 150)
+    return () => clearInterval(id)
+  }, [running])
 
-    const tick = () => {
-      const now = Date.now()
-      const total = (now - startedAt.current) / 1000
-      let acc = 0
-      let idx = 0
-      const cycleLen = mode.phases.reduce((s, p) => s + p.dur, 0)
+  useEffect(() => {
+    if (!running) return
+    const cycleLen = mode.phases.reduce((s, p) => s + p.dur, 0)
+    const id = setInterval(() => {
+      const total = (Date.now() - startRef.current) / 1000 - pausedAtRef.current
       const cyclePos = total % cycleLen
+      let acc = 0, idx = 0
       for (let i = 0; i < mode.phases.length; i++) {
-        if (cyclePos < acc + mode.phases[i].dur) {
-          idx = i
-          break
-        }
+        if (cyclePos < acc + mode.phases[i].dur) { idx = i; break }
         acc += mode.phases[i].dur
       }
       setPhaseIdx(idx)
       setPhaseElapsed(cyclePos - acc)
-    }
-    const id = setInterval(tick, 60)
+    }, 60)
     return () => clearInterval(id)
   }, [running, mode])
 
   useEffect(() => {
-    if (elapsed >= mode.duration && running) onDone?.()
-  }, [elapsed, mode.duration, running, onDone])
+    if (elapsed >= mode.duration && running) {
+      setRunning(false)
+      try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)()
+        const o = ctx.createOscillator(), g = ctx.createGain()
+        o.frequency.value = 528; o.type = 'sine'
+        o.connect(g); g.connect(ctx.destination)
+        g.gain.setValueAtTime(0.001, ctx.currentTime)
+        g.gain.exponentialRampToValueAtTime(0.12, ctx.currentTime + 0.08)
+        g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 1.5)
+        o.start(); o.stop(ctx.currentTime + 1.6)
+      } catch (e) { /* silent */ }
+    }
+  }, [elapsed, mode.duration, running])
+
+  const togglePlay = () => {
+    if (running) {
+      pausedAtRef.current += (Date.now() - startRef.current) / 1000 - elapsed
+      setRunning(false)
+    } else {
+      startRef.current = Date.now()
+      pausedAtRef.current = -elapsed
+      setRunning(true)
+    }
+  }
 
   const phase = mode.phases[phaseIdx]
   const t = Math.min(1, phaseElapsed / phase.dur)
-  // ease in-out for smoothness
   const eased = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2
   const scale = phase.from + (phase.to - phase.from) * eased
-
+  const p = mode.palette
   const remaining = Math.max(0, mode.duration - elapsed)
-  const rMin = Math.floor(remaining / 60)
-  const rSec = Math.floor(remaining % 60)
+  const isDone = remaining <= 0
+
+  useEffect(() => {
+    const prev = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    return () => { document.body.style.overflow = prev }
+  }, [])
 
   return (
-    <div className="flex flex-col items-center py-4">
-      <div className="relative w-56 h-56 grid place-items-center">
-        {/* outer glow */}
-        <div className="absolute rounded-full transition-all duration-100"
+    <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center overflow-hidden"
+      style={{ background: `radial-gradient(ellipse at center, ${p.bg2} 0%, ${p.bg1} 55%, #000 100%)` }}>
+
+      {/* ambient depth blobs */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute rounded-full opacity-40"
           style={{
-            width: `${scale * 100}%`, height: `${scale * 100}%`,
-            background: `radial-gradient(circle, ${mode.color}66, ${mode.color}00 70%)`,
-            filter: 'blur(20px)',
+            width: '60%', height: '60%', top: '-15%', left: '-15%',
+            background: `radial-gradient(circle, ${p.mid}66, transparent 65%)`,
+            filter: 'blur(60px)',
+            animation: 'blobDrift1 30s ease-in-out infinite',
           }} />
-        {/* main breathing circle */}
-        <div className="absolute rounded-full border-2 transition-all"
+        <div className="absolute rounded-full opacity-35"
           style={{
-            width: `${scale * 90}%`, height: `${scale * 90}%`,
-            borderColor: mode.color,
-            background: `radial-gradient(circle, ${mode.color}33 0%, ${mode.color}11 60%, transparent 100%)`,
-            boxShadow: `0 0 60px ${mode.color}55, inset 0 0 40px ${mode.color}33`,
-            transitionDuration: `${(phase.dur * 1000)}ms`,
-            transitionTimingFunction: 'ease-in-out',
+            width: '70%', height: '70%', bottom: '-20%', right: '-20%',
+            background: `radial-gradient(circle, ${p.outer}88, transparent 65%)`,
+            filter: 'blur(70px)',
+            animation: 'blobDrift2 40s ease-in-out infinite',
           }} />
-        {/* phase name */}
-        <div className="relative text-center z-10">
-          <div className="font-display font-bold text-2xl tracking-tight">{phase.name}</div>
-          <div className="font-mono text-xs text-dim mt-1">{Math.ceil(phase.dur - phaseElapsed)}s</div>
-        </div>
+        <div className="absolute rounded-full opacity-25"
+          style={{
+            width: '50%', height: '50%', top: '40%', right: '10%',
+            background: `radial-gradient(circle, ${p.core}66, transparent 65%)`,
+            filter: 'blur(80px)',
+            animation: 'blobDrift3 45s ease-in-out infinite',
+          }} />
       </div>
-      <div className="mt-4 font-mono text-xs text-dim">
-        {String(rMin).padStart(2, '0')}:{String(rSec).padStart(2, '0')} remaining
+
+      {/* drifting particles */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+        {Array.from({ length: 20 }).map((_, i) => (
+          <div key={i} className="absolute rounded-full"
+            style={{
+              width: '2px', height: '2px',
+              left: `${(i * 47) % 100}%`,
+              top: `${(i * 31) % 100}%`,
+              background: p.core,
+              opacity: 0.4,
+              boxShadow: `0 0 6px ${p.core}`,
+              animation: `particleFloat ${18 + (i % 5) * 3}s linear ${i * 0.4}s infinite`,
+            }} />
+        ))}
       </div>
-    </div>
-  )
-}
 
-// ─── Stretch mode ───────────────────────────────────────────────
-function StretchMode({ mode, running, elapsed, onDone }) {
-  const total = STRETCHES.reduce((s, x) => s + x.dur, 0)
-  useEffect(() => {
-    if (elapsed >= total && running) onDone?.()
-  }, [elapsed, total, running, onDone])
-  let acc = 0
-  let idx = 0
-  for (let i = 0; i < STRETCHES.length; i++) {
-    if (elapsed < acc + STRETCHES[i].dur) { idx = i; break }
-    acc += STRETCHES[i].dur
-    idx = i
-  }
-  const s = STRETCHES[idx]
-  const inStretch = elapsed - acc
-  const remaining = Math.max(0, s.dur - inStretch)
-  return (
-    <div className="flex flex-col items-center py-6 px-4 text-center">
-      <div className="w-20 h-20 rounded-full grid place-items-center mb-4"
-        style={{ background: `${mode.color}22`, border: `1px solid ${mode.color}66` }}>
-        <PersonStanding size={40} style={{ color: mode.color }} />
-      </div>
-      <div className="text-xs uppercase tracking-widest text-dim mb-2">
-        Stretch {idx + 1} of {STRETCHES.length}
-      </div>
-      <div className="font-display font-bold text-2xl mb-2">{s.name}</div>
-      <div className="text-sm text-dim max-w-md">{s.instr}</div>
-      <div className="mt-4 font-mono text-3xl font-bold" style={{ color: mode.color }}>{Math.ceil(remaining)}s</div>
-    </div>
-  )
-}
-
-// ─── Eye rest mode ──────────────────────────────────────────────
-function EyeRestMode({ mode, running, elapsed, onDone }) {
-  useEffect(() => {
-    if (elapsed >= mode.duration && running) onDone?.()
-  }, [elapsed, mode.duration, running, onDone])
-  const remaining = Math.max(0, mode.duration - elapsed)
-  const done = elapsed >= mode.duration
-  return (
-    <div className="flex flex-col items-center py-6 px-4 text-center">
-      <div className="relative w-40 h-40 mb-4">
-        {/* distant landscape SVG — restful visual */}
-        <svg viewBox="0 0 120 120" className="w-full h-full">
-          <defs>
-            <linearGradient id="brSky" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0" stopColor="#0c1e3d" />
-              <stop offset="1" stopColor="#1e40af" />
-            </linearGradient>
-            <radialGradient id="brMoon" cx="0.5" cy="0.5" r="0.5">
-              <stop offset="0" stopColor="#e0f2fe" />
-              <stop offset="1" stopColor="#60a5fa" stopOpacity="0" />
-            </radialGradient>
-          </defs>
-          <circle cx="60" cy="60" r="58" fill="url(#brSky)" />
-          <circle cx="80" cy="42" r="10" fill="url(#brMoon)" />
-          <circle cx="80" cy="42" r="5" fill="#e0f2fe" />
-          <path d="M 0 90 Q 30 70 60 85 T 120 80 L 120 120 L 0 120 Z" fill="#0f172a" />
-          <path d="M 0 100 Q 40 85 70 95 T 120 92 L 120 120 L 0 120 Z" fill="#020617" />
-          {/* stars */}
-          {[[15,20],[30,15],[50,25],[70,18],[95,30],[100,55]].map(([x,y],i) => (
-            <circle key={i} cx={x} cy={y} r="0.6" fill="#e0f2fe">
-              <animate attributeName="opacity" values="0.4;1;0.4" dur={`${2 + i * 0.3}s`} repeatCount="indefinite" />
-            </circle>
-          ))}
-        </svg>
-      </div>
-      <div className="font-display font-bold text-2xl mb-2">Look 20 feet away</div>
-      <div className="text-sm text-dim max-w-md">
-        Focus on the farthest object you can see. A wall, out a window, a distant point. Let your eyes fully relax.
-      </div>
-      <div className="mt-4 font-mono text-3xl font-bold" style={{ color: mode.color }}>
-        {done ? '✓' : `${Math.ceil(remaining)}s`}
-      </div>
-    </div>
-  )
-}
-
-// ─── Gratitude mode ─────────────────────────────────────────────
-const PROMPTS = [
-  'One thing that went well in the last hour.',
-  'One person you\'re grateful for right now.',
-  'One thing your past self did that helped you today.',
-  'One small win from this work block.',
-  'One thing about your body or mind that\'s working well.',
-  'One thing you\'re looking forward to today.',
-]
-function GratitudeMode({ mode, running, elapsed, onDone }) {
-  const [text, setText] = useState('')
-  const [prompt] = useState(() => PROMPTS[Math.floor(Math.random() * PROMPTS.length)])
-  const [saved, setSaved] = useState(false)
-
-  useEffect(() => {
-    if (elapsed >= mode.duration && running) onDone?.()
-  }, [elapsed, mode.duration, running, onDone])
-
-  const save = () => {
-    if (!text.trim()) return
-    try {
-      const key = 'gratitude_log'
-      const existing = JSON.parse(localStorage.getItem(key) || '[]')
-      existing.unshift({ text: text.trim(), prompt, at: new Date().toISOString() })
-      localStorage.setItem(key, JSON.stringify(existing.slice(0, 200)))
-      setSaved(true)
-      setText('')
-      setTimeout(() => setSaved(false), 2000)
-    } catch (e) {
-      // localStorage might be blocked — fall through
-      setSaved(true)
-      setText('')
-      setTimeout(() => setSaved(false), 2000)
-    }
-  }
-
-  return (
-    <div className="flex flex-col items-center py-6 px-4">
-      <div className="w-16 h-16 rounded-full grid place-items-center mb-3"
-        style={{ background: `${mode.color}22`, border: `1px solid ${mode.color}66` }}>
-        <Sparkles size={28} style={{ color: mode.color }} />
-      </div>
-      <div className="text-xs uppercase tracking-widest text-dim mb-2">Reflect</div>
-      <div className="font-display font-bold text-lg mb-3 text-center max-w-md">{prompt}</div>
-      <textarea
-        value={text}
-        onChange={(e) => setText(e.target.value)}
-        placeholder="Write it here…"
-        rows={3}
-        className="w-full max-w-md rounded-lg bg-white/5 border border-white/10 px-3 py-2 text-sm focus:outline-none focus:border-amber/60 resize-none"
-      />
-      <button
-        onClick={save}
-        disabled={!text.trim()}
-        className="mt-3 px-4 py-1.5 rounded-lg text-xs font-semibold transition disabled:opacity-40"
-        style={{ background: mode.color, color: '#000' }}
-      >
-        {saved ? '✓ Saved' : 'Save entry'}
-      </button>
-      <div className="mt-3 text-[10px] text-dim">Stored locally on this device. Never leaves your phone.</div>
-    </div>
-  )
-}
-
-// ═══════════════════════════════════════════════════════════════
-// Main Break Space component
-// ═══════════════════════════════════════════════════════════════
-export default function BreakSpace() {
-  const [modeId, setModeId] = useState('coherent')
-  const [running, setRunning] = useState(false)
-  const [elapsed, setElapsed] = useState(0)
-  const [showInfo, setShowInfo] = useState(false)
-  const startRef = useRef(null)
-
-  const mode = MODES.find((m) => m.id === modeId) || MODES[0]
-
-  useEffect(() => {
-    // reset elapsed when mode changes
-    setElapsed(0)
-    setRunning(false)
-    startRef.current = null
-    setShowInfo(false)
-  }, [modeId])
-
-  useEffect(() => {
-    if (!running) return
-    if (!startRef.current) startRef.current = Date.now() - elapsed * 1000
-    const id = setInterval(() => {
-      const secs = (Date.now() - startRef.current) / 1000
-      setElapsed(secs)
-    }, 200)
-    return () => clearInterval(id)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [running])
-
-  const onDone = () => {
-    setRunning(false)
-    // gentle chime
-    try {
-      const ctx = new (window.AudioContext || window.webkitAudioContext)()
-      const o = ctx.createOscillator(); const g = ctx.createGain()
-      o.frequency.value = 528; o.type = 'sine'
-      o.connect(g); g.connect(ctx.destination)
-      g.gain.setValueAtTime(0.001, ctx.currentTime)
-      g.gain.exponentialRampToValueAtTime(0.15, ctx.currentTime + 0.05)
-      g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 1.2)
-      o.start(); o.stop(ctx.currentTime + 1.3)
-    } catch (e) { /* silent */ }
-  }
-
-  const reset = () => {
-    setRunning(false)
-    setElapsed(0)
-    startRef.current = null
-  }
-
-  const toggle = () => {
-    if (!running) {
-      startRef.current = Date.now() - elapsed * 1000
-    }
-    setRunning(!running)
-  }
-
-  return (
-    <section className="card p-5 lg:p-6 mt-4 anim-up">
-      <div className="flex items-center justify-between mb-4">
-        <div>
-          <div className="label mb-0.5">Break space</div>
-          <div className="text-xs text-dim">Restore before the next block. Pick what fits how you feel.</div>
+      {/* top bar */}
+      <div className="absolute top-0 inset-x-0 flex items-center justify-between p-5 z-10">
+        <button
+          onClick={onClose}
+          className="w-10 h-10 rounded-full grid place-items-center bg-white/5 hover:bg-white/10 backdrop-blur-sm transition"
+          aria-label="Close"
+        >
+          <X size={18} className="text-white/80" />
+        </button>
+        <div className="text-center">
+          <div className="text-[10px] uppercase tracking-[0.3em] text-white/50">{mode.fullName}</div>
+          <div className="text-xs text-white/60 mt-1">{mode.subtitle}</div>
         </div>
         <button
-          onClick={() => setShowInfo(!showInfo)}
-          className="p-1.5 rounded-lg hover:bg-white/5 text-dim hover:text-text transition"
-          title="Why this one?"
+          onClick={() => setShowWhy(!showWhy)}
+          className="w-10 h-10 rounded-full grid place-items-center bg-white/5 hover:bg-white/10 backdrop-blur-sm transition"
+          aria-label="Info"
         >
-          <Info size={16} />
+          <Info size={16} className="text-white/80" />
         </button>
       </div>
 
-      {/* mode picker — horizontal scroll on mobile */}
-      <div className="flex gap-2 overflow-x-auto -mx-1 px-1 pb-2 mb-3">
-        {MODES.map((m) => {
-          const Icon = m.icon
-          const active = m.id === modeId
-          return (
-            <button
-              key={m.id}
-              onClick={() => setModeId(m.id)}
-              className={`flex flex-col items-center gap-1 px-3 py-2 rounded-xl border transition whitespace-nowrap min-w-[70px] ${
-                active ? 'bg-white/10' : 'bg-white/3 hover:bg-white/6'
-              }`}
-              style={{
-                borderColor: active ? m.color : 'rgba(255,255,255,0.08)',
-                boxShadow: active ? `0 0 12px ${m.color}44` : undefined,
-              }}
-            >
-              <Icon size={16} style={{ color: active ? m.color : '#94a3b8' }} />
-              <span className="text-[10px] font-medium" style={{ color: active ? m.color : '#94a3b8' }}>
-                {m.label}
-              </span>
-            </button>
-          )
-        })}
-      </div>
-
-      {/* info panel */}
-      {showInfo && (
-        <div className="rounded-lg bg-white/5 border border-white/8 p-3 mb-3 text-xs anim-up">
-          <div className="font-semibold mb-1" style={{ color: mode.color }}>{mode.fullName}</div>
-          <div className="text-dim mb-2"><span className="text-text/80 font-medium">What it does:</span> {mode.why}</div>
-          <div className="text-dim"><span className="text-text/80 font-medium">When to use:</span> {mode.when}</div>
+      {showWhy && (
+        <div className="absolute top-20 left-1/2 -translate-x-1/2 max-w-md w-[calc(100%-3rem)] p-4 rounded-2xl bg-black/50 backdrop-blur-md border border-white/10 z-10 anim-up">
+          <div className="text-xs uppercase tracking-widest mb-2" style={{ color: p.core }}>Why this technique</div>
+          <div className="text-sm text-white/90 mb-3 leading-relaxed">{mode.why}</div>
+          <div className="text-xs uppercase tracking-widest mb-1 text-white/50">When to use</div>
+          <div className="text-sm text-white/80 leading-relaxed">{mode.when}</div>
         </div>
       )}
 
-      {/* the active mode's UI */}
-      <div className="min-h-[280px] flex items-center justify-center rounded-xl bg-white/3 border border-white/6">
-        <div className="w-full">
-          {mode.type === 'breath' && (
-            <BreathingMode mode={mode} running={running} elapsed={elapsed} onDone={onDone} />
-          )}
-          {mode.type === 'stretch' && (
-            <StretchMode mode={mode} running={running} elapsed={elapsed} onDone={onDone} />
-          )}
-          {mode.type === 'eye' && (
-            <EyeRestMode mode={mode} running={running} elapsed={elapsed} onDone={onDone} />
-          )}
-          {mode.type === 'gratitude' && (
-            <GratitudeMode mode={mode} running={running} elapsed={elapsed} onDone={onDone} />
+      {/* the orb */}
+      <div className="relative flex items-center justify-center" style={{ width: 'min(80vw, 460px)', height: 'min(80vw, 460px)' }}>
+        {[0, 1, 2].map(i => (
+          <div key={i} className="absolute rounded-full border"
+            style={{
+              width: `${scale * (100 + i * 12)}%`,
+              height: `${scale * (100 + i * 12)}%`,
+              borderColor: `${p.core}${['33', '22', '11'][i]}`,
+              transition: `all ${phase.dur * 1000}ms cubic-bezier(0.4, 0, 0.2, 1)`,
+            }} />
+        ))}
+
+        <div className="absolute rounded-full"
+          style={{
+            width: `${scale * 130}%`, height: `${scale * 130}%`,
+            background: `radial-gradient(circle, ${p.core}44 0%, ${p.mid}22 30%, transparent 65%)`,
+            filter: 'blur(30px)',
+            transition: `all ${phase.dur * 1000}ms cubic-bezier(0.4, 0, 0.2, 1)`,
+          }} />
+
+        <div className="absolute rounded-full"
+          style={{
+            width: `${scale * 85}%`, height: `${scale * 85}%`,
+            background: `radial-gradient(circle at 35% 30%, ${p.core}ee 0%, ${p.mid}dd 40%, ${p.outer}bb 75%, ${p.outer}00 100%)`,
+            boxShadow: `0 0 80px ${p.core}66, inset 0 0 60px ${p.mid}55`,
+            transition: `all ${phase.dur * 1000}ms cubic-bezier(0.4, 0, 0.2, 1)`,
+          }} />
+
+        <div className="absolute rounded-full pointer-events-none"
+          style={{
+            width: `${scale * 30}%`, height: `${scale * 30}%`,
+            top: `${25 + (1 - scale) * 5}%`, left: `${25 + (1 - scale) * 5}%`,
+            background: `radial-gradient(circle, #ffffff88 0%, transparent 70%)`,
+            filter: 'blur(15px)',
+            transition: `all ${phase.dur * 1000}ms cubic-bezier(0.4, 0, 0.2, 1)`,
+          }} />
+
+        <div className="relative z-10 text-center pointer-events-none">
+          <div key={phase.name + phaseIdx} className="font-display font-bold text-3xl sm:text-4xl text-white tracking-tight bs-fade">
+            {isDone ? 'Well done' : phase.name}
+          </div>
+          {!isDone && phase.hint && (
+            <div className="text-xs sm:text-sm text-white/60 mt-2 max-w-[220px] mx-auto">{phase.hint}</div>
           )}
         </div>
       </div>
 
-      {/* controls — gratitude has its own save flow so we hide start/reset */}
-      {mode.type !== 'gratitude' && (
-        <div className="flex items-center justify-center gap-3 mt-4">
-          <button
-            onClick={toggle}
-            className="flex items-center gap-2 px-5 py-2 rounded-xl font-semibold text-sm transition"
-            style={{ background: mode.color, color: '#000' }}
-          >
-            {running ? <Pause size={14} /> : <Play size={14} />}
-            {running ? 'Pause' : elapsed > 0 ? 'Resume' : 'Start'}
-          </button>
-          <button
-            onClick={reset}
-            disabled={elapsed === 0}
-            className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs text-dim hover:text-text hover:bg-white/5 transition disabled:opacity-40"
-          >
-            <RotateCcw size={13} />
-            Reset
-          </button>
+      {/* bottom */}
+      <div className="absolute bottom-0 inset-x-0 flex flex-col items-center pb-10 pt-6 z-10">
+        <div className="font-mono text-sm text-white/70 mb-4 tracking-widest">
+          {isDone ? 'Session complete' : fmt(remaining)}
         </div>
+        {isDone ? (
+          <button
+            onClick={onClose}
+            className="px-8 py-3 rounded-full font-semibold text-sm transition backdrop-blur-sm"
+            style={{ background: p.core, color: '#000' }}
+          >
+            Done
+          </button>
+        ) : (
+          <button
+            onClick={togglePlay}
+            className="w-16 h-16 rounded-full grid place-items-center backdrop-blur-md border border-white/20 hover:scale-105 transition-all"
+            style={{ background: `${p.core}22` }}
+            aria-label={running ? 'Pause' : 'Play'}
+          >
+            {running
+              ? <Pause size={22} className="text-white" />
+              : <Play size={22} className="text-white translate-x-0.5" />}
+          </button>
+        )}
+      </div>
+
+      <style>{`
+        @keyframes blobDrift1 {
+          0%, 100% { transform: translate(0, 0) scale(1); }
+          33%      { transform: translate(20%, 15%) scale(1.15); }
+          66%      { transform: translate(-10%, 25%) scale(0.9); }
+        }
+        @keyframes blobDrift2 {
+          0%, 100% { transform: translate(0, 0) scale(1); }
+          40%      { transform: translate(-25%, -15%) scale(1.2); }
+          75%      { transform: translate(10%, -20%) scale(0.85); }
+        }
+        @keyframes blobDrift3 {
+          0%, 100% { transform: translate(0, 0) scale(1); }
+          50%      { transform: translate(-30%, 20%) scale(1.3); }
+        }
+        @keyframes particleFloat {
+          0%   { transform: translateY(0) translateX(0); opacity: 0; }
+          10%  { opacity: 0.5; }
+          90%  { opacity: 0.5; }
+          100% { transform: translateY(-100vh) translateX(30px); opacity: 0; }
+        }
+        @keyframes bs-fade {
+          from { opacity: 0; transform: translateY(6px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+        .bs-fade { animation: bs-fade 0.4s ease-out; }
+      `}</style>
+    </div>
+  )
+}
+
+// ═══════════════════════════════════════════════════════════════
+// Mode picker card
+// ═══════════════════════════════════════════════════════════════
+export default function BreakSpace() {
+  const [activeMode, setActiveMode] = useState(null)
+
+  return (
+    <>
+      <section className="card p-5 lg:p-6 mt-4 anim-up">
+        <div className="mb-4">
+          <div className="label mb-0.5">Break space</div>
+          <div className="text-xs text-dim">Restore before the next block. Tap a technique to begin.</div>
+        </div>
+
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          {MODES.map((m) => {
+            const Icon = m.icon
+            return (
+              <button
+                key={m.id}
+                onClick={() => setActiveMode(m)}
+                className="group relative overflow-hidden rounded-2xl p-4 border transition-all hover:scale-[1.02] active:scale-[0.98] text-left"
+                style={{
+                  background: `linear-gradient(135deg, ${m.palette.bg2} 0%, ${m.palette.bg1} 100%)`,
+                  borderColor: `${m.palette.mid}55`,
+                }}
+              >
+                <div className="absolute -top-6 -right-6 w-20 h-20 rounded-full opacity-50 group-hover:opacity-80 transition-opacity pointer-events-none"
+                  style={{
+                    background: `radial-gradient(circle, ${m.palette.core}88, transparent 65%)`,
+                    filter: 'blur(15px)',
+                  }} />
+                <div className="relative">
+                  <div className="w-10 h-10 rounded-xl grid place-items-center mb-3"
+                    style={{ background: `${m.palette.core}22`, border: `1px solid ${m.palette.core}55` }}>
+                    <Icon size={18} style={{ color: m.palette.core }} />
+                  </div>
+                  <div className="font-semibold text-sm text-white mb-1">{m.label}</div>
+                  <div className="text-[11px] text-white/50 leading-tight">{m.subtitle}</div>
+                  <div className="text-[10px] font-mono mt-2" style={{ color: m.palette.core }}>
+                    {Math.round(m.duration / 60)} min
+                  </div>
+                </div>
+              </button>
+            )
+          })}
+        </div>
+      </section>
+
+      {activeMode && (
+        <BreathingSession mode={activeMode} onClose={() => setActiveMode(null)} />
       )}
-    </section>
+    </>
   )
 }
