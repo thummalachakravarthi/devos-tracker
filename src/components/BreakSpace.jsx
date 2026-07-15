@@ -204,24 +204,32 @@ function BreathingSession({ mode, onClose }) {
       </div>
 
       {/* top bar */}
-      <div className="absolute top-0 inset-x-0 flex items-center justify-between p-5 z-10">
+      <div className="absolute top-0 inset-x-0 flex items-center justify-between z-10"
+        style={{
+          paddingTop: 'max(1.25rem, env(safe-area-inset-top))',
+          paddingLeft: 'max(1.25rem, env(safe-area-inset-left))',
+          paddingRight: 'max(1.25rem, env(safe-area-inset-right))',
+          paddingBottom: '0.75rem',
+        }}>
         <button
           onClick={onClose}
-          className="w-10 h-10 rounded-full grid place-items-center bg-white/5 hover:bg-white/10 backdrop-blur-sm transition"
-          aria-label="Close"
+          className="w-14 h-14 rounded-full grid place-items-center bg-black/60 hover:bg-black/80 backdrop-blur-md border border-white/30 shadow-lg transition active:scale-95"
+          aria-label="Close breathing session"
+          style={{ boxShadow: '0 4px 20px rgba(0,0,0,0.5)' }}
         >
-          <X size={18} className="text-white/80" />
+          <X size={26} strokeWidth={2.5} className="text-white" />
         </button>
-        <div className="text-center">
-          <div className="text-[10px] uppercase tracking-[0.3em] text-white/50">{mode.fullName}</div>
-          <div className="text-xs text-white/60 mt-1">{mode.subtitle}</div>
+        <div className="text-center flex-1 px-3">
+          <div className="text-[10px] uppercase tracking-[0.3em] text-white/60">{mode.fullName}</div>
+          <div className="text-xs text-white/70 mt-1">{mode.subtitle}</div>
         </div>
         <button
           onClick={() => setShowWhy(!showWhy)}
-          className="w-10 h-10 rounded-full grid place-items-center bg-white/5 hover:bg-white/10 backdrop-blur-sm transition"
-          aria-label="Info"
+          className="w-14 h-14 rounded-full grid place-items-center bg-black/60 hover:bg-black/80 backdrop-blur-md border border-white/30 shadow-lg transition active:scale-95"
+          aria-label="Info about this technique"
+          style={{ boxShadow: '0 4px 20px rgba(0,0,0,0.5)' }}
         >
-          <Info size={16} className="text-white/80" />
+          <Info size={22} strokeWidth={2.2} className="text-white" />
         </button>
       </div>
 
