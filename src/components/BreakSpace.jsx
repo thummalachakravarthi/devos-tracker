@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { Wind, Square, Heart, Moon, Play, Pause, X, Info } from 'lucide-react'
 
 // ═══════════════════════════════════════════════════════════════
@@ -158,8 +159,8 @@ function BreathingSession({ mode, onClose }) {
     return () => { document.body.style.overflow = prev }
   }, [])
 
-  return (
-    <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center overflow-hidden"
+  return createPortal(
+    <div className="fixed inset-0 z-[9999] flex flex-col items-center justify-center overflow-hidden"
       style={{ background: `radial-gradient(ellipse at center, ${p.bg2} 0%, ${p.bg1} 55%, #000 100%)` }}>
 
       {/* ambient depth blobs */}
@@ -343,7 +344,8 @@ function BreathingSession({ mode, onClose }) {
         }
         .bs-fade { animation: bs-fade 0.4s ease-out; }
       `}</style>
-    </div>
+    </div>,
+    document.body,
   )
 }
 
