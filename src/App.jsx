@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 import { supabase, configMissing } from './lib/supabase'
-import { todayISO } from './lib/dates'
-import BootSequence, { BOOT_SEEN_KEY } from './BootSequence'
+import BootSequence from './BootSequence'
 import Login from './pages/Login'
 import Shell from './Shell'
 
@@ -13,14 +12,8 @@ export default function App() {
   const [session, setSession] = useState(undefined)
   const [booting, setBooting] = useState(() => {
     if (typeof window === 'undefined') return false
-    // respect users who ask for reduced motion — no intro at all
-    if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return false
-    // show only once per local day
-    try {
-      return localStorage.getItem(BOOT_SEEN_KEY) !== todayISO()
-    } catch {
-      return true
-    }
+    // no intro for users who ask for reduced motion; otherwise play every cold load
+    return !window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
   })
 
   useEffect(() => {
@@ -30,12 +23,9 @@ export default function App() {
     return () => sub.subscription.unsubscribe()
   }, [])
 
-  // Boot intro plays over everything on cold load; auth resolves in the
-  // background meanwhile, so the app is usually ready when it fades out.
-  if (booting) return <BootSequence onDone={() => setBooting(false)} />
-
+  let content
   if (configMissing)
-    return (
+    content = (
       <Center>
         <div className="card max-w-md">
           <h1 className="font-display text-xl mb-2">Almost there ☕</h1>
@@ -47,14 +37,21 @@ export default function App() {
         </div>
       </Center>
     )
-
-  if (session === undefined)
-    return (
+  else if (session === undefined)
+    content = (
       <Center>
         <div className="font-display text-dim animate-pulse">Brewing…</div>
       </Center>
     )
+  else if (!session) content = <Login />
+  else content = <Shell session={session} />
 
-  if (!session) return <Login />
-  return <Shell session={session} />
+  // The intro is an overlay: the real app renders underneath and auth resolves
+  // during the ~2.5s boot, so the curtain lifts to reveal the live dashboard.
+  return (
+    <>
+      {content}
+      {booting && <BootSequence onDone={() => setBooting(false)} />}
+    </>
+  )
 }
