@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react'
 import { supabase, configMissing } from './lib/supabase'
+import { todayISO } from './lib/dates'
+import BootSequence, { BOOT_SEEN_KEY } from './BootSequence'
 import Login from './pages/Login'
 import Shell from './Shell'
 
@@ -9,6 +11,17 @@ function Center({ children }) {
 
 export default function App() {
   const [session, setSession] = useState(undefined)
+  const [booting, setBooting] = useState(() => {
+    if (typeof window === 'undefined') return false
+    // respect users who ask for reduced motion — no intro at all
+    if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return false
+    // show only once per local day
+    try {
+      return localStorage.getItem(BOOT_SEEN_KEY) !== todayISO()
+    } catch {
+      return true
+    }
+  })
 
   useEffect(() => {
     if (!supabase) return
@@ -16,6 +29,10 @@ export default function App() {
     const { data: sub } = supabase.auth.onAuthStateChange((_e, s) => setSession(s))
     return () => sub.subscription.unsubscribe()
   }, [])
+
+  // Boot intro plays over everything on cold load; auth resolves in the
+  // background meanwhile, so the app is usually ready when it fades out.
+  if (booting) return <BootSequence onDone={() => setBooting(false)} />
 
   if (configMissing)
     return (
