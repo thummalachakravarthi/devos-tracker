@@ -274,3 +274,11 @@ body { @apply bg-bg text-text font-body antialiased; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }
 }
+
+/* Reduce motion, toggled from Settings */
+.rm-on *,
+.rm-on *::before,
+.rm-on *::after {
+  animation: none !important;
+  transition: none !important;
+}

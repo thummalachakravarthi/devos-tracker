@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Home, Coffee, BarChart3, ListChecks, LogOut, Timer, Command as CommandIcon, LineChart, Sword, BookOpen } from 'lucide-react'
+import { Home, Coffee, BarChart3, ListChecks, LogOut, Timer, Command as CommandIcon, LineChart, Sword, BookOpen, Settings as Cog } from 'lucide-react'
 import { supabase } from './lib/supabase'
 import { DataProvider, useData } from './DataStore'
 import { CityBackdrop, ArtToday, ArtJava, ArtStats, ArtHabits, ArtFocus, ArtCommand, ArtRise } from './components/HeroArt'
@@ -8,6 +8,7 @@ import JavaHQ from './pages/JavaHQ'
 import Stats from './pages/Stats'
 import Habits from './pages/Habits'
 import Books from './pages/Books'
+import SettingsPage from './pages/SettingsPage'
 import Focus from './pages/Focus'
 import Command from './pages/Command'
 import Insights from './pages/Insights'
@@ -23,6 +24,7 @@ const TABS = [
   { id: 'insights', label: 'Insights', icon: LineChart },
   { id: 'habits', label: 'Habits', icon: ListChecks },
   { id: 'books', label: 'Books', icon: BookOpen },
+  { id: 'settings', label: 'Settings', icon: Cog },
 ]
 
 const HERO = {
@@ -112,7 +114,12 @@ function Sidebar({ tab, setTab }) {
 }
 
 function Inner({ tab, setTab }) {
-  const { loading, error, syncError } = useData()
+  const { loading, error, syncError, settings } = useData()
+
+  useEffect(() => {
+    document.documentElement.classList.toggle('rm-on', !!settings?.reduce_motion)
+  }, [settings?.reduce_motion])
+
   if (loading)
     return (
       <div className="min-h-screen grid place-items-center">
@@ -174,6 +181,7 @@ function Inner({ tab, setTab }) {
             {tab === 'stats' && <Stats setTab={setTab} />}
             {tab === 'habits' && <Habits />}
             {tab === 'books' && <Books />}
+            {tab === 'settings' && <SettingsPage />}
           </div>
         </main>
       </div>
@@ -197,7 +205,7 @@ function Inner({ tab, setTab }) {
         <div className="h-[env(safe-area-inset-bottom)]" />
       </nav>
 
-      <CopilotWidget />
+      {settings?.show_copilot !== false && <CopilotWidget />}
     </>
   )
 }

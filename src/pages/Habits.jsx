@@ -1,8 +1,7 @@
 import { useState } from 'react'
-import { Plus, ArrowUp, ArrowDown, Archive, ArchiveRestore, Pencil, X, RotateCcw, AlertTriangle } from 'lucide-react'
+import { Plus, ArrowUp, ArrowDown, Archive, ArchiveRestore, Pencil, X } from 'lucide-react'
 import LifeGarden from '../components/LifeGarden'
 import { useData } from '../DataStore'
-import { buildBackup, downloadBackup } from '../lib/backup'
 
 const COLORS = ['#0284C7', '#0EA5E9', '#2E7D32', '#1F5FD6', '#6366F1', '#1E2635']
 const TYPES = [
@@ -107,17 +106,8 @@ function HabitForm({ initial, onSave, onCancel }) {
 }
 
 export default function Habits() {
-  const { habits, addHabit, updateHabit, moveHabit, resetAllData,
-    settings, logs, javaSessions, dsaLogs, books, bookSessions } = useData()
-  const [exported, setExported] = useState(false)
+  const { habits, addHabit, updateHabit, moveHabit, settings } = useData()
 
-  const doExport = () => {
-    downloadBackup(buildBackup({ settings, habits, logs, javaSessions, dsaLogs, books, bookSessions }))
-    setExported(true)
-    setTimeout(() => setExported(false), 3000)
-  }
-  const [confirming, setConfirming] = useState(false)
-  const [resetting, setResetting] = useState(false)
   const [adding, setAdding] = useState(false)
   const [editingId, setEditingId] = useState(null)
 
@@ -126,7 +116,7 @@ export default function Habits() {
 
   return (
     <div className="space-y-3">
-      <LifeGarden />
+      {settings?.show_garden !== false && <LifeGarden />}
       {adding ? (
         <HabitForm
           onCancel={() => setAdding(false)}
@@ -197,62 +187,6 @@ export default function Habits() {
         Archiving keeps all history — the habit just stops showing on Today. History stays in Stats forever.
       </p>
 
-      {/* Danger Zone */}
-      <div className="pt-6 mt-2 border-t border-white/8">
-        <div className="label mb-2 flex items-center gap-1.5 !text-red">
-          <AlertTriangle size={12} /> Danger Zone
-        </div>
-        {!confirming ? (
-          <button
-            className="btn w-full !border-red/30 !text-red hover:!border-red/60"
-            onClick={() => setConfirming(true)}
-          >
-            <RotateCcw size={14} /> Reset all my logged data
-          </button>
-        ) : (
-          <div className="card !border-red/40 space-y-3">
-            <div className="text-sm">
-              <p className="font-medium text-red">Wipe every log and restart Mission Day 1?</p>
-              <p className="text-dim text-xs mt-1">
-                Deletes all habit check-ins, Java sessions, DSA logs, and resets your plan start date to today.
-                Keeps: your account, your habit list, your settings.
-                <br /><span className="text-red">This cannot be undone.</span>
-              </p>
-            </div>
-            <div className="flex gap-2">
-              <button
-                className="btn flex-1"
-                disabled={resetting}
-                onClick={() => setConfirming(false)}
-              >
-                Cancel
-              </button>
-              <button
-                className="btn flex-1"
-                disabled={resetting}
-                onClick={doExport}
-              >
-                {exported ? 'Saved ✓' : 'Back up first'}
-              </button>
-              <button
-                className="btn flex-1 !border-red !bg-red !text-white"
-                disabled={resetting}
-                onClick={async () => {
-                  setResetting(true)
-                  try {
-                    await resetAllData()
-                    setConfirming(false)
-                  } finally {
-                    setResetting(false)
-                  }
-                }}
-              >
-                {resetting ? 'Wiping…' : 'Yes, wipe everything'}
-              </button>
-            </div>
-          </div>
-        )}
-      </div>
     </div>
   )
 }
