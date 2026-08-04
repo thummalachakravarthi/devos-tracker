@@ -253,16 +253,41 @@ function rainLayer() {
   }
   return `<g>${s}</g>`
 }
-function bird(sc) {
+function bird(sc, tint) {
+  const T = tint || 0
+  const wingN = ['#6f7f9c', '#7d8aa4', '#8a7f96'][T]
+  const wingF = ['#43506c', '#4d5a74', '#584f68'][T]
   return `<g transform="scale(${sc})">
-    <g class="lg-wingF"><path d="M-1,-3 Q-11,-19 3,-17 Q9,-9 3,-2 Z" fill="#3d4a63"/></g>
-    <path d="M-11,0 L-22,-6 L-19,3 Z" fill="#4a5872"/>
-    <ellipse cx="0" cy="0" rx="12" ry="6.4" fill="#55647f"/>
-    <ellipse cx="-1" cy="2.4" rx="9" ry="3.6" fill="#8593ab"/>
-    <circle cx="10.5" cy="-5" r="5.2" fill="#55647f"/>
-    <path d="M15,-5.4 L22.5,-3.4 L15,-1.6 Z" fill="#e8a33d"/>
-    <circle cx="12" cy="-6.2" r="1.3" fill="#1b2230"/>
-    <g class="lg-wingN"><path d="M0,-2 Q-9,-21 6,-18 Q13,-9 5,-1 Z" fill="#6b7a96"/></g>
+    <!-- far wing sits behind the body and reads darker -->
+    <g class="lg-wingF">
+      <path d="M-1,-2 C-6,-11 -13,-20 -23,-24 C-20,-15 -14,-7 -3,-1 Z" fill="${wingF}"/>
+      <path d="M-23,-24 C-19,-22 -16,-19 -13,-15" stroke="${wingF}" stroke-width="2.6"
+        stroke-linecap="round" fill="none" opacity=".85"/>
+    </g>
+
+    <!-- forked tail -->
+    <path d="M-13,0 C-18,-4 -23,-6.5 -27,-8 L-21,-0.5 L-26,6 C-22,4.5 -17,2.5 -13,0 Z"
+      fill="url(#lgBodyG)"/>
+
+    <!-- streamlined body, lit from above -->
+    <path d="M-14,0 C-9,-6.5 0,-9 9,-7.5 C15,-6.5 19,-4 21,-3
+             C19,-0.5 15,1.5 9,3 C0,5 -9,4.5 -14,0 Z" fill="url(#lgBodyG)"/>
+    <path d="M-11,1.6 C-4,4 4,3.6 12,1.4 C7,3.4 -2,4.6 -11,1.6 Z" fill="#c3ceE0" opacity=".55"/>
+
+    <path d="M20.4,-3.4 L27.6,-2.1 L20.4,-0.5 Z" fill="#e8a33d"/>
+    <circle cx="15.8" cy="-3.8" r="1.15" fill="#1b2230"/>
+    <circle cx="16.2" cy="-4.2" r=".4" fill="#ffffff" opacity=".9"/>
+
+    <!-- near wing, with separated primaries at the tip -->
+    <g class="lg-wingN">
+      <path d="M0,-2 C-5,-11 -13,-21 -25,-25 C-22,-16 -15,-8 -3,-1 Z" fill="url(#lgWingG)"/>
+      <path d="M-25,-25 C-21,-24 -18,-21.5 -15,-18" stroke="${wingN}" stroke-width="2.2"
+        stroke-linecap="round" fill="none"/>
+      <path d="M-23.5,-21.5 C-20,-20 -17,-17.5 -14,-14.5" stroke="${wingN}" stroke-width="1.8"
+        stroke-linecap="round" fill="none" opacity=".8"/>
+      <path d="M-6,-8 C-10,-13 -15,-18 -22,-22" stroke="#2f3a52" stroke-width="1"
+        stroke-linecap="round" fill="none" opacity=".45"/>
+    </g>
   </g>`
 }
 
@@ -286,7 +311,8 @@ function birdsLayer() {
       members += `<g transform="translate(${dx.toFixed(0)},${dy.toFixed(0)})"
           class="lg-bob" style="animation-delay:-${(r()*2).toFixed(2)}s;
           animation-duration:${(2.6 + r()*1.4).toFixed(1)}s">
-          <g class="lg-flap" style="--fd:${(.34 + r()*.16).toFixed(2)}s">${bird(1)}</g></g>`
+          <g class="lg-flap" style="--fd:${(.34 + r()*.16).toFixed(2)}s"
+             transform="rotate(${(-4 + r()*8).toFixed(1)})">${bird(.9 + r()*.28, i % 3)}</g></g>`
     }
     s += `<g class="lg-flock" style="--fy:${f.y}px; animation-duration:${f.dur}s;
             animation-delay:-${(fi * 7 + r() * 6).toFixed(1)}s">
@@ -413,6 +439,14 @@ export default function LifeGarden() {
           <radialGradient id="lgVig" cx="50%" cy="46%" r="76%">
             <stop offset="66%" stop-color="#000" stop-opacity="0"/>
             <stop offset="100%" stop-color="#000" stop-opacity=".22"/></radialGradient>
+          <linearGradient id="lgBodyG" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#414f6b"/>
+            <stop offset="52%" stop-color="#5c6d8d"/>
+            <stop offset="100%" stop-color="#9dabc2"/></linearGradient>
+          <linearGradient id="lgWingG" x1="1" y1="1" x2="0" y2="0">
+            <stop offset="0%" stop-color="#8b99b4"/>
+            <stop offset="55%" stop-color="#667593"/>
+            <stop offset="100%" stop-color="#3d4963"/></linearGradient>
           <filter id="lgS1" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="10"/></filter>
           <filter id="lgS2" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="4"/></filter>
           <filter id="lgFar" x="-8%" y="-8%" width="116%" height="116%"><feGaussianBlur stdDeviation="1.8"/></filter>
@@ -517,11 +551,22 @@ export default function LifeGarden() {
           100% { transform: translate(1240px, var(--fy)); } }
         .lg-bob { animation: lgBob ease-in-out infinite; }
         @keyframes lgBob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-7px); } }
-        .lg-wingN { animation: lgWingN var(--fd, .4s) ease-in-out infinite; transform-origin: 2px -2px; }
-        @keyframes lgWingN { 0%,100% { transform: rotate(-26deg); } 50% { transform: rotate(46deg); } }
-        .lg-wingF { animation: lgWingF var(--fd, .4s) ease-in-out infinite;
-          transform-origin: 0px -3px; animation-delay: -.06s; }
-        @keyframes lgWingF { 0%,100% { transform: rotate(-14deg); } 50% { transform: rotate(34deg); } }
+        .lg-wingN { animation: lgWingN var(--fd, .4s) cubic-bezier(.45,0,.35,1) infinite;
+          transform-origin: 0px -2px; }
+        @keyframes lgWingN {
+          0%   { transform: rotate(-42deg) scaleY(1); }
+          30%  { transform: rotate(22deg)  scaleY(.9); }
+          46%  { transform: rotate(48deg)  scaleY(.8); }
+          70%  { transform: rotate(-6deg)  scaleY(.95); }
+          100% { transform: rotate(-42deg) scaleY(1); } }
+        .lg-wingF { animation: lgWingF var(--fd, .4s) cubic-bezier(.45,0,.35,1) infinite;
+          transform-origin: -1px -2px; animation-delay: -.045s; }
+        @keyframes lgWingF {
+          0%   { transform: rotate(-34deg) scaleY(.95); }
+          30%  { transform: rotate(18deg)  scaleY(.86); }
+          46%  { transform: rotate(40deg)  scaleY(.76); }
+          70%  { transform: rotate(-4deg)  scaleY(.9); }
+          100% { transform: rotate(-34deg) scaleY(.95); } }
 
         .lg-blown { animation: lgBlow linear infinite; }
         @keyframes lgBlow { 0% { transform: translate(-40px, var(--wy)) rotate(0deg); opacity: 0; }
