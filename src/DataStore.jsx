@@ -31,6 +31,7 @@ export function DataProvider({ session, children }) {
   const [logs, setLogs] = useState({}) // { [habitId]: { [dateIso]: {id, value, completed} } }
   const [javaSessions, setJavaSessions] = useState([])
   const [dsaLogs, setDsaLogs] = useState([])
+  const [books, setBooks] = useState([])
   const [uiDate, setUiDate] = useState(todayISO()) // date being viewed/edited on Today
 
   useEffect(() => {
@@ -63,13 +64,17 @@ export function DataProvider({ session, children }) {
           h = seeded.sort((a, b) => a.sort_order - b.sort_order)
         }
 
-        const [{ data: hl, error: e4 }, { data: js, error: e5 }, { data: dl, error: e6 }] =
+        const [{ data: hl, error: e4 }, { data: js, error: e5 }, { data: dl, error: e6 },
+               { data: bk, error: e7 }] =
           await Promise.all([
             supabase.from('habit_logs').select('*').eq('user_id', uid),
             supabase.from('java_sessions').select('*').eq('user_id', uid).order('created_at'),
             supabase.from('dsa_logs').select('*').eq('user_id', uid).order('created_at'),
+            supabase.from('books').select('*').eq('user_id', uid).order('created_at'),
           ])
         if (e4 || e5 || e6) throw e4 || e5 || e6
+        // books table may not exist yet on an older database — don't hard-fail
+        if (!e7) setBooks(bk || [])
 
         const logMap = {}
         for (const row of hl || []) {
@@ -231,6 +236,32 @@ export function DataProvider({ session, children }) {
       l.next_review ? l : { ...l, review_stage: 0, next_review: nextReviewFor(0, l.log_date) }))
   }
 
+  // ---------- books ----------
+  async function addBook(fields) {
+    const { data, error: e } = await supabase
+      .from('books').insert({ ...fields, user_id: uid }).select().single()
+    if (e) return reportSync(e, 'that book')
+    setBooks((p) => [...p, data])
+  }
+  async function updateBook(id, patch) {
+    const before = books.find((b) => b.id === id)
+    setBooks((p) => p.map((b) => (b.id === id ? { ...b, ...patch } : b)))
+    const { error: e } = await supabase.from('books').update(patch).eq('id', id)
+    if (e && before) {
+      setBooks((p) => p.map((b) => (b.id === id ? before : b)))
+      reportSync(e, 'that book update')
+    }
+  }
+  async function removeBook(id) {
+    const removed = books.find((b) => b.id === id)
+    setBooks((p) => p.filter((b) => b.id !== id))
+    const { error: e } = await supabase.from('books').delete().eq('id', id)
+    if (e && removed) {
+      setBooks((p) => [...p, removed])
+      reportSync(e, 'that deletion')
+    }
+  }
+
   const dsaProblemsOn = (dateIso) =>
     dsaLogs.filter((s) => s.log_date === dateIso).reduce((a, s) => a + s.problems, 0)
   const dsaTotal = useMemo(() => dsaLogs.reduce((a, s) => a + s.problems, 0), [dsaLogs])
@@ -330,6 +361,10 @@ export function DataProvider({ session, children }) {
     updateHabit,
     moveHabit,
     syncError,
+    books,
+    addBook,
+    updateBook,
+    removeBook,
     reviewDsa,
     scheduleUnscheduled,
     updateSettings,

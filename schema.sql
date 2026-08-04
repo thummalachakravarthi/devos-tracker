@@ -93,3 +93,31 @@ alter table public.dsa_logs
 
 create index if not exists dsa_logs_next_review_idx
   on public.dsa_logs (user_id, next_review);
+
+-- ─────────────────────────────────────────────────────────────
+-- Reading list. Safe to run on an existing database.
+-- ─────────────────────────────────────────────────────────────
+create table if not exists public.books (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users(id) on delete cascade,
+  title text not null,
+  author text,
+  category text,                                   -- tech / fiction / etc.
+  total_pages int check (total_pages is null or total_pages > 0),
+  pages_read int not null default 0 check (pages_read >= 0),
+  status text not null default 'reading'
+    check (status in ('want', 'reading', 'finished', 'abandoned')),
+  rating int check (rating is null or (rating between 1 and 5)),
+  notes text,
+  started_on date,
+  finished_on date,
+  created_at timestamptz not null default now()
+);
+
+create index if not exists books_user_status_idx on public.books (user_id, status);
+
+alter table public.books enable row level security;
+
+drop policy if exists "own books" on public.books;
+create policy "own books" on public.books
+  for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
