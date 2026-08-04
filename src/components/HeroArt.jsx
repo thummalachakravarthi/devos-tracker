@@ -753,14 +753,14 @@ export function ArtRise() {
           }
           .k-blue { animation: kBlue 3.5s cubic-bezier(.85,0,.2,1) infinite; }
           @keyframes kBlue {
-            0%   { transform: translate(150px,14px) scale(-1,1) rotate(-8deg) }
-            14%  { transform: translate(168px,20px) scale(-1,1) rotate(-14deg) }
-            30%  { transform: translate(52px,0) scale(-1,1) rotate(6deg) }
-            34%  { transform: translate(40px,-4px) scale(-1,1) rotate(9deg) }
-            62%  { transform: translate(58px,2px) scale(-1,1) rotate(3deg) }
-            76%  { transform: translate(210px,-26px) scale(-1,1) rotate(-20deg) }
-            88%  { transform: translate(150px,14px) scale(-1,1) rotate(-8deg) }
-            100% { transform: translate(150px,14px) scale(-1,1) rotate(-8deg) }
+            0%   { transform: translate(150px,14px) rotate(8deg) }
+            14%  { transform: translate(168px,20px) rotate(14deg) }
+            30%  { transform: translate(52px,0) rotate(-6deg) }
+            34%  { transform: translate(40px,-4px) rotate(-9deg) }
+            62%  { transform: translate(58px,2px) rotate(-3deg) }
+            76%  { transform: translate(210px,-26px) rotate(20deg) }
+            88%  { transform: translate(150px,14px) rotate(8deg) }
+            100% { transform: translate(150px,14px) rotate(8deg) }
           }
           .k-ghost { animation: kGhost 3.5s linear infinite; }
           @keyframes kGhost {
@@ -808,6 +808,19 @@ export function ArtRise() {
           @keyframes kSpeed {
             0%,15% { opacity: 0 } 22% { opacity: .9 } 32% { opacity: .5 }
             35%,100% { opacity: 0 }
+          }
+          .k-arc { animation: kArc 3.5s cubic-bezier(.8,0,.2,1) infinite; }
+          @keyframes kArc {
+            0%,16% { opacity: 0; stroke-dashoffset: 620 }
+            26% { opacity: .95; stroke-dashoffset: 0 }
+            36% { opacity: .6 }
+            44%,100% { opacity: 0; stroke-dashoffset: 0 }
+          }
+          .k-crowd { animation: kCrowd 3.5s ease-in-out infinite; }
+          @keyframes kCrowd {
+            0%,100% { transform: translateY(0) }
+            34% { transform: translateY(-5px) }
+            40% { transform: translateY(2px) }
           }
           .k-charge { animation: kCharge 3.5s ease-in-out infinite; }
           @keyframes kCharge { 0%,10% { opacity: .25 } 13% { opacity: 1 } 16%,100% { opacity: 0 } }
@@ -894,6 +907,31 @@ export function ArtRise() {
           <path d="M860,250 C720,240 610,196 500,176" stroke="#eaffff" strokeWidth="3" fill="none" opacity="0.9" />
           <ellipse cx="620" cy="200" rx="230" ry="70" fill="#1f7ae0" opacity="0.3" filter="url(#rzG)" />
         </g>
+
+        {/* ranks of warriors charging in behind — depth and scale */}
+        <g className="k-crowd" opacity="0.5">
+          {[[62, .5, '#8f1420'], [128, .44, '#8f1420'], [196, .38, '#7a1220'],
+            [738, .5, '#12386b'], [672, .44, '#12386b'], [604, .38, '#0f2f5c']].map(([x, sc, c], i) => (
+            <g key={i} transform={`translate(${x},${262 - 262 * sc}) scale(${i > 2 ? -sc : sc},${sc})`}>
+              <use href="#rzFighter" color={c} opacity="0.75" />
+            </g>
+          ))}
+        </g>
+        <g className="k-crowd" opacity="0.28" style={{ animationDelay: '.05s' }}>
+          {[[20, .3, '#5e0d18'], [170, .26, '#5e0d18'], [252, .24, '#5e0d18'],
+            [780, .3, '#0a2144'], [630, .26, '#0a2144'], [548, .24, '#0a2144']].map(([x, sc, c], i) => (
+            <g key={i} transform={`translate(${x},${262 - 262 * sc}) scale(${i > 2 ? -sc : sc},${sc})`}>
+              <use href="#rzFighter" color={c} />
+            </g>
+          ))}
+        </g>
+
+        {/* slash arcs carved by each blade */}
+        <path className="k-arc" d="M120,60 C240,74 340,128 396,186" stroke="#ffd166" strokeWidth="5"
+          fill="none" strokeLinecap="round" strokeDasharray="620" filter="url(#rzG2)" />
+        <path className="k-arc" d="M680,60 C560,74 460,128 404,186" stroke="#9ee7ff" strokeWidth="5"
+          fill="none" strokeLinecap="round" strokeDasharray="620" filter="url(#rzG2)"
+          style={{ animationDelay: '.03s' }} />
 
         {/* afterimages */}
         <g className="k-ghost">
