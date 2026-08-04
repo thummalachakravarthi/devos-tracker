@@ -644,288 +644,303 @@ export function ArtCommand() {
 }
 // ═══════════════════════════════════════════════════════════════
 // ═══════════════════════════════════════════════════════════════
-// RISE — Storm duel. Two masters at full commitment in driving rain.
-// Hard, fast, violent. 4s loop, no gore.
-//
-//  0.00–0.22  crouch and wind-up, lightning cracks, rain hammers
-//  0.22–0.40  explosive charge — speed lines, motion smear
-//  0.40–0.48  CLASH — white blowout, shockwave ring, spark burst, shake
-//  0.48–0.70  blades locked, grinding sparks, both trembling
-//  0.70–0.86  push-off, violent recoil
-//  0.86–1.00  land, reset — seamless
+// RISE — Breathing-technique clash. Flame vs Water, ukiyo-e styling.
+// The technique dwarfs the swordsman; that's the whole point.
+// 3.5s loop.
+//   0–14%   crouch, blades charge, embers and droplets gather
+//  14–34%   god-speed dash with afterimages, techniques erupt
+//  34–45%   COLLISION — screen-wide blowout, shockwave, shrapnel, shake
+//  45–70%   deadlock: fire and water grind, steam boils off
+//  70–86%   blowback, both hurled apart
+//  86–100%  land, reset — seamless
 // ═══════════════════════════════════════════════════════════════
 export function ArtRise() {
-  const rain = Array.from({ length: 90 }, (_, i) => {
-    const x = (i * 137) % 900 - 40
-    const len = 26 + ((i * 53) % 26)
-    const dur = (0.34 + ((i * 29) % 22) / 100).toFixed(2)
-    const dly = (((i * 71) % 100) / 100).toFixed(2)
-    return { x, len, dur, dly, o: (0.18 + ((i * 17) % 40) / 100).toFixed(2) }
-  })
-  const sparks = Array.from({ length: 26 }, (_, i) => {
-    const a = (i / 26) * Math.PI * 2
-    const spread = 60 + ((i * 37) % 70)
+  const shards = Array.from({ length: 34 }, (_, i) => {
+    const a = (i / 34) * Math.PI * 2
+    const sp = 90 + ((i * 41) % 130)
     return {
-      dx: (Math.cos(a) * spread).toFixed(0),
-      dy: (Math.sin(a) * spread * 0.62 - 12).toFixed(0),
-      d: (0.3 + ((i * 13) % 30) / 100).toFixed(2),
-      r: (1 + ((i * 7) % 20) / 10).toFixed(1),
+      dx: (Math.cos(a) * sp).toFixed(0),
+      dy: (Math.sin(a) * sp * 0.58).toFixed(0),
+      d: (0.28 + ((i * 17) % 34) / 100).toFixed(2),
+      r: (1.2 + ((i * 7) % 26) / 10).toFixed(1),
+      hot: i % 2 === 0,
     }
   })
+  const rays = Array.from({ length: 22 }, (_, i) => i * (360 / 22))
 
   return (
     <svg className={bannerCls} viewBox="0 0 800 300" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
       <defs>
         <linearGradient id="rzSky" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor="#0a0d18" />
-          <stop offset="0.42" stopColor="#1b1430" />
-          <stop offset="0.72" stopColor="#3d1630" />
-          <stop offset="1" stopColor="#0b0a14" />
+          <stop offset="0" stopColor="#07070f" />
+          <stop offset="0.45" stopColor="#1a0f26" />
+          <stop offset="1" stopColor="#2b0a14" />
         </linearGradient>
-        <radialGradient id="rzMoon" cx="0.5" cy="0.5" r="0.5">
-          <stop offset="0" stopColor="#ffd9c2" />
-          <stop offset="0.3" stopColor="#ff6b4a" stopOpacity="0.85" />
-          <stop offset="1" stopColor="#ff3b2f" stopOpacity="0" />
-        </radialGradient>
-        <linearGradient id="rzBlade" x1="0" y1="0" x2="1" y2="0">
-          <stop offset="0" stopColor="#ffffff" />
-          <stop offset="0.5" stopColor="#dbeafe" />
-          <stop offset="1" stopColor="#93a4bd" />
+        <linearGradient id="rzFire" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0" stopColor="#7a0d0d" />
+          <stop offset="0.35" stopColor="#e8321a" />
+          <stop offset="0.7" stopColor="#ff8f2e" />
+          <stop offset="1" stopColor="#ffe07a" />
         </linearGradient>
-        <radialGradient id="rzBurst" cx="0.5" cy="0.5" r="0.5">
+        <linearGradient id="rzWater" x1="1" y1="0" x2="0" y2="0">
+          <stop offset="0" stopColor="#062a63" />
+          <stop offset="0.35" stopColor="#1668d6" />
+          <stop offset="0.7" stopColor="#4fc3f7" />
+          <stop offset="1" stopColor="#d9f6ff" />
+        </linearGradient>
+        <radialGradient id="rzCore" cx="0.5" cy="0.5" r="0.5">
           <stop offset="0" stopColor="#ffffff" />
-          <stop offset="0.35" stopColor="#ffe8a3" stopOpacity="0.9" />
-          <stop offset="1" stopColor="#ff8a3d" stopOpacity="0" />
+          <stop offset="0.3" stopColor="#ffe9a8" stopOpacity="0.95" />
+          <stop offset="0.62" stopColor="#ff6a2a" stopOpacity="0.55" />
+          <stop offset="1" stopColor="#7a1bd6" stopOpacity="0" />
         </radialGradient>
-        <radialGradient id="rzVig" cx="0.5" cy="0.5" r="0.75">
-          <stop offset="0.5" stopColor="#000" stopOpacity="0" />
-          <stop offset="1" stopColor="#000" stopOpacity="0.72" />
+        <radialGradient id="rzVig" cx="0.5" cy="0.5" r="0.72">
+          <stop offset="0.42" stopColor="#000" stopOpacity="0" />
+          <stop offset="1" stopColor="#000" stopOpacity="0.8" />
         </radialGradient>
-        <filter id="rzGlow" x="-60%" y="-60%" width="220%" height="220%">
-          <feGaussianBlur stdDeviation="7" />
+        <filter id="rzG" x="-70%" y="-70%" width="240%" height="240%">
+          <feGaussianBlur stdDeviation="9" />
         </filter>
-        <filter id="rzSoft" x="-40%" y="-40%" width="180%" height="180%">
-          <feGaussianBlur stdDeviation="2.4" />
+        <filter id="rzG2" x="-50%" y="-50%" width="200%" height="200%">
+          <feGaussianBlur stdDeviation="3" />
         </filter>
 
         <style>{`
-          .rz-shake { animation: rzShake 4s steps(1,end) infinite; }
-          @keyframes rzShake {
-            0%,39.9% { transform: translate(0,0); }
-            40%  { transform: translate(-7px,4px) scale(1.02); }
-            41.5%{ transform: translate(6px,-5px) scale(1.02); }
-            43%  { transform: translate(-5px,-2px) scale(1.015); }
-            44.5%{ transform: translate(3px,3px); }
-            46%  { transform: translate(-2px,-1px); }
-            48%,100% { transform: translate(0,0); }
+          .k-shake { animation: kShake 3.5s steps(1,end) infinite; }
+          @keyframes kShake {
+            0%,33.9% { transform: translate(0,0) }
+            34%   { transform: translate(-13px,8px) scale(1.05) }
+            35.4% { transform: translate(11px,-9px) scale(1.045) }
+            36.8% { transform: translate(-9px,-4px) scale(1.04) }
+            38.2% { transform: translate(7px,6px) scale(1.03) }
+            39.6% { transform: translate(-5px,-3px) scale(1.02) }
+            41%   { transform: translate(3px,2px) scale(1.01) }
+            44%,100% { transform: translate(0,0) }
           }
-          .rz-flash { animation: rzFlash 4s linear infinite; }
-          @keyframes rzFlash {
-            0%,39% { opacity: 0; }
-            40%    { opacity: .95; }
-            43%    { opacity: .35; }
-            47%    { opacity: .08; }
-            52%,100% { opacity: 0; }
+          .k-flash { animation: kFlash 3.5s linear infinite; }
+          @keyframes kFlash {
+            0%,33% { opacity: 0 } 34% { opacity: 1 } 37% { opacity: .45 }
+            41% { opacity: .12 } 47%,100% { opacity: 0 }
           }
-          .rz-bolt { animation: rzBolt 4s linear infinite; }
-          @keyframes rzBolt {
-            0%,7% { opacity: 0; } 8% { opacity: .9; } 9.5% { opacity: .15; }
-            10.5% { opacity: .8; } 12% { opacity: 0; }
-            66% { opacity: 0; } 67% { opacity: .75; } 68.5% { opacity: 0; }
-            100% { opacity: 0; }
+          .k-fire { animation: kFire 3.5s cubic-bezier(.85,0,.2,1) infinite; transform-origin: 0px 190px; }
+          @keyframes kFire {
+            0%,14% { opacity: 0; transform: translateX(-320px) scaleX(.3) }
+            22% { opacity: 1 }
+            34% { opacity: 1; transform: translateX(0) scaleX(1) }
+            62% { opacity: .95; transform: translateX(-14px) scaleX(.97) }
+            76% { opacity: 0; transform: translateX(-260px) scaleX(.5) }
+            100% { opacity: 0; transform: translateX(-320px) scaleX(.3) }
           }
-          .rz-ring { animation: rzRing 4s linear infinite; transform-origin: 400px 196px; }
-          @keyframes rzRing {
-            0%,40% { opacity: 0; transform: scale(.1); }
-            41% { opacity: .95; }
-            56% { opacity: 0; transform: scale(3.4); }
-            100% { opacity: 0; transform: scale(3.4); }
+          .k-water { animation: kWater 3.5s cubic-bezier(.85,0,.2,1) infinite; transform-origin: 800px 190px; }
+          @keyframes kWater {
+            0%,14% { opacity: 0; transform: translateX(320px) scaleX(.3) }
+            22% { opacity: 1 }
+            34% { opacity: 1; transform: translateX(0) scaleX(1) }
+            62% { opacity: .95; transform: translateX(14px) scaleX(.97) }
+            76% { opacity: 0; transform: translateX(260px) scaleX(.5) }
+            100% { opacity: 0; transform: translateX(320px) scaleX(.3) }
           }
-          .rz-burst { animation: rzBurst 4s linear infinite; transform-origin: 400px 194px; }
-          @keyframes rzBurst {
-            0%,39% { opacity: 0; transform: scale(.2); }
-            40.5% { opacity: 1; transform: scale(1.25); }
-            50% { opacity: 0; transform: scale(1.9); }
-            100% { opacity: 0; }
+          .k-red  { animation: kRed 3.5s cubic-bezier(.85,0,.2,1) infinite; }
+          @keyframes kRed {
+            0%   { transform: translate(-150px,14px) rotate(-8deg) }
+            14%  { transform: translate(-168px,20px) rotate(-14deg) }
+            30%  { transform: translate(-52px,0) rotate(6deg) }
+            34%  { transform: translate(-40px,-4px) rotate(9deg) }
+            62%  { transform: translate(-58px,2px) rotate(3deg) }
+            76%  { transform: translate(-210px,-26px) rotate(-20deg) }
+            88%  { transform: translate(-150px,14px) rotate(-8deg) }
+            100% { transform: translate(-150px,14px) rotate(-8deg) }
           }
-          .rz-spark { animation: rzSpark 4s linear infinite; }
-          @keyframes rzSpark {
-            0%,39.5% { opacity: 0; transform: translate(0,0) scale(1); }
-            41% { opacity: 1; }
-            58% { opacity: 0; transform: translate(var(--sx), var(--sy)) scale(.2); }
-            100% { opacity: 0; transform: translate(var(--sx), var(--sy)) scale(.2); }
+          .k-blue { animation: kBlue 3.5s cubic-bezier(.85,0,.2,1) infinite; }
+          @keyframes kBlue {
+            0%   { transform: translate(150px,14px) scale(-1,1) rotate(-8deg) }
+            14%  { transform: translate(168px,20px) scale(-1,1) rotate(-14deg) }
+            30%  { transform: translate(52px,0) scale(-1,1) rotate(6deg) }
+            34%  { transform: translate(40px,-4px) scale(-1,1) rotate(9deg) }
+            62%  { transform: translate(58px,2px) scale(-1,1) rotate(3deg) }
+            76%  { transform: translate(210px,-26px) scale(-1,1) rotate(-20deg) }
+            88%  { transform: translate(150px,14px) scale(-1,1) rotate(-8deg) }
+            100% { transform: translate(150px,14px) scale(-1,1) rotate(-8deg) }
           }
-          .rz-grind { animation: rzGrind .16s linear infinite; }
-          @keyframes rzGrind { 0%,100% { opacity: .2; } 50% { opacity: 1; } }
-          .rz-grindwrap { animation: rzGrindWrap 4s linear infinite; }
-          @keyframes rzGrindWrap { 0%,48% { opacity: 0; } 50% { opacity: 1; } 68% { opacity: 1; } 71%,100% { opacity: 0; } }
-
-          .rz-red  { animation: rzRed 4s cubic-bezier(.7,0,.3,1) infinite; }
-          @keyframes rzRed {
-            0%    { transform: translate(-96px,0) rotate(-4deg); }
-            20%   { transform: translate(-108px,6px) rotate(-9deg); }
-            38%   { transform: translate(-14px,0) rotate(2deg); }
-            40%   { transform: translate(-8px,0) rotate(3deg); }
-            50%   { transform: translate(-12px,0) rotate(1deg); }
-            68%   { transform: translate(-16px,2px) rotate(0deg); }
-            78%   { transform: translate(-120px,-10px) rotate(-12deg); }
-            88%   { transform: translate(-96px,0) rotate(-4deg); }
-            100%  { transform: translate(-96px,0) rotate(-4deg); }
+          .k-ghost { animation: kGhost 3.5s linear infinite; }
+          @keyframes kGhost {
+            0%,15% { opacity: 0 } 20% { opacity: .55 } 30% { opacity: .28 }
+            34%,100% { opacity: 0 }
           }
-          .rz-blue { animation: rzBlue 4s cubic-bezier(.7,0,.3,1) infinite; }
-          @keyframes rzBlue {
-            0%    { transform: translate(96px,0) scale(-1,1) rotate(-4deg); }
-            20%   { transform: translate(108px,6px) scale(-1,1) rotate(-9deg); }
-            38%   { transform: translate(14px,0) scale(-1,1) rotate(2deg); }
-            40%   { transform: translate(8px,0) scale(-1,1) rotate(3deg); }
-            50%   { transform: translate(12px,0) scale(-1,1) rotate(1deg); }
-            68%   { transform: translate(16px,2px) scale(-1,1) rotate(0deg); }
-            78%   { transform: translate(120px,-10px) scale(-1,1) rotate(-12deg); }
-            88%   { transform: translate(96px,0) scale(-1,1) rotate(-4deg); }
-            100%  { transform: translate(96px,0) scale(-1,1) rotate(-4deg); }
+          .k-core { animation: kCore 3.5s linear infinite; transform-origin: 400px 186px; }
+          @keyframes kCore {
+            0%,32% { opacity: 0; transform: scale(.15) }
+            34.5% { opacity: 1; transform: scale(1.5) }
+            48% { opacity: .8; transform: scale(1.05) }
+            68% { opacity: .55; transform: scale(1.15) }
+            78% { opacity: 0; transform: scale(2) }
+            100% { opacity: 0 }
           }
-          .rz-speed { animation: rzSpeed 4s linear infinite; }
-          @keyframes rzSpeed {
-            0%,22% { opacity: 0; transform: scaleX(0); }
-            26% { opacity: .85; transform: scaleX(1); }
-            39% { opacity: .5; transform: scaleX(1); }
-            41%,100% { opacity: 0; transform: scaleX(0); }
+          .k-ring { animation: kRing 3.5s linear infinite; transform-origin: 400px 188px; }
+          @keyframes kRing {
+            0%,33% { opacity: 0; transform: scale(.08) }
+            35% { opacity: 1 }
+            52% { opacity: 0; transform: scale(4.2) }
+            100% { opacity: 0; transform: scale(4.2) }
           }
-          .rz-rain line { animation: rzRain linear infinite; }
-          @keyframes rzRain {
-            0% { transform: translate(0,-60px); } 100% { transform: translate(-52px,340px); }
+          .k-shard { animation: kShard 3.5s linear infinite; }
+          @keyframes kShard {
+            0%,33.5% { opacity: 0; transform: translate(0,0) scale(1) }
+            35% { opacity: 1 }
+            56% { opacity: 0; transform: translate(var(--x), var(--y)) scale(.15) }
+            100% { opacity: 0; transform: translate(var(--x), var(--y)) scale(.15) }
           }
-          .rz-dust { animation: rzDust 4s linear infinite; }
-          @keyframes rzDust {
-            0%,76% { opacity: 0; transform: scale(.3); }
-            80% { opacity: .5; transform: scale(1); }
-            96% { opacity: 0; transform: scale(1.8); }
-            100% { opacity: 0; }
+          .k-rays { animation: kRays 3.5s linear infinite; transform-origin: 400px 188px; }
+          @keyframes kRays {
+            0%,32% { opacity: 0; transform: scale(.2) rotate(0deg) }
+            35% { opacity: .9; transform: scale(1) rotate(6deg) }
+            50% { opacity: 0; transform: scale(1.7) rotate(14deg) }
+            100% { opacity: 0 }
           }
+          .k-steam { animation: kSteam 3.5s ease-out infinite; }
+          @keyframes kSteam {
+            0%,44% { opacity: 0; transform: translateY(0) scale(.4) }
+            54% { opacity: .5; transform: translateY(-26px) scale(1) }
+            76% { opacity: 0; transform: translateY(-64px) scale(1.7) }
+            100% { opacity: 0 }
+          }
+          .k-speed { animation: kSpeed 3.5s linear infinite; }
+          @keyframes kSpeed {
+            0%,15% { opacity: 0 } 22% { opacity: .9 } 32% { opacity: .5 }
+            35%,100% { opacity: 0 }
+          }
+          .k-charge { animation: kCharge 3.5s ease-in-out infinite; }
+          @keyframes kCharge { 0%,10% { opacity: .25 } 13% { opacity: 1 } 16%,100% { opacity: 0 } }
           @media (prefers-reduced-motion: reduce) {
-            .rz-shake,.rz-flash,.rz-bolt,.rz-ring,.rz-burst,.rz-spark,.rz-grind,
-            .rz-grindwrap,.rz-red,.rz-blue,.rz-speed,.rz-dust,.rz-rain line { animation: none !important; }
+            .k-shake,.k-flash,.k-fire,.k-water,.k-red,.k-blue,.k-ghost,.k-core,
+            .k-ring,.k-shard,.k-rays,.k-steam,.k-speed,.k-charge { animation: none !important }
           }
         `}</style>
+
+        {/* one swordsman, reused for figures and afterimages */}
+        <g id="rzFighter">
+          <path d="M-64,262 C-46,214 -30,182 -8,162 L14,172 C-6,196 -20,226 -28,262 Z" fill="#0c0c14" />
+          <path d="M-30,262 L-8,262 L-2,196 L-24,196 Z" fill="#12121c" />
+          <path d="M-24,196 C-36,168 -28,136 -4,124 L26,140 C10,160 4,178 0,196 Z" fill="currentColor" />
+          <path d="M-24,196 C-30,176 -28,156 -18,140 L-6,146 C-14,162 -16,180 -14,196 Z" fill="#000" opacity=".28" />
+          <path d="M-8,126 C-8,108 8,96 24,100 C38,104 42,120 34,132 C24,142 2,142 -8,126 Z" fill="#0a0a12" />
+          <path d="M-4,104 L16,86 L38,104 L16,114 Z" fill="currentColor" />
+          <circle cx="18" cy="120" r="3" fill="#fff" opacity=".9" />
+          <path d="M0,152 L58,128" stroke="currentColor" strokeWidth="13" strokeLinecap="round" />
+          <rect x="50" y="118" width="18" height="15" rx="3" fill="#1e1e28" transform="rotate(-22 59 126)" />
+          <path d="M60,124 L206,66" stroke="#ffffff" strokeWidth="7" strokeLinecap="round" />
+          <path d="M60,124 L206,66" stroke="#dbeafe" strokeWidth="2.4" strokeLinecap="round" />
+          <path d="M-30,166 C-72,180 -98,222 -108,262 L-64,262 C-56,224 -44,192 -24,178 Z"
+            fill="currentColor" opacity=".8" />
+        </g>
       </defs>
 
       <rect width="800" height="300" fill="url(#rzSky)" />
 
-      {/* blood moon */}
-      <circle cx="620" cy="82" r="96" fill="url(#rzMoon)" opacity="0.55" />
-      <circle cx="620" cy="82" r="34" fill="#ff7a55" opacity="0.9" filter="url(#rzSoft)" />
-
-      {/* storm clouds */}
-      <g opacity="0.9">
-        <path d="M-40,96 C90,44 210,110 320,66 C430,24 560,96 700,52 C760,34 820,58 860,44 L860,-20 L-40,-20 Z" fill="#0b0e1c" />
-        <path d="M-40,132 C110,92 220,146 350,110 C480,74 600,132 860,96 L860,-20 L-40,-20 Z" fill="#0a0c16" opacity="0.85" />
-      </g>
-
-      {/* lightning */}
-      <g className="rz-bolt">
-        <path d="M262,-10 L238,88 L276,84 L226,196 L252,102 L216,106 Z" fill="#dce9ff" opacity="0.95" />
-        <path d="M262,-10 L238,88 L276,84 L226,196 L252,102 L216,106 Z" fill="#ffffff" filter="url(#rzGlow)" opacity="0.7" />
-      </g>
-
-      {/* jagged ridge line */}
-      <path d="M-40,214 L70,150 L140,192 L214,132 L300,190 L380,146 L470,196 L560,140 L648,190 L740,150 L860,206 L860,300 L-40,300 Z" fill="#080a12" />
-      <path d="M-40,236 L110,196 L230,228 L360,192 L500,232 L640,194 L860,234 L860,300 L-40,300 Z" fill="#050609" />
-
-      <g className="rz-shake">
-        {/* ground */}
-        <rect x="-40" y="252" width="880" height="60" fill="#04050a" />
-        <path d="M-40,252 Q400,240 860,252 L860,262 L-40,262 Z" fill="#12141f" opacity="0.8" />
-
-        {/* speed lines into the centre */}
-        <g className="rz-speed" opacity="0.85">
-          {[168, 182, 196, 210, 224].map((y, i) => (
-            <g key={i}>
-              <rect x="150" y={y} width="180" height={i % 2 ? 1.6 : 2.6} fill="#e8f0ff" opacity="0.5"
-                style={{ transformOrigin: '330px center' }} />
-              <rect x="470" y={y + 4} width="180" height={i % 2 ? 1.6 : 2.6} fill="#e8f0ff" opacity="0.5"
-                style={{ transformOrigin: '470px center' }} />
-            </g>
-          ))}
-        </g>
-
-        {/* ── RED fighter ── */}
-        <g className="rz-red" style={{ transformOrigin: '400px 250px' }}>
-          <g transform="translate(400,0)">
-            <path d="M-52,250 C-40,214 -30,196 -16,186 L-2,192 C-14,208 -22,228 -26,250 Z" fill="#7f1020" />
-            <path d="M-30,250 L-18,250 L-14,214 L-26,214 Z" fill="#0d0d14" />
-            <path d="M-22,214 C-30,196 -26,178 -12,170 L4,178 C-4,192 -6,204 -8,214 Z" fill="#a3132a" />
-            <path d="M-16,172 C-16,160 -6,152 4,154 C12,156 14,166 10,174 C4,180 -8,180 -16,172 Z" fill="#12121c" />
-            <path d="M-14,158 L-2,148 L10,158 L-2,164 Z" fill="#c2183a" />
-            <circle cx="2" cy="167" r="2" fill="#ff5a3d" />
-            {/* extended arm + katana */}
-            <path d="M2,180 L44,168" stroke="#a3132a" strokeWidth="8" strokeLinecap="round" />
-            <path d="M44,168 L150,150" stroke="url(#rzBlade)" strokeWidth="4.5" strokeLinecap="round" />
-            <path d="M44,168 L150,150" stroke="#ffffff" strokeWidth="1.4" strokeLinecap="round" opacity="0.9" />
-            <rect x="38" y="163" width="12" height="10" rx="2" fill="#2a2a36" transform="rotate(-10 44 168)" />
-            {/* cape whipping back */}
-            <path d="M-24,186 C-56,196 -74,222 -80,250 L-46,250 C-42,224 -34,204 -20,196 Z" fill="#6d0f1c" opacity="0.95" />
-          </g>
-        </g>
-
-        {/* ── BLUE fighter (mirrored) ── */}
-        <g className="rz-blue" style={{ transformOrigin: '400px 250px' }}>
-          <g transform="translate(-400,0)">
-            <path d="M-52,250 C-40,214 -30,196 -16,186 L-2,192 C-14,208 -22,228 -26,250 Z" fill="#12306b" />
-            <path d="M-30,250 L-18,250 L-14,214 L-26,214 Z" fill="#0b0d16" />
-            <path d="M-22,214 C-30,196 -26,178 -12,170 L4,178 C-4,192 -6,204 -8,214 Z" fill="#1b479c" />
-            <path d="M-16,172 C-16,160 -6,152 4,154 C12,156 14,166 10,174 C4,180 -8,180 -16,172 Z" fill="#101018" />
-            <path d="M-14,158 L-2,148 L10,158 L-2,164 Z" fill="#2a5fc9" />
-            <circle cx="2" cy="167" r="2" fill="#68d0ff" />
-            <path d="M2,180 L44,168" stroke="#1b479c" strokeWidth="8" strokeLinecap="round" />
-            <path d="M44,168 L150,150" stroke="url(#rzBlade)" strokeWidth="4.5" strokeLinecap="round" />
-            <path d="M44,168 L150,150" stroke="#ffffff" strokeWidth="1.4" strokeLinecap="round" opacity="0.9" />
-            <rect x="38" y="163" width="12" height="10" rx="2" fill="#232330" transform="rotate(-10 44 168)" />
-            <path d="M-24,186 C-56,196 -74,222 -80,250 L-46,250 C-42,224 -34,204 -20,196 Z" fill="#0d2352" opacity="0.95" />
-          </g>
-        </g>
-
-        {/* blades locked — grinding sparks */}
-        <g className="rz-grindwrap">
-          {[0, 1, 2, 3, 4, 5].map((i) => (
-            <circle key={i} className="rz-grind" cx={392 + i * 4} cy={192 + (i % 3) * 3}
-              r={1 + (i % 3) * 0.6} fill="#ffe08a"
-              style={{ animationDelay: `${(i * 0.03).toFixed(2)}s` }} />
-          ))}
-          <circle cx="400" cy="194" r="16" fill="#ffb648" opacity="0.28" filter="url(#rzGlow)" />
-        </g>
-
-        {/* impact burst + shockwave */}
-        <circle className="rz-burst" cx="400" cy="194" r="52" fill="url(#rzBurst)" />
-        <circle className="rz-ring" cx="400" cy="196" r="26" fill="none" stroke="#ffe8b0" strokeWidth="3" opacity="0.9" />
-        <circle className="rz-ring" cx="400" cy="196" r="26" fill="none" stroke="#ffffff" strokeWidth="1.2"
-          opacity="0.7" style={{ animationDelay: '0.06s' }} />
-
-        {/* spark shrapnel */}
-        <g>
-          {sparks.map((s, i) => (
-            <circle key={i} className="rz-spark" cx="400" cy="194" r={s.r} fill={i % 3 ? '#ffd166' : '#fff3c4'}
-              style={{ '--sx': `${s.dx}px`, '--sy': `${s.dy}px`, animationDelay: `${s.d}s` }} />
-          ))}
-        </g>
-
-        {/* dust plumes on the push-off */}
-        <g className="rz-dust">
-          <ellipse cx="300" cy="252" rx="46" ry="13" fill="#7a6a58" opacity="0.5" filter="url(#rzSoft)" />
-          <ellipse cx="500" cy="252" rx="46" ry="13" fill="#7a6a58" opacity="0.5" filter="url(#rzSoft)" />
-        </g>
-      </g>
-
-      {/* driving rain */}
-      <g className="rz-rain" opacity="0.65">
-        {rain.map((d, i) => (
-          <line key={i} x1={d.x} y1="0" x2={d.x - 9} y2={d.len} stroke="#cfe0ff" strokeWidth="1.2"
-            strokeLinecap="round" opacity={d.o}
-            style={{ animationDuration: `${d.dur}s`, animationDelay: `-${d.dly}s` }} />
+      {/* ukiyo-e sunburst behind the clash */}
+      <g className="k-rays" opacity="0.85">
+        {rays.map((a, i) => (
+          <path key={i} d="M400,188 L392,-140 L408,-140 Z" fill={i % 2 ? '#ff7a2e' : '#4fc3f7'}
+            opacity={i % 2 ? 0.32 : 0.24} transform={`rotate(${a} 400 188)`} />
         ))}
       </g>
 
-      {/* clash blowout */}
-      <rect className="rz-flash" width="800" height="300" fill="#ffffff" />
+      {/* horizontal god-speed streaks */}
+      <g className="k-speed">
+        {[96, 128, 158, 188, 218, 248].map((y, i) => (
+          <g key={i}>
+            <rect x="0" y={y} width="330" height={i % 2 ? 2 : 3.4} fill="#ffb36a" opacity="0.5" />
+            <rect x="470" y={y + 6} width="330" height={i % 2 ? 2 : 3.4} fill="#7fd8ff" opacity="0.5" />
+          </g>
+        ))}
+      </g>
+
+      <g className="k-shake">
+        {/* ─── FLAME BREATHING, left ─── */}
+        <g className="k-fire">
+          <path d="M-60,244 C60,236 150,196 250,170 C330,150 380,164 402,188
+                   C356,178 300,192 240,214 C160,244 60,268 -60,268 Z"
+            fill="url(#rzFire)" opacity="0.96" />
+          <path d="M-40,222 C70,214 150,180 240,158 C310,142 356,154 380,178
+                   C336,168 286,180 232,200 C160,226 60,246 -40,246 Z"
+            fill="#ffb03a" opacity="0.7" filter="url(#rzG2)" />
+          {[[70, 218, 34], [150, 196, 40], [232, 176, 32], [312, 172, 26]].map(([x, y, r], i) => (
+            <path key={i} d={`M${x},${y} C${x - r * .5},${y - r} ${x + r * .4},${y - r * 1.5} ${x + r},${y - r * .6}
+                              C${x + r * .5},${y - r * .2} ${x + r * .2},${y} ${x},${y} Z`}
+              fill="#ffd166" opacity="0.85" />
+          ))}
+          <path d="M-60,250 C80,240 190,196 300,176" stroke="#fff3c4" strokeWidth="3" fill="none" opacity="0.9" />
+          <ellipse cx="180" cy="200" rx="230" ry="70" fill="#ff5a1a" opacity="0.28" filter="url(#rzG)" />
+        </g>
+
+        {/* ─── WATER BREATHING, right ─── */}
+        <g className="k-water">
+          <path d="M860,244 C740,236 650,196 550,170 C470,150 420,164 398,188
+                   C444,178 500,192 560,214 C640,244 740,268 860,268 Z"
+            fill="url(#rzWater)" opacity="0.96" />
+          <path d="M840,222 C730,214 650,180 560,158 C490,142 444,154 420,178
+                   C464,168 514,180 568,200 C640,226 740,246 840,246 Z"
+            fill="#7fd8ff" opacity="0.62" filter="url(#rzG2)" />
+          {/* Hokusai foam crests */}
+          {[[730, 218, 34], [650, 196, 40], [568, 176, 32], [488, 172, 26]].map(([x, y, r], i) => (
+            <g key={i}>
+              <path d={`M${x},${y} C${x + r * .5},${y - r} ${x - r * .4},${y - r * 1.5} ${x - r},${y - r * .6}
+                        C${x - r * .5},${y - r * .2} ${x - r * .2},${y} ${x},${y} Z`}
+                fill="#e6f9ff" opacity="0.9" />
+              <circle cx={x - r * .75} cy={y - r * .78} r={r * .2} fill="#ffffff" opacity="0.95" />
+              <circle cx={x - r * .3} cy={y - r * 1.05} r={r * .13} fill="#ffffff" opacity="0.8" />
+            </g>
+          ))}
+          <path d="M860,250 C720,240 610,196 500,176" stroke="#eaffff" strokeWidth="3" fill="none" opacity="0.9" />
+          <ellipse cx="620" cy="200" rx="230" ry="70" fill="#1f7ae0" opacity="0.3" filter="url(#rzG)" />
+        </g>
+
+        {/* afterimages */}
+        <g className="k-ghost">
+          <use href="#rzFighter" x="300" y="0" color="#e8321a" opacity="0.5" />
+          <use href="#rzFighter" x="248" y="6" color="#e8321a" opacity="0.28" />
+          <g transform="translate(800,0) scale(-1,1)">
+            <use href="#rzFighter" x="300" y="0" color="#1668d6" opacity="0.5" />
+            <use href="#rzFighter" x="248" y="6" color="#1668d6" opacity="0.28" />
+          </g>
+        </g>
+
+        {/* the two swordsmen */}
+        <g className="k-red" style={{ transformOrigin: '340px 260px' }}>
+          <use href="#rzFighter" x="340" y="0" color="#c2182b" />
+          <circle className="k-charge" cx="470" cy="120" r="26" fill="#ff8a3d" filter="url(#rzG)" />
+        </g>
+        <g className="k-blue" style={{ transformOrigin: '460px 260px' }}>
+          <g transform="translate(800,0) scale(-1,1)">
+            <use href="#rzFighter" x="340" y="0" color="#1b5fd0" />
+            <circle className="k-charge" cx="470" cy="120" r="26" fill="#4fc3f7" filter="url(#rzG)" />
+          </g>
+        </g>
+
+        {/* collision core */}
+        <circle className="k-core" cx="400" cy="186" r="120" fill="url(#rzCore)" />
+        <circle className="k-ring" cx="400" cy="188" r="30" fill="none" stroke="#fff3c4" strokeWidth="4" />
+        <circle className="k-ring" cx="400" cy="188" r="30" fill="none" stroke="#9ee7ff" strokeWidth="2"
+          style={{ animationDelay: '0.08s' }} />
+
+        {/* shrapnel */}
+        <g>
+          {shards.map((s, i) => (
+            <circle key={i} className="k-shard" cx="400" cy="186" r={s.r}
+              fill={s.hot ? '#ffcf6a' : '#9ee7ff'}
+              style={{ '--x': `${s.dx}px`, '--y': `${s.dy}px`, animationDelay: `${s.d}s` }} />
+          ))}
+        </g>
+
+        {/* steam boiling off the deadlock */}
+        <g className="k-steam">
+          {[[352, 176, 26], [400, 164, 34], [452, 178, 24], [378, 150, 20], [424, 148, 18]].map(([x, y, r], i) => (
+            <circle key={i} cx={x} cy={y} r={r} fill="#e9f4ff" opacity="0.35" filter="url(#rzG2)" />
+          ))}
+        </g>
+      </g>
+
+      <rect className="k-flash" width="800" height="300" fill="#ffffff" />
       <rect width="800" height="300" fill="url(#rzVig)" />
     </svg>
   )
