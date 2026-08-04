@@ -742,33 +742,6 @@ function ArtRiseSvg() {
             76% { opacity: 0; transform: translateX(260px) scaleX(.5) }
             100% { opacity: 0; transform: translateX(320px) scaleX(.3) }
           }
-          .k-red  { animation: kRed 3.5s cubic-bezier(.85,0,.2,1) infinite; }
-          @keyframes kRed {
-            0%   { transform: translate(-150px,14px) rotate(-8deg) }
-            14%  { transform: translate(-168px,20px) rotate(-14deg) }
-            30%  { transform: translate(-52px,0) rotate(6deg) }
-            34%  { transform: translate(-40px,-4px) rotate(9deg) }
-            62%  { transform: translate(-58px,2px) rotate(3deg) }
-            76%  { transform: translate(-210px,-26px) rotate(-20deg) }
-            88%  { transform: translate(-150px,14px) rotate(-8deg) }
-            100% { transform: translate(-150px,14px) rotate(-8deg) }
-          }
-          .k-blue { animation: kBlue 3.5s cubic-bezier(.85,0,.2,1) infinite; }
-          @keyframes kBlue {
-            0%   { transform: translate(150px,14px) rotate(8deg) }
-            14%  { transform: translate(168px,20px) rotate(14deg) }
-            30%  { transform: translate(52px,0) rotate(-6deg) }
-            34%  { transform: translate(40px,-4px) rotate(-9deg) }
-            62%  { transform: translate(58px,2px) rotate(-3deg) }
-            76%  { transform: translate(210px,-26px) rotate(20deg) }
-            88%  { transform: translate(150px,14px) rotate(8deg) }
-            100% { transform: translate(150px,14px) rotate(8deg) }
-          }
-          .k-ghost { animation: kGhost 3.5s linear infinite; }
-          @keyframes kGhost {
-            0%,15% { opacity: 0 } 20% { opacity: .55 } 30% { opacity: .28 }
-            34%,100% { opacity: 0 }
-          }
           .k-core { animation: kCore 3.5s linear infinite; transform-origin: 400px 186px; }
           @keyframes kCore {
             0%,32% { opacity: 0; transform: scale(.15) }
@@ -818,36 +791,12 @@ function ArtRiseSvg() {
             36% { opacity: .6 }
             44%,100% { opacity: 0; stroke-dashoffset: 0 }
           }
-          .k-crowd { animation: kCrowd 3.5s ease-in-out infinite; }
-          @keyframes kCrowd {
-            0%,100% { transform: translateY(0) }
-            34% { transform: translateY(-5px) }
-            40% { transform: translateY(2px) }
-          }
-          .k-charge { animation: kCharge 3.5s ease-in-out infinite; }
-          @keyframes kCharge { 0%,10% { opacity: .25 } 13% { opacity: 1 } 16%,100% { opacity: 0 } }
           @media (prefers-reduced-motion: reduce) {
-            .k-shake,.k-flash,.k-fire,.k-water,.k-red,.k-blue,.k-ghost,.k-core,
-            .k-ring,.k-shard,.k-rays,.k-steam,.k-speed,.k-charge { animation: none !important }
+            .k-shake,.k-flash,.k-fire,.k-water,.k-core,
+            .k-ring,.k-shard,.k-rays,.k-steam,.k-speed,.k-arc { animation: none !important }
           }
         `}</style>
 
-        {/* one swordsman, reused for figures and afterimages */}
-        <g id="rzFighter">
-          <path d="M-64,262 C-46,214 -30,182 -8,162 L14,172 C-6,196 -20,226 -28,262 Z" fill="#0c0c14" />
-          <path d="M-30,262 L-8,262 L-2,196 L-24,196 Z" fill="#12121c" />
-          <path d="M-24,196 C-36,168 -28,136 -4,124 L26,140 C10,160 4,178 0,196 Z" fill="currentColor" />
-          <path d="M-24,196 C-30,176 -28,156 -18,140 L-6,146 C-14,162 -16,180 -14,196 Z" fill="#000" opacity=".28" />
-          <path d="M-8,126 C-8,108 8,96 24,100 C38,104 42,120 34,132 C24,142 2,142 -8,126 Z" fill="#0a0a12" />
-          <path d="M-4,104 L16,86 L38,104 L16,114 Z" fill="currentColor" />
-          <circle cx="18" cy="120" r="3" fill="#fff" opacity=".9" />
-          <path d="M0,152 L58,128" stroke="currentColor" strokeWidth="13" strokeLinecap="round" />
-          <rect x="50" y="118" width="18" height="15" rx="3" fill="#1e1e28" transform="rotate(-22 59 126)" />
-          <path d="M60,124 L206,66" stroke="#ffffff" strokeWidth="7" strokeLinecap="round" />
-          <path d="M60,124 L206,66" stroke="#dbeafe" strokeWidth="2.4" strokeLinecap="round" />
-          <path d="M-30,166 C-72,180 -98,222 -108,262 L-64,262 C-56,224 -44,192 -24,178 Z"
-            fill="currentColor" opacity=".8" />
-        </g>
       </defs>
 
       <rect width="800" height="300" fill="url(#rzSky)" />
@@ -885,7 +834,9 @@ function ArtRiseSvg() {
               fill="#ffd166" opacity="0.85" />
           ))}
           <path d="M-60,250 C80,240 190,196 300,176" stroke="#fff3c4" strokeWidth="3" fill="none" opacity="0.9" />
-          <ellipse cx="180" cy="200" rx="230" ry="70" fill="#ff5a1a" opacity="0.28" filter="url(#rzG)" />
+          <ellipse cx="180" cy="196" rx="280" ry="104" fill="#ff5a1a" opacity="0.34" filter="url(#rzG)" />
+          <path d="M-60,126 C90,120 200,150 300,178 C210,164 90,158 -60,166 Z" fill="#ff8f2e" opacity="0.55" />
+          <path d="M-60,282 C100,272 210,240 320,206 C220,248 100,284 -60,296 Z" fill="#c2181a" opacity="0.6" />
         </g>
 
         {/* ─── WATER BREATHING, right ─── */}
@@ -907,55 +858,17 @@ function ArtRiseSvg() {
             </g>
           ))}
           <path d="M860,250 C720,240 610,196 500,176" stroke="#eaffff" strokeWidth="3" fill="none" opacity="0.9" />
-          <ellipse cx="620" cy="200" rx="230" ry="70" fill="#1f7ae0" opacity="0.3" filter="url(#rzG)" />
+          <ellipse cx="620" cy="196" rx="280" ry="104" fill="#1f7ae0" opacity="0.36" filter="url(#rzG)" />
+          <path d="M860,126 C710,120 600,150 500,178 C590,164 710,158 860,166 Z" fill="#4fc3f7" opacity="0.55" />
+          <path d="M860,282 C700,272 590,240 480,206 C580,248 700,284 860,296 Z" fill="#0d3f96" opacity="0.6" />
         </g>
 
-        {/* ranks of warriors charging in behind — depth and scale */}
-        <g className="k-crowd" opacity="0.5">
-          {[[62, .5, '#8f1420'], [128, .44, '#8f1420'], [196, .38, '#7a1220'],
-            [738, .5, '#12386b'], [672, .44, '#12386b'], [604, .38, '#0f2f5c']].map(([x, sc, c], i) => (
-            <g key={i} transform={`translate(${x},${262 - 262 * sc}) scale(${i > 2 ? -sc : sc},${sc})`}>
-              <use href="#rzFighter" color={c} opacity="0.75" />
-            </g>
-          ))}
-        </g>
-        <g className="k-crowd" opacity="0.28" style={{ animationDelay: '.05s' }}>
-          {[[20, .3, '#5e0d18'], [170, .26, '#5e0d18'], [252, .24, '#5e0d18'],
-            [780, .3, '#0a2144'], [630, .26, '#0a2144'], [548, .24, '#0a2144']].map(([x, sc, c], i) => (
-            <g key={i} transform={`translate(${x},${262 - 262 * sc}) scale(${i > 2 ? -sc : sc},${sc})`}>
-              <use href="#rzFighter" color={c} />
-            </g>
-          ))}
-        </g>
-
-        {/* slash arcs carved by each blade */}
-        <path className="k-arc" d="M120,60 C240,74 340,128 396,186" stroke="#ffd166" strokeWidth="5"
+        {/* slash arcs carved by each technique */}
+        <path className="k-arc" d="M120,54 C250,72 348,126 396,186" stroke="#ffd166" strokeWidth="6"
           fill="none" strokeLinecap="round" strokeDasharray="620" filter="url(#rzG2)" />
-        <path className="k-arc" d="M680,60 C560,74 460,128 404,186" stroke="#9ee7ff" strokeWidth="5"
+        <path className="k-arc" d="M680,54 C550,72 452,126 404,186" stroke="#9ee7ff" strokeWidth="6"
           fill="none" strokeLinecap="round" strokeDasharray="620" filter="url(#rzG2)"
           style={{ animationDelay: '.03s' }} />
-
-        {/* afterimages */}
-        <g className="k-ghost">
-          <use href="#rzFighter" x="300" y="0" color="#e8321a" opacity="0.5" />
-          <use href="#rzFighter" x="248" y="6" color="#e8321a" opacity="0.28" />
-          <g transform="translate(800,0) scale(-1,1)">
-            <use href="#rzFighter" x="300" y="0" color="#1668d6" opacity="0.5" />
-            <use href="#rzFighter" x="248" y="6" color="#1668d6" opacity="0.28" />
-          </g>
-        </g>
-
-        {/* the two swordsmen */}
-        <g className="k-red" style={{ transformOrigin: '340px 260px' }}>
-          <use href="#rzFighter" x="340" y="0" color="#c2182b" />
-          <circle className="k-charge" cx="470" cy="120" r="26" fill="#ff8a3d" filter="url(#rzG)" />
-        </g>
-        <g className="k-blue" style={{ transformOrigin: '460px 260px' }}>
-          <g transform="translate(800,0) scale(-1,1)">
-            <use href="#rzFighter" x="340" y="0" color="#1b5fd0" />
-            <circle className="k-charge" cx="470" cy="120" r="26" fill="#4fc3f7" filter="url(#rzG)" />
-          </g>
-        </g>
 
         {/* collision core */}
         <circle className="k-core" cx="400" cy="186" r="120" fill="url(#rzCore)" />
