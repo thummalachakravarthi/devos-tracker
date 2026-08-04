@@ -424,7 +424,9 @@ export default function LifeGarden() {
         </div>
       </div>
 
-      <div className="px-4 pb-2 flex flex-wrap items-center gap-1.5">
+      <div dangerouslySetInnerHTML={{ __html: svg.markup }} />
+
+      <div className="px-4 pt-3 pb-2 flex flex-wrap items-center gap-1.5 border-t border-white/6">
         <button onClick={() => setShowTime(v => !v)} className={`lg-pill ${!autoTime ? 'lg-on' : ''}`}>
           {mins/60 >= 6 && mins/60 < 18.5 ? '☀️' : '🌙'} time
         </button>
@@ -450,9 +452,7 @@ export default function LifeGarden() {
         </div>
       )}
 
-      <div dangerouslySetInnerHTML={{ __html: svg.markup }} />
-
-      <div className="px-4 py-3 flex flex-wrap gap-3 text-[11px] text-dim border-t border-white/6">
+      <div className="px-4 py-3 flex flex-wrap gap-3 text-[11px] text-dim">
         <span>flower = habit · bush = DSA · sapling = Java</span>
         <span className="ml-auto flex flex-wrap gap-3">
           <span>habits <span className="font-mono text-pink-400">{tasks.habits}</span></span>
