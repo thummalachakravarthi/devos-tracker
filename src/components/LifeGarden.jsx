@@ -253,39 +253,59 @@ function rainLayer() {
   }
   return `<g>${s}</g>`
 }
-function bird(sc, tint) {
-  const T = tint || 0
-  const wingN = ['#6f7f9c', '#7d8aa4', '#8a7f96'][T]
-  const wingF = ['#43506c', '#4d5a74', '#584f68'][T]
+// Three real species. What makes a shape read as "bird" and not "fish":
+// a distinct rounded head set off from the body, and a wingspan far
+// larger than the body — so both are exaggerated here.
+const SPECIES = [
+  { back:'#27356b', hi:'#43569c', belly:'#f2e8d5', throat:'#c2512b', beak:'#2b2b33', tail:'fork' },
+  { back:'#6b543a', hi:'#95795a', belly:'#efe0c4', throat:'#d9632f', beak:'#3a3128', tail:'fan'  },
+  { back:'#5c6b2e', hi:'#8ba045', belly:'#f7edbe', throat:'#e0b41f', beak:'#3a3528', tail:'fan'  },
+]
+
+function bird(sc, sp) {
+  const B = SPECIES[sp % SPECIES.length]
+  const tail = B.tail === 'fork'
+    ? `<path d="M-9,0 C-17,-3 -26,-7 -33,-10 L-21,-1 L-31,8 C-23,4 -15,1 -9,2 Z" fill="${B.back}"/>`
+    : `<path d="M-9,-1 C-17,-5 -24,-8 -29,-9 C-27,-4 -26,0 -27,5
+         C-21,3 -14,1 -9,2 Z" fill="${B.back}"/>
+       <path d="M-27,-7 L-12,0 M-27,-2 L-12,1 M-27,3 L-12,2"
+         stroke="${B.hi}" stroke-width=".8" opacity=".55"/>`
   return `<g transform="scale(${sc})">
-    <!-- far wing sits behind the body and reads darker -->
+    <!-- far wing: behind everything, darker -->
     <g class="lg-wingF">
-      <path d="M-1,-2 C-6,-11 -13,-20 -23,-24 C-20,-15 -14,-7 -3,-1 Z" fill="${wingF}"/>
-      <path d="M-23,-24 C-19,-22 -16,-19 -13,-15" stroke="${wingF}" stroke-width="2.6"
-        stroke-linecap="round" fill="none" opacity=".85"/>
+      <path d="M-2,-2 C-10,-13 -22,-25 -36,-29 C-31,-18 -19,-8 -4,-1 Z" fill="${B.back}" opacity=".78"/>
     </g>
 
-    <!-- forked tail -->
-    <path d="M-13,0 C-18,-4 -23,-6.5 -27,-8 L-21,-0.5 L-26,6 C-22,4.5 -17,2.5 -13,0 Z"
-      fill="url(#lgBodyG)"/>
+    ${tail}
 
-    <!-- streamlined body, lit from above -->
-    <path d="M-14,0 C-9,-6.5 0,-9 9,-7.5 C15,-6.5 19,-4 21,-3
-             C19,-0.5 15,1.5 9,3 C0,5 -9,4.5 -14,0 Z" fill="url(#lgBodyG)"/>
-    <path d="M-11,1.6 C-4,4 4,3.6 12,1.4 C7,3.4 -2,4.6 -11,1.6 Z" fill="#c3ceE0" opacity=".55"/>
+    <!-- compact body -->
+    <path d="M-10,0 C-8,-6 -2,-8.5 4,-7.5 C8,-7 10.5,-4.5 11,-2
+             C11,1.5 8,4 2,4.8 C-4,5.2 -9,3.2 -10,0 Z" fill="${B.back}"/>
+    <!-- pale breast + belly -->
+    <path d="M-6,2.4 C0,5 6,4.4 10.5,1.6 C9,3.6 3,5.6 -6,4 Z" fill="${B.belly}"/>
+    <path d="M4,-1 C8,-1 11,-2 12,-4 C12.5,-.5 9,2.4 4,2.8 Z" fill="${B.throat}"/>
 
-    <path d="M20.4,-3.4 L27.6,-2.1 L20.4,-0.5 Z" fill="#e8a33d"/>
-    <circle cx="15.8" cy="-3.8" r="1.15" fill="#1b2230"/>
-    <circle cx="16.2" cy="-4.2" r=".4" fill="#ffffff" opacity=".9"/>
+    <!-- distinct head, set forward and up to create a neck notch -->
+    <circle cx="12.2" cy="-6.2" r="5.4" fill="${B.back}"/>
+    <path d="M8.4,-3.4 C10,-1.6 13,-1.2 15.4,-2.2 C13.6,-.4 9.8,-.6 8.4,-3.4 Z" fill="${B.belly}"/>
+    <path d="M16.6,-7.2 L24.4,-5.8 L16.6,-4.2 Z" fill="${B.beak}"/>
+    <circle cx="14.2" cy="-7.6" r="1.25" fill="#14181f"/>
+    <circle cx="14.6" cy="-8" r=".45" fill="#ffffff" opacity=".95"/>
 
-    <!-- near wing, with separated primaries at the tip -->
+    <!-- tucked feet -->
+    <path d="M-2,4.4 L-6,6.2 M0,4.6 L-3.6,6.6" stroke="${B.beak}" stroke-width=".9"
+      stroke-linecap="round" opacity=".7"/>
+
+    <!-- near wing: long, swept, with separated primaries -->
     <g class="lg-wingN">
-      <path d="M0,-2 C-5,-11 -13,-21 -25,-25 C-22,-16 -15,-8 -3,-1 Z" fill="url(#lgWingG)"/>
-      <path d="M-25,-25 C-21,-24 -18,-21.5 -15,-18" stroke="${wingN}" stroke-width="2.2"
+      <path d="M0,-3 C-9,-15 -22,-28 -39,-32 C-34,-20 -21,-9 -3,-1 Z" fill="${B.hi}"/>
+      <path d="M-39,-32 C-34,-30 -30,-26.5 -26,-22" stroke="${B.back}" stroke-width="2.4"
         stroke-linecap="round" fill="none"/>
-      <path d="M-23.5,-21.5 C-20,-20 -17,-17.5 -14,-14.5" stroke="${wingN}" stroke-width="1.8"
-        stroke-linecap="round" fill="none" opacity=".8"/>
-      <path d="M-6,-8 C-10,-13 -15,-18 -22,-22" stroke="#2f3a52" stroke-width="1"
+      <path d="M-36.5,-27.5 C-32,-25.5 -28,-22 -24,-18" stroke="${B.back}" stroke-width="2"
+        stroke-linecap="round" fill="none" opacity=".85"/>
+      <path d="M-33,-23 C-29,-21 -25.5,-18 -22,-14.5" stroke="${B.back}" stroke-width="1.6"
+        stroke-linecap="round" fill="none" opacity=".7"/>
+      <path d="M-6,-9 C-12,-15 -20,-22 -30,-26" stroke="${B.back}" stroke-width="1"
         stroke-linecap="round" fill="none" opacity=".45"/>
     </g>
   </g>`
@@ -306,13 +326,13 @@ function birdsLayer() {
       // V formation: each bird trails back and alternates above/below the leader
       const side = i % 2 === 0 ? 1 : -1
       const rank = Math.ceil(i / 2)
-      const dx = -rank * (30 + r() * 10)
-      const dy = side * rank * (13 + r() * 6)
+      const dx = -rank * (46 + r() * 14)
+      const dy = side * rank * (17 + r() * 7)
       members += `<g transform="translate(${dx.toFixed(0)},${dy.toFixed(0)})"
           class="lg-bob" style="animation-delay:-${(r()*2).toFixed(2)}s;
           animation-duration:${(2.6 + r()*1.4).toFixed(1)}s">
           <g class="lg-flap" style="--fd:${(.34 + r()*.16).toFixed(2)}s"
-             transform="rotate(${(-4 + r()*8).toFixed(1)})">${bird(.9 + r()*.28, i % 3)}</g></g>`
+             transform="rotate(${(-4 + r()*8).toFixed(1)})">${bird(.92 + r()*.22, fi)}</g></g>`
     }
     s += `<g class="lg-flock" style="--fy:${f.y}px; animation-duration:${f.dur}s;
             animation-delay:-${(fi * 7 + r() * 6).toFixed(1)}s">
@@ -439,14 +459,6 @@ export default function LifeGarden() {
           <radialGradient id="lgVig" cx="50%" cy="46%" r="76%">
             <stop offset="66%" stop-color="#000" stop-opacity="0"/>
             <stop offset="100%" stop-color="#000" stop-opacity=".22"/></radialGradient>
-          <linearGradient id="lgBodyG" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stop-color="#414f6b"/>
-            <stop offset="52%" stop-color="#5c6d8d"/>
-            <stop offset="100%" stop-color="#9dabc2"/></linearGradient>
-          <linearGradient id="lgWingG" x1="1" y1="1" x2="0" y2="0">
-            <stop offset="0%" stop-color="#8b99b4"/>
-            <stop offset="55%" stop-color="#667593"/>
-            <stop offset="100%" stop-color="#3d4963"/></linearGradient>
           <filter id="lgS1" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="10"/></filter>
           <filter id="lgS2" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="4"/></filter>
           <filter id="lgFar" x="-8%" y="-8%" width="116%" height="116%"><feGaussianBlur stdDeviation="1.8"/></filter>
