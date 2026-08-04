@@ -2,7 +2,7 @@ import { todayISO } from './dates'
 
 // A full, human-readable snapshot of everything the app stores.
 // Re-importable by hand, and cheap insurance before a reset.
-export function buildBackup({ settings, habits, logs, javaSessions, dsaLogs, books }) {
+export function buildBackup({ settings, habits, logs, javaSessions, dsaLogs, books, bookSessions }) {
   return {
     format: 'devos-tracker-backup',
     version: 1,
@@ -12,6 +12,7 @@ export function buildBackup({ settings, habits, logs, javaSessions, dsaLogs, boo
       java_sessions: javaSessions?.length || 0,
       dsa_logs: dsaLogs?.length || 0,
       books: books?.length || 0,
+      book_sessions: bookSessions?.length || 0,
       habit_log_days: Object.values(logs || {}).reduce((a, m) => a + Object.keys(m).length, 0),
     },
     settings: settings || null,
@@ -20,6 +21,7 @@ export function buildBackup({ settings, habits, logs, javaSessions, dsaLogs, boo
     java_sessions: javaSessions || [],
     dsa_logs: dsaLogs || [],
     books: books || [],
+    book_sessions: bookSessions || [],
   }
 }
 

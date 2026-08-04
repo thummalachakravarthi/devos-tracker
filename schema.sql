@@ -121,3 +121,24 @@ alter table public.books enable row level security;
 drop policy if exists "own books" on public.books;
 create policy "own books" on public.books
   for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
+
+-- ─────────────────────────────────────────────────────────────
+-- Per-session reading log: how many pages, on which day.
+-- ─────────────────────────────────────────────────────────────
+create table if not exists public.book_sessions (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users(id) on delete cascade,
+  book_id uuid not null references public.books(id) on delete cascade,
+  session_date date not null default current_date,
+  pages int not null check (pages > 0),
+  created_at timestamptz not null default now()
+);
+
+create index if not exists book_sessions_user_date_idx
+  on public.book_sessions (user_id, session_date);
+
+alter table public.book_sessions enable row level security;
+
+drop policy if exists "own book sessions" on public.book_sessions;
+create policy "own book sessions" on public.book_sessions
+  for all using (auth.uid() = user_id) with check (auth.uid() = user_id);

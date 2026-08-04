@@ -108,11 +108,11 @@ function HabitForm({ initial, onSave, onCancel }) {
 
 export default function Habits() {
   const { habits, addHabit, updateHabit, moveHabit, resetAllData,
-    settings, logs, javaSessions, dsaLogs, books } = useData()
+    settings, logs, javaSessions, dsaLogs, books, bookSessions } = useData()
   const [exported, setExported] = useState(false)
 
   const doExport = () => {
-    downloadBackup(buildBackup({ settings, habits, logs, javaSessions, dsaLogs, books }))
+    downloadBackup(buildBackup({ settings, habits, logs, javaSessions, dsaLogs, books, bookSessions }))
     setExported(true)
     setTimeout(() => setExported(false), 3000)
   }

@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
 import { BookOpen, Plus, Trash2, Star, Check } from 'lucide-react'
 import { useData } from '../DataStore'
-import { todayISO, fmtShort } from '../lib/dates'
+import { todayISO, fmtShort, weekdayShort, addDays } from '../lib/dates'
 
 const STATUSES = [
   { id: 'reading', label: 'Reading', tone: '#4C7BFF' },
@@ -26,7 +26,8 @@ function Stars({ value, onPick }) {
 }
 
 export default function Books() {
-  const { books, addBook, updateBook, removeBook } = useData()
+  const { books, addBook, updateBook, removeBook, bookSessions, logReading, removeReading } = useData()
+  const [pagesInput, setPagesInput] = useState({})
   const [filter, setFilter] = useState('reading')
   const [adding, setAdding] = useState(false)
   const [f, setF] = useState({ title: '', author: '', total_pages: '', category: '' })
@@ -48,11 +49,36 @@ export default function Books() {
     return { done: done.length, pages, avg, thisYear: thisYear.length }
   }, [books])
 
+  const reading = useMemo(() => {
+    const today = todayISO()
+    const byDay = {}
+    for (const s of bookSessions) byDay[s.session_date] = (byDay[s.session_date] || 0) + s.pages
+    // count back from today; not having logged *today* yet doesn't break it
+    let streak = 0
+    for (let i = 0; i < 365; i++) {
+      const d = addDays(today, -i)
+      if (byDay[d]) streak++
+      else if (i > 0) break
+    }
+    const week = Array.from({ length: 7 }, (_, i) => {
+      const d = addDays(today, -(6 - i))
+      return { d, pages: byDay[d] || 0 }
+    })
+    return { today: byDay[today] || 0, streak, week, max: Math.max(1, ...week.map((w) => w.pages)) }
+  }, [bookSessions])
+
   const shown = useMemo(
     () => books.filter((b) => b.status === filter)
       .sort((a, b) => (b.created_at || '').localeCompare(a.created_at || '')),
     [books, filter]
   )
+
+  const todaysPages = (bookId) => {
+    const today = todayISO()
+    return bookSessions
+      .filter((s) => s.book_id === bookId && s.session_date === today)
+      .reduce((a, s) => a + s.pages, 0)
+  }
 
   const submit = () => {
     if (!f.title.trim()) return
@@ -130,6 +156,26 @@ export default function Books() {
         )}
       </section>
 
+      <section className="card card-hover">
+        <div className="flex items-center justify-between mb-3">
+          <div className="label">Pages this week</div>
+          <div className="font-mono text-xs text-dim">
+            <span className="text-text font-bold">{reading.today}</span> today
+            {reading.streak > 1 && <> · {reading.streak}d streak</>}
+          </div>
+        </div>
+        <div className="flex items-end gap-1.5 h-20">
+          {reading.week.map(({ d, pages }) => (
+            <div key={d} className="flex-1 flex flex-col items-center gap-1">
+              <div className="w-full rounded-t bg-amber/70 transition-all duration-500"
+                style={{ height: `${Math.max(3, (pages / reading.max) * 100)}%` }}
+                title={`${pages} pages`} />
+              <span className="text-[9px] text-dim">{weekdayShort(d)[0]}</span>
+            </div>
+          ))}
+        </div>
+      </section>
+
       <div className="flex flex-wrap gap-1.5">
         {STATUSES.map((s) => (
           <button key={s.id} onClick={() => setFilter(s.id)}
@@ -175,17 +221,36 @@ export default function Books() {
                 {b.status === 'reading' && b.total_pages && (
                   <div className="mt-3">
                     <div className="flex items-center gap-2">
-                      <input type="number" inputMode="numeric" className="input w-20 !py-1 text-sm"
-                        value={b.pages_read || 0} min="0" max={b.total_pages}
-                        onChange={(e) => updateBook(b.id, {
-                          pages_read: Math.max(0, Math.min(b.total_pages, Number(e.target.value) || 0)),
-                        })} />
-                      <span className="text-xs text-dim">of {b.total_pages} pages</span>
+                      <span className="text-xs text-dim">
+                        <span className="text-text font-mono">{b.pages_read || 0}</span> of {b.total_pages} pages
+                      </span>
                       <span className="ml-auto font-mono text-xs text-dim">{pct}%</span>
                     </div>
                     <div className="mt-2 h-1.5 rounded-full bg-white/8 overflow-hidden">
                       <div className="h-full rounded-full bg-mint transition-all duration-500"
                         style={{ width: `${pct}%` }} />
+                    </div>
+                    <div className="mt-2.5 flex items-center gap-2">
+                      <input type="number" inputMode="numeric" min="1"
+                        className="input w-20 !py-1 text-sm" placeholder="pages"
+                        value={pagesInput[b.id] || ''}
+                        onChange={(e) => setPagesInput({ ...pagesInput, [b.id]: e.target.value })}
+                        onKeyDown={(e) => {
+                          if (e.key !== 'Enter') return
+                          const n = Number(pagesInput[b.id])
+                          if (n > 0) { logReading(b.id, n); setPagesInput({ ...pagesInput, [b.id]: '' }) }
+                        }} />
+                      <button className="btn !py-1 !px-3 text-xs"
+                        disabled={!(Number(pagesInput[b.id]) > 0)}
+                        onClick={() => {
+                          const n = Number(pagesInput[b.id])
+                          if (n > 0) { logReading(b.id, n); setPagesInput({ ...pagesInput, [b.id]: '' }) }
+                        }}>
+                        Log pages
+                      </button>
+                      {todaysPages(b.id) > 0 && (
+                        <span className="text-[11px] text-mint">+{todaysPages(b.id)} today</span>
+                      )}
                     </div>
                   </div>
                 )}

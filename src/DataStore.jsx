@@ -32,6 +32,7 @@ export function DataProvider({ session, children }) {
   const [javaSessions, setJavaSessions] = useState([])
   const [dsaLogs, setDsaLogs] = useState([])
   const [books, setBooks] = useState([])
+  const [bookSessions, setBookSessions] = useState([])
   const [uiDate, setUiDate] = useState(todayISO()) // date being viewed/edited on Today
 
   useEffect(() => {
@@ -65,16 +66,18 @@ export function DataProvider({ session, children }) {
         }
 
         const [{ data: hl, error: e4 }, { data: js, error: e5 }, { data: dl, error: e6 },
-               { data: bk, error: e7 }] =
+               { data: bk, error: e7 }, { data: bs, error: e8 }] =
           await Promise.all([
             supabase.from('habit_logs').select('*').eq('user_id', uid),
             supabase.from('java_sessions').select('*').eq('user_id', uid).order('created_at'),
             supabase.from('dsa_logs').select('*').eq('user_id', uid).order('created_at'),
             supabase.from('books').select('*').eq('user_id', uid).order('created_at'),
+            supabase.from('book_sessions').select('*').eq('user_id', uid).order('created_at'),
           ])
         if (e4 || e5 || e6) throw e4 || e5 || e6
         // books table may not exist yet on an older database — don't hard-fail
         if (!e7) setBooks(bk || [])
+        if (!e8) setBookSessions(bs || [])
 
         const logMap = {}
         for (const row of hl || []) {
@@ -252,6 +255,39 @@ export function DataProvider({ session, children }) {
       reportSync(e, 'that book update')
     }
   }
+  // Records pages read today AND advances the book's counter in one go.
+  async function logReading(bookId, pages, dateIso) {
+    const book = books.find((b) => b.id === bookId)
+    if (!book || !pages) return
+    const day = dateIso || todayISO()
+    const nextRead = Math.max(0, (book.pages_read || 0) + pages)
+    const capped = book.total_pages ? Math.min(book.total_pages, nextRead) : nextRead
+
+    const { data, error: e } = await supabase
+      .from('book_sessions')
+      .insert({ user_id: uid, book_id: bookId, session_date: day, pages })
+      .select().single()
+    if (e) return reportSync(e, 'that reading session')
+    setBookSessions((p) => [...p, data])
+
+    const patch = { pages_read: capped }
+    if (book.total_pages && capped >= book.total_pages && book.status === 'reading') {
+      patch.status = 'finished'
+      patch.finished_on = day
+    }
+    updateBook(bookId, patch)
+  }
+
+  async function removeReading(id) {
+    const removed = bookSessions.find((s) => s.id === id)
+    setBookSessions((p) => p.filter((s) => s.id !== id))
+    const { error: e } = await supabase.from('book_sessions').delete().eq('id', id)
+    if (e && removed) {
+      setBookSessions((p) => [...p, removed])
+      reportSync(e, 'that deletion')
+    }
+  }
+
   async function removeBook(id) {
     const removed = books.find((b) => b.id === id)
     setBooks((p) => p.filter((b) => b.id !== id))
@@ -365,6 +401,9 @@ export function DataProvider({ session, children }) {
     addBook,
     updateBook,
     removeBook,
+    bookSessions,
+    logReading,
+    removeReading,
     reviewDsa,
     scheduleUnscheduled,
     updateSettings,
