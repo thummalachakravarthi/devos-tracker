@@ -33,6 +33,7 @@ export function DataProvider({ session, children }) {
   const [dsaLogs, setDsaLogs] = useState([])
   const [books, setBooks] = useState([])
   const [bookSessions, setBookSessions] = useState([])
+  const [bookNotes, setBookNotes] = useState([])
   const [uiDate, setUiDate] = useState(todayISO()) // date being viewed/edited on Today
 
   useEffect(() => {
@@ -66,18 +67,20 @@ export function DataProvider({ session, children }) {
         }
 
         const [{ data: hl, error: e4 }, { data: js, error: e5 }, { data: dl, error: e6 },
-               { data: bk, error: e7 }, { data: bs, error: e8 }] =
+               { data: bk, error: e7 }, { data: bs, error: e8 }, { data: bn, error: e9 }] =
           await Promise.all([
             supabase.from('habit_logs').select('*').eq('user_id', uid),
             supabase.from('java_sessions').select('*').eq('user_id', uid).order('created_at'),
             supabase.from('dsa_logs').select('*').eq('user_id', uid).order('created_at'),
             supabase.from('books').select('*').eq('user_id', uid).order('created_at'),
             supabase.from('book_sessions').select('*').eq('user_id', uid).order('created_at'),
+            supabase.from('book_notes').select('*').eq('user_id', uid).order('created_at'),
           ])
         if (e4 || e5 || e6) throw e4 || e5 || e6
         // books table may not exist yet on an older database — don't hard-fail
         if (!e7) setBooks(bk || [])
         if (!e8) setBookSessions(bs || [])
+        if (!e9) setBookNotes(bn || [])
 
         const logMap = {}
         for (const row of hl || []) {
@@ -288,6 +291,24 @@ export function DataProvider({ session, children }) {
     }
   }
 
+  async function addNote(bookId, body, kind, page) {
+    const { data, error: e } = await supabase
+      .from('book_notes')
+      .insert({ user_id: uid, book_id: bookId, body, kind: kind || 'note', page: page ?? null })
+      .select().single()
+    if (e) return reportSync(e, 'that note')
+    setBookNotes((p) => [...p, data])
+  }
+  async function removeNote(id) {
+    const removed = bookNotes.find((n) => n.id === id)
+    setBookNotes((p) => p.filter((n) => n.id !== id))
+    const { error: e } = await supabase.from('book_notes').delete().eq('id', id)
+    if (e && removed) {
+      setBookNotes((p) => [...p, removed])
+      reportSync(e, 'that deletion')
+    }
+  }
+
   async function removeBook(id) {
     const removed = books.find((b) => b.id === id)
     setBooks((p) => p.filter((b) => b.id !== id))
@@ -404,6 +425,9 @@ export function DataProvider({ session, children }) {
     bookSessions,
     logReading,
     removeReading,
+    bookNotes,
+    addNote,
+    removeNote,
     reviewDsa,
     scheduleUnscheduled,
     updateSettings,

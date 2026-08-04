@@ -142,3 +142,32 @@ alter table public.book_sessions enable row level security;
 drop policy if exists "own book sessions" on public.book_sessions;
 create policy "own book sessions" on public.book_sessions
   for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
+
+-- Book metadata, notes and the yearly goal (already applied via migration)
+alter table public.books
+  add column if not exists cover_url text,
+  add column if not exists isbn text,
+  add column if not exists published_year int,
+  add column if not exists ol_key text,
+  add column if not exists format text default 'book'
+    check (format in ('book','ebook','audio')),
+  add column if not exists is_favourite boolean not null default false;
+
+create table if not exists public.book_notes (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users(id) on delete cascade,
+  book_id uuid not null references public.books(id) on delete cascade,
+  page int check (page is null or page >= 0),
+  kind text not null default 'note' check (kind in ('note','quote')),
+  body text not null,
+  created_at timestamptz not null default now()
+);
+create index if not exists book_notes_user_book_idx on public.book_notes (user_id, book_id);
+alter table public.book_notes enable row level security;
+drop policy if exists "own book notes" on public.book_notes;
+create policy "own book notes" on public.book_notes
+  for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
+
+alter table public.settings
+  add column if not exists yearly_book_goal int not null default 12
+    check (yearly_book_goal >= 0);

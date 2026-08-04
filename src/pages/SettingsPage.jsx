@@ -59,7 +59,7 @@ function NumberField({ value, onCommit, suffix, min = 0, max = 100000, width = '
 export default function SettingsPage() {
   const {
     settings, updateSettings, resetAllData,
-    habits, logs, javaSessions, dsaLogs, books, bookSessions,
+    habits, logs, javaSessions, dsaLogs, books, bookSessions, bookNotes,
   } = useData()
 
   const [confirming, setConfirming] = useState(false)
@@ -73,7 +73,7 @@ export default function SettingsPage() {
   const set = (patch) => updateSettings(patch)
 
   const doExport = () => {
-    downloadBackup(buildBackup({ settings, habits, logs, javaSessions, dsaLogs, books, bookSessions }))
+    downloadBackup(buildBackup({ settings, habits, logs, javaSessions, dsaLogs, books, bookSessions, bookNotes }))
     setExported(true)
     setTimeout(() => setExported(false), 3000)
   }
@@ -105,6 +105,10 @@ export default function SettingsPage() {
         <Row label="DSA problems" hint="Problems to solve each day">
           <NumberField value={s.daily_dsa_target ?? 2} suffix="/day" max={50}
             onCommit={(n) => set({ daily_dsa_target: n })} />
+        </Row>
+        <Row label="Books this year" hint="Your annual reading goal">
+          <NumberField value={s.yearly_book_goal ?? 12} suffix="books" max={999}
+            onCommit={(n) => set({ yearly_book_goal: n })} />
         </Row>
         <Row label="Reading" hint="Pages to read each day">
           <NumberField value={s.daily_pages_target ?? 20} suffix="pages" max={2000}
