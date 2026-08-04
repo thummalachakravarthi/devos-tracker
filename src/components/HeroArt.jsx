@@ -1,4 +1,6 @@
 // Original hero-tab art — vibrant, saturated, high-contrast.
+import RiseCinematic, { } from './RiseCinematic'
+import { useState } from 'react'
 // Every scene uses its own gradient palette + animated depth + strong headline color.
 
 const bannerCls = 'absolute inset-0 w-full h-full'
@@ -654,7 +656,7 @@ export function ArtCommand() {
 //  70–86%   blowback, both hurled apart
 //  86–100%  land, reset — seamless
 // ═══════════════════════════════════════════════════════════════
-export function ArtRise() {
+function ArtRiseSvg() {
   const shards = Array.from({ length: 34 }, (_, i) => {
     const a = (i / 34) * Math.PI * 2
     const sp = 90 + ((i * 41) % 130)
@@ -981,5 +983,18 @@ export function ArtRise() {
       <rect className="k-flash" width="800" height="300" fill="#ffffff" />
       <rect width="800" height="300" fill="url(#rzVig)" />
     </svg>
+  )
+}
+
+
+// Prefer real artwork in /public/rise/ when it exists; otherwise draw the
+// SVG duel. Swapping in art needs no code change — just add the files.
+export function ArtRise() {
+  const [noAssets, setNoAssets] = useState(false)
+  return (
+    <>
+      {!noAssets && <RiseCinematic onNoAssets={() => setNoAssets(true)} />}
+      {noAssets && <ArtRiseSvg />}
+    </>
   )
 }
