@@ -1,4 +1,5 @@
 import { createContext, useContext, useEffect, useMemo, useState } from 'react'
+import { nextReviewFor } from './lib/dsa'
 import { supabase } from './lib/supabase'
 import { todayISO } from './lib/dates'
 
@@ -179,10 +180,13 @@ export function DataProvider({ session, children }) {
     javaSessions.filter((s) => s.session_date === dateIso).reduce((a, s) => a + s.minutes, 0)
 
   // ---------- dsa ----------
-  async function logDsa(problems, topic, dateIso) {
+  async function logDsa(problems, topic, dateIso, title) {
     const { data, error: e } = await supabase
       .from('dsa_logs')
-      .insert({ user_id: uid, log_date: dateIso, problems, topic: topic || null })
+      .insert({
+        user_id: uid, log_date: dateIso, problems, topic: topic || null,
+        title: title || null, review_stage: 0, next_review: nextReviewFor(0, dateIso),
+      })
       .select()
       .single()
     if (e) return reportSync(e, 'that DSA log')
@@ -197,6 +201,36 @@ export function DataProvider({ session, children }) {
       reportSync(e, 'that deletion')
     }
   }
+  // Spaced repetition: 'got it' advances the ladder, 'again' steps back one.
+  async function reviewDsa(id, recalled) {
+    const before = dsaLogs.find((l) => l.id === id)
+    if (!before) return
+    const stage = recalled
+      ? (before.review_stage || 0) + 1
+      : Math.max(0, (before.review_stage || 0) - 1)
+    const today = todayISO()
+    const patch = { review_stage: stage, last_reviewed: today, next_review: nextReviewFor(stage, today) }
+    setDsaLogs((p) => p.map((l) => (l.id === id ? { ...l, ...patch } : l)))
+    const { error: e } = await supabase.from('dsa_logs').update(patch).eq('id', id)
+    if (e) {
+      setDsaLogs((p) => p.map((l) => (l.id === id ? before : l)))
+      reportSync(e, 'that review')
+    }
+  }
+
+  // Backfill: problems logged before spaced repetition existed have no schedule.
+  async function scheduleUnscheduled() {
+    const orphans = dsaLogs.filter((l) => !l.next_review)
+    if (!orphans.length) return
+    await Promise.all(orphans.map((l) =>
+      supabase.from('dsa_logs')
+        .update({ review_stage: 0, next_review: nextReviewFor(0, l.log_date) })
+        .eq('id', l.id)
+    ))
+    setDsaLogs((p) => p.map((l) =>
+      l.next_review ? l : { ...l, review_stage: 0, next_review: nextReviewFor(0, l.log_date) }))
+  }
+
   const dsaProblemsOn = (dateIso) =>
     dsaLogs.filter((s) => s.log_date === dateIso).reduce((a, s) => a + s.problems, 0)
   const dsaTotal = useMemo(() => dsaLogs.reduce((a, s) => a + s.problems, 0), [dsaLogs])
@@ -296,6 +330,8 @@ export function DataProvider({ session, children }) {
     updateHabit,
     moveHabit,
     syncError,
+    reviewDsa,
+    scheduleUnscheduled,
     updateSettings,
     resetAllData,
   }

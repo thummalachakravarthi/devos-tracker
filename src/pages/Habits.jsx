@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Plus, ArrowUp, ArrowDown, Archive, ArchiveRestore, Pencil, X, RotateCcw, AlertTriangle } from 'lucide-react'
 import LifeGarden from '../components/LifeGarden'
 import { useData } from '../DataStore'
+import { buildBackup, downloadBackup } from '../lib/backup'
 
 const COLORS = ['#0284C7', '#0EA5E9', '#2E7D32', '#1F5FD6', '#6366F1', '#1E2635']
 const TYPES = [
@@ -106,7 +107,15 @@ function HabitForm({ initial, onSave, onCancel }) {
 }
 
 export default function Habits() {
-  const { habits, addHabit, updateHabit, moveHabit, resetAllData } = useData()
+  const { habits, addHabit, updateHabit, moveHabit, resetAllData,
+    settings, logs, javaSessions, dsaLogs } = useData()
+  const [exported, setExported] = useState(false)
+
+  const doExport = () => {
+    downloadBackup(buildBackup({ settings, habits, logs, javaSessions, dsaLogs }))
+    setExported(true)
+    setTimeout(() => setExported(false), 3000)
+  }
   const [confirming, setConfirming] = useState(false)
   const [resetting, setResetting] = useState(false)
   const [adding, setAdding] = useState(false)
@@ -217,6 +226,13 @@ export default function Habits() {
                 onClick={() => setConfirming(false)}
               >
                 Cancel
+              </button>
+              <button
+                className="btn flex-1"
+                disabled={resetting}
+                onClick={doExport}
+              >
+                {exported ? 'Saved ✓' : 'Back up first'}
               </button>
               <button
                 className="btn flex-1 !border-red !bg-red !text-white"

@@ -80,3 +80,16 @@ create policy "own java_sessions" on public.java_sessions
   for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
 create policy "own dsa_logs" on public.dsa_logs
   for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
+
+-- ─────────────────────────────────────────────────────────────
+-- Spaced repetition for DSA problems
+-- Run this block on an existing database to upgrade it.
+-- ─────────────────────────────────────────────────────────────
+alter table public.dsa_logs
+  add column if not exists title text,
+  add column if not exists next_review date,
+  add column if not exists review_stage int not null default 0,
+  add column if not exists last_reviewed date;
+
+create index if not exists dsa_logs_next_review_idx
+  on public.dsa_logs (user_id, next_review);

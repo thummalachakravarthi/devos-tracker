@@ -13,6 +13,8 @@ import { useData } from '../DataStore'
 import { CoffeeCup, Heatmap, CountUp } from '../components/Bits'
 import { todayISO, addDays, dayDiff, weekdayShort, fmtShort } from '../lib/dates'
 import { PHASES, DSA_MILESTONES, DSA_TOPICS } from '../config/plan'
+import ReviewQueue from '../components/ReviewQueue'
+import TopicRadar from '../components/TopicRadar'
 
 export default function JavaHQ() {
   const {
@@ -84,6 +86,7 @@ export default function JavaHQ() {
   const [dsaProblems, setDsaProblems] = useState('1')
   const [dsaTopic, setDsaTopic] = useState('')
   const [customTopic, setCustomTopic] = useState(false)
+  const [dsaTitle, setDsaTitle] = useState('')
   // built-in topics + every topic you've ever logged (so new ones stick around)
   const allTopics = useMemo(() => {
     const set = new Set(DSA_TOPICS)
@@ -344,13 +347,21 @@ export default function JavaHQ() {
               <option value="__new__">＋ Add new topic…</option>
             </select>
           )}
+          <input
+            type="text"
+            value={dsaTitle}
+            onChange={(e) => setDsaTitle(e.target.value)}
+            placeholder="Problem name (for review)"
+            className="input flex-1 min-w-[9rem]"
+          />
           <button
             className="btn"
             style={{ background: 'linear-gradient(135deg,#7ED957,#2E7D32)', borderColor: 'transparent', color: '#fff', boxShadow: '0 10px 22px -8px rgba(46,125,50,.6)' }}
             disabled={!dsaProblems || Number(dsaProblems) <= 0}
             onClick={() => {
-              logDsa(Number(dsaProblems), dsaTopic.trim(), today)
+              logDsa(Number(dsaProblems), dsaTopic.trim(), today, dsaTitle.trim())
               setDsaProblems('1')
+              setDsaTitle('')
               setCustomTopic(false)
             }}
           >
@@ -386,6 +397,9 @@ export default function JavaHQ() {
           </ul>
         )}
       </div>
+
+      <ReviewQueue />
+      <TopicRadar />
     </div>
   )
 }
