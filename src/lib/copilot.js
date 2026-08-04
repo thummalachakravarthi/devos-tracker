@@ -1,3 +1,4 @@
+import { parseISO, localISO, addDays, dayDiff } from './dates'
 // Gemini client — browser-only, key from localStorage, tool-calling for write actions.
 // Uses gemini-2.5-flash (free tier: 15 rpm / 1500 rpd).
 
@@ -94,7 +95,8 @@ export function buildSnapshot({
   settings, activeHabits, javaSessions, dsaLogs, logs, xp, level, streak, todayIso
 }) {
   const today = todayIso
-  const dayNum = Math.min(settings.plan_days, Math.max(1, Math.round((new Date(today) - new Date(settings.plan_start_date)) / 86400000) + 1))
+  const dayNum = Math.min(settings.plan_days,
+    Math.max(1, dayDiff(settings.plan_start_date, today) + 1))
 
   const javaToday = javaSessions.filter(s => s.session_date === today).reduce((a, s) => a + s.minutes, 0)
   const dsaToday = dsaLogs.filter(l => l.log_date === today).reduce((a, l) => a + l.problems, 0)
@@ -103,8 +105,7 @@ export function buildSnapshot({
   // last 7 days aggregate
   const last7 = { java: 0, dsa: 0, checkins: 0 }
   for (let i = 0; i < 7; i++) {
-    const d = new Date(today); d.setDate(d.getDate() - i)
-    const iso = d.toISOString().slice(0, 10)
+    const iso = addDays(today, -i)
     last7.java += javaSessions.filter(s => s.session_date === iso).reduce((a, s) => a + s.minutes, 0)
     last7.dsa += dsaLogs.filter(l => l.log_date === iso).reduce((a, l) => a + l.problems, 0)
     last7.checkins += activeHabits.filter(h => logs[h.id]?.[iso]?.completed).length

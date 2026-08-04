@@ -23,6 +23,7 @@ const SEED_HABITS = [
 export function DataProvider({ session, children }) {
   const uid = session.user.id
   const [loading, setLoading] = useState(true)
+  const [syncError, setSyncError] = useState(null)
   const [error, setError] = useState(null)
   const [settings, setSettings] = useState(null)
   const [habits, setHabits] = useState([])
@@ -101,9 +102,17 @@ export function DataProvider({ session, children }) {
   }, [uid])
 
   // ---------- habit log mutations ----------
+  // Surfaced to the UI so a failed write is never silent.
+  function reportSync(e, what) {
+    console.error(`[sync] ${what} failed`, e)
+    setSyncError(`Couldn't save ${what}. Check your connection — your last change was undone.`)
+    setTimeout(() => setSyncError(null), 6000)
+  }
+
   async function setLogValue(habit, dateIso, value) {
     const v = Math.max(0, value)
     const completed = v >= Number(habit.target)
+    const prevEntry = logs[habit.id]?.[dateIso] ?? null
     // optimistic update
     setLogs((prev) => ({
       ...prev,
@@ -121,7 +130,14 @@ export function DataProvider({ session, children }) {
       .select()
       .single()
     if (e) {
-      console.error(e)
+      // roll back to exactly what was there before
+      setLogs((prev) => {
+        const forHabit = { ...(prev[habit.id] || {}) }
+        if (prevEntry) forHabit[dateIso] = prevEntry
+        else delete forHabit[dateIso]
+        return { ...prev, [habit.id]: forHabit }
+      })
+      reportSync(e, 'that check-in')
       return
     }
     setLogs((prev) => ({
@@ -147,12 +163,17 @@ export function DataProvider({ session, children }) {
       .insert({ user_id: uid, session_date: dateIso, minutes, note: note || null })
       .select()
       .single()
-    if (e) return console.error(e)
+    if (e) return reportSync(e, 'that Java session')
     setJavaSessions((p) => [...p, data])
   }
   async function removeJava(id) {
+    const removed = javaSessions.find((s) => s.id === id)
     setJavaSessions((p) => p.filter((s) => s.id !== id))
-    await supabase.from('java_sessions').delete().eq('id', id)
+    const { error: e } = await supabase.from('java_sessions').delete().eq('id', id)
+    if (e && removed) {
+      setJavaSessions((p) => [...p, removed])
+      reportSync(e, 'that deletion')
+    }
   }
   const javaMinutesOn = (dateIso) =>
     javaSessions.filter((s) => s.session_date === dateIso).reduce((a, s) => a + s.minutes, 0)
@@ -164,12 +185,17 @@ export function DataProvider({ session, children }) {
       .insert({ user_id: uid, log_date: dateIso, problems, topic: topic || null })
       .select()
       .single()
-    if (e) return console.error(e)
+    if (e) return reportSync(e, 'that DSA log')
     setDsaLogs((p) => [...p, data])
   }
   async function removeDsa(id) {
+    const removed = dsaLogs.find((s) => s.id === id)
     setDsaLogs((p) => p.filter((s) => s.id !== id))
-    await supabase.from('dsa_logs').delete().eq('id', id)
+    const { error: e } = await supabase.from('dsa_logs').delete().eq('id', id)
+    if (e && removed) {
+      setDsaLogs((p) => [...p, removed])
+      reportSync(e, 'that deletion')
+    }
   }
   const dsaProblemsOn = (dateIso) =>
     dsaLogs.filter((s) => s.log_date === dateIso).reduce((a, s) => a + s.problems, 0)
@@ -183,12 +209,17 @@ export function DataProvider({ session, children }) {
       .insert({ ...fields, user_id: uid, sort_order })
       .select()
       .single()
-    if (e) return console.error(e)
+    if (e) return reportSync(e, 'that habit')
     setHabits((p) => [...p, data])
   }
   async function updateHabit(id, patch) {
+    const before = habits.find((h) => h.id === id)
     setHabits((p) => p.map((h) => (h.id === id ? { ...h, ...patch } : h)))
-    await supabase.from('habits').update(patch).eq('id', id)
+    const { error: e } = await supabase.from('habits').update(patch).eq('id', id)
+    if (e && before) {
+      setHabits((p) => p.map((h) => (h.id === id ? before : h)))
+      reportSync(e, 'that habit change')
+    }
   }
   async function moveHabit(id, dir) {
     const list = [...habits].sort((a, b) => a.sort_order - b.sort_order)
@@ -264,6 +295,7 @@ export function DataProvider({ session, children }) {
     addHabit,
     updateHabit,
     moveHabit,
+    syncError,
     updateSettings,
     resetAllData,
   }

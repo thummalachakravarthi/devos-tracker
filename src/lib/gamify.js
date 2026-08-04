@@ -104,7 +104,10 @@ export const ACHIEVEMENTS = [
   { id: 'level_10',      icon: '💎', name: 'Level 10',           desc: 'Reach Level 10',                   check: (s) => s.level >= 10 },
 ]
 
-export function computeAchievementStats({ javaSessions, dsaLogs, habitLogs, activeHabits, level, streak }) {
+// `habits` is the FULL list (including archived). A day is judged against the
+// habits that actually existed on that date, so archiving or adding a habit
+// can never retroactively grant or revoke a past perfect day.
+export function computeAchievementStats({ javaSessions, dsaLogs, habitLogs, activeHabits, habits, level, streak }) {
   const javaMin = javaSessions.reduce((a, s) => a + (Number(s.minutes) || 0), 0)
   const byDay = {}
   for (const s of javaSessions) byDay[s.session_date] = (byDay[s.session_date] || 0) + (Number(s.minutes) || 0)
@@ -117,9 +120,15 @@ export function computeAchievementStats({ javaSessions, dsaLogs, habitLogs, acti
   const allDates = new Set()
   for (const hid in habitLogs) for (const d in habitLogs[hid]) allDates.add(d)
   let perfectDays = 0
-  if (activeHabits && activeHabits.length) {
+  const roster = (habits && habits.length ? habits : activeHabits) || []
+  if (roster.length) {
+    // habit existed on date d if it was created on/before d
+    const bornOn = new Map(
+      roster.map((h) => [h.id, h.created_at ? String(h.created_at).slice(0, 10) : '0000-01-01'])
+    )
     for (const d of allDates) {
-      if (activeHabits.every((h) => habitLogs[h.id]?.[d]?.completed)) perfectDays++
+      const live = roster.filter((h) => bornOn.get(h.id) <= d)
+      if (live.length && live.every((h) => habitLogs[h.id]?.[d]?.completed)) perfectDays++
     }
   }
   return { javaMin, maxJavaDay, daysOnTarget, dsaTotal, perfectDays, level, streak }

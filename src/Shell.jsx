@@ -110,7 +110,7 @@ function Sidebar({ tab, setTab }) {
 }
 
 function Inner({ tab, setTab }) {
-  const { loading, error } = useData()
+  const { loading, error, syncError } = useData()
   if (loading)
     return (
       <div className="min-h-screen grid place-items-center">
@@ -135,6 +135,14 @@ function Inner({ tab, setTab }) {
 
   return (
     <>
+
+      {syncError && (
+        <div className="fixed bottom-24 left-1/2 -translate-x-1/2 z-50 max-w-[92vw]
+          px-4 py-2.5 rounded-xl text-sm bg-red-500/15 border border-red-500/40
+          text-red-200 backdrop-blur shadow-lg" role="status">
+          {syncError}
+        </div>
+      )}
       <Sidebar tab={tab} setTab={setTab} />
 
       <div className="lg:pl-60">
