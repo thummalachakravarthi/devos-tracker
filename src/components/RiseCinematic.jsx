@@ -23,6 +23,13 @@ import { useEffect, useState } from 'react'
 //  · draw them lit from the centre — that's where the collision happens
 // ═══════════════════════════════════════════════════════════════
 
+// Public-domain warrior artwork from The Met's Open Access collection.
+// Kuniyoshi died in 1861; The Met states these images are free for
+// unrestricted commercial and noncommercial use, no permission or fee.
+// Loaded by the browser, graded dark so it reads as scene, not scrapbook.
+export const MET_WARRIOR =
+  'https://images.metmuseum.org/CRDImages/as/web-additional/DP124491.jpg'
+
 const ASSETS = {
   bg: '/rise/bg.png',
   left: '/rise/fighter-left.png',
@@ -59,12 +66,29 @@ export function riseAssetsPresent(have) {
 
 export default function RiseCinematic({ onNoAssets }) {
   const have = useAvailable()
+  const [metOk, setMetOk] = useState(null)
 
   useEffect(() => {
-    if (have && !riseAssetsPresent(have)) onNoAssets?.()
-  }, [have, onNoAssets])
+    const img = new Image()
+    img.onload = () => setMetOk(true)
+    img.onerror = () => setMetOk(false)
+    img.src = MET_WARRIOR
+  }, [])
 
-  if (!have || !riseAssetsPresent(have)) return null
+  const local = riseAssetsPresent(have)
+
+  // Only hand back to the drawn SVG if there's no local art AND the Met
+  // print failed to load (offline, blocked, whatever).
+  useEffect(() => {
+    if (have && metOk === false && !local) onNoAssets?.()
+  }, [have, metOk, local, onNoAssets])
+
+  if (!have || metOk === null) return null
+  if (!local && !metOk) return null
+
+  const leftSrc = have.left ? ASSETS.left : MET_WARRIOR
+  const rightSrc = have.right ? ASSETS.right : MET_WARRIOR
+  const usingMet = !have.left || !have.right
 
   const shards = Array.from({ length: 30 }, (_, i) => {
     const a = (i / 30) * Math.PI * 2
@@ -196,23 +220,35 @@ export default function RiseCinematic({ onNoAssets }) {
         }
       `}</style>
 
-      {have.bg && <img className="rc-bg" src={ASSETS.bg} alt="" />}
+      {have.bg
+        ? <img className="rc-bg" src={ASSETS.bg} alt="" />
+        : <div className="absolute inset-0" style={{
+            background: 'radial-gradient(120% 90% at 50% 55%, #2a0f2e 0%, #12081c 55%, #07070f 100%)' }} />}
+      {usingMet && (
+        <>
+          <div className="absolute inset-0 pointer-events-none" style={{
+            background: 'linear-gradient(90deg, rgba(232,50,26,.5) 0%, transparent 35%, transparent 65%, rgba(22,104,214,.5) 100%)',
+            mixBlendMode: 'overlay' }} />
+          <div className="absolute inset-0 pointer-events-none" style={{
+            background: 'radial-gradient(circle at 50% 52%, rgba(255,233,168,.35) 0%, transparent 45%)',
+            mixBlendMode: 'soft-light' }} />
+        </>
+      )}
 
       <div className="rc-stage">
-        {have.left && (
-          <>
-            <img className="rc-fig rc-left rc-ghost" src={ASSETS.left} alt=""
-              style={{ filter: 'brightness(1.6) saturate(.4)', transform: 'translateX(-30%)' }} />
-            <img className="rc-fig rc-left" src={ASSETS.left} alt="" />
-          </>
-        )}
-        {have.right && (
-          <>
-            <img className="rc-fig rc-right rc-ghost" src={ASSETS.right} alt=""
-              style={{ filter: 'brightness(1.6) saturate(.4)', transform: 'translateX(30%)' }} />
-            <img className="rc-fig rc-right" src={ASSETS.right} alt="" />
-          </>
-        )}
+        <img className="rc-fig rc-left rc-ghost" src={leftSrc} alt=""
+          style={{ filter: 'brightness(1.7) saturate(.35)', transform: 'translateX(-30%)',
+                   mixBlendMode: usingMet ? 'screen' : 'normal' }} />
+        <img className="rc-fig rc-left" src={leftSrc} alt=""
+          style={usingMet ? { mixBlendMode: 'screen', filter: 'contrast(1.25) saturate(1.3) brightness(.95)' } : undefined} />
+
+        <img className="rc-fig rc-right rc-ghost" src={rightSrc} alt=""
+          style={{ filter: 'brightness(1.7) saturate(.35)', transform: 'scaleX(-1) translateX(-30%)',
+                   mixBlendMode: usingMet ? 'screen' : 'normal' }} />
+        <img className="rc-fig rc-right" src={rightSrc} alt=""
+          style={usingMet
+            ? { transform: 'scaleX(-1)', mixBlendMode: 'screen', filter: 'contrast(1.25) saturate(1.3) brightness(.95)' }
+            : { transform: 'scaleX(-1)' }} />
 
         {have.fxLeft && <img className="rc-fx rc-fx-l" src={ASSETS.fxLeft} alt="" />}
         {have.fxRight && <img className="rc-fx rc-fx-r" src={ASSETS.fxRight} alt="" />}

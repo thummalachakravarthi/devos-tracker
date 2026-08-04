@@ -791,9 +791,42 @@ function ArtRiseSvg() {
             36% { opacity: .6 }
             44%,100% { opacity: 0; stroke-dashoffset: 0 }
           }
+          .k-pillar { animation: kPillar 3.5s linear infinite; transform-origin: 400px 188px; }
+          @keyframes kPillar {
+            0%,32% { opacity:0; transform: scaleY(.05) scaleX(.4) }
+            35% { opacity:.95; transform: scaleY(1) scaleX(1) }
+            50% { opacity:.35; transform: scaleY(1) scaleX(.6) }
+            64%,100% { opacity:0; transform: scaleY(1) scaleX(.3) }
+          }
+          .k-bolt2 { animation: kBolt2 3.5s steps(1,end) infinite; }
+          @keyframes kBolt2 {
+            0%,33% { opacity:0 } 34.5% { opacity:.95 } 36% { opacity:.2 }
+            37.5% { opacity:.8 } 39% { opacity:0 }
+            56% { opacity:0 } 57% { opacity:.6 } 58.5% { opacity:0 } 100% { opacity:0 }
+          }
+          .k-quake { animation: kQuake 3.5s linear infinite; transform-origin: 400px 300px; }
+          @keyframes kQuake {
+            0%,33% { opacity:0; transform: scaleX(.2) }
+            35% { opacity:1; transform: scaleX(1) }
+            72% { opacity:.7 } 86%,100% { opacity:0 }
+          }
+          .k-debris { animation: kDebris 3.5s cubic-bezier(.2,.6,.4,1) infinite; }
+          @keyframes kDebris {
+            0%,33.5% { opacity:0; transform: translate(0,0) rotate(0deg) }
+            35% { opacity:1 }
+            70% { opacity:0; transform: translate(var(--dx), var(--dy)) rotate(var(--rot)) }
+            100% { opacity:0; transform: translate(var(--dx), var(--dy)) rotate(var(--rot)) }
+          }
+          .k-ember { animation: kEmber linear infinite; }
+          @keyframes kEmber {
+            0% { opacity:0; transform: translate(0,0) }
+            18% { opacity:.9 }
+            100% { opacity:0; transform: translate(var(--ex), -190px) }
+          }
           @media (prefers-reduced-motion: reduce) {
             .k-shake,.k-flash,.k-fire,.k-water,.k-core,
-            .k-ring,.k-shard,.k-rays,.k-steam,.k-speed,.k-arc { animation: none !important }
+            .k-ring,.k-shard,.k-rays,.k-steam,.k-speed,.k-arc,
+            .k-pillar,.k-bolt2,.k-quake,.k-debris,.k-ember { animation: none !important }
           }
         `}</style>
 
