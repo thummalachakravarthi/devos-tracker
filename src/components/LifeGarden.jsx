@@ -192,6 +192,20 @@ function bedSoil() {
   }
   return s
 }
+// soil ridge drawn OVER the back row so their stems sink into the ground
+function soilRidge() {
+  const r = rng(91)
+  const Y = BED_TOP + 78
+  let s = `<path d="M0,${Y} C220,${Y-10} 580,${Y+9} ${W},${Y-5} L${W},${Y+70} L0,${Y+70} Z" fill="#543b2a"/>
+    <path d="M0,${Y+7} C220,${Y-3} 580,${Y+16} ${W},${Y+2} L${W},${Y+70} L0,${Y+70} Z" fill="#66492f"/>`
+  for (let i = 0; i < 170; i++) {
+    const x = r()*W, y = Y + 2 + r()*62
+    s += `<ellipse cx="${x.toFixed(0)}" cy="${y.toFixed(0)}" rx="${(2+r()*6).toFixed(1)}" ry="${(1.3+r()*3).toFixed(1)}"
+           fill="${['#3a2a1d','#7d5c42','#8a6a4c','#553b2b'][Math.floor(r()*4)]}" opacity=".8"/>`
+  }
+  return s
+}
+
 function lawn() {
   const r = rng(37)
   let s = `<path d="M0,${LAWN_EDGE} C260,${LAWN_EDGE-16} 620,${LAWN_EDGE+14} ${W},${LAWN_EDGE-8} L${W},${H} L0,${H} Z" fill="#3f9c42"/>
@@ -228,6 +242,41 @@ function stones() {
   return s
 }
 
+function rainLayer() {
+  const r = rng(103); let s = ''
+  for (let i = 0; i < 90; i++) {
+    const x = r()*W*1.15 - 60, len = 16 + r()*22, dur = (.5 + r()*.4).toFixed(2)
+    s += `<line x1="${x.toFixed(0)}" y1="0" x2="${(x-9).toFixed(0)}" y2="${len.toFixed(0)}"
+           stroke="#cfe4f5" stroke-width="${(1+r()*1.1).toFixed(1)}" stroke-linecap="round"
+           opacity="${(.28+r()*.34).toFixed(2)}" class="lg-drop"
+           style="animation-duration:${dur}s; animation-delay:-${(r()*1.2).toFixed(2)}s; --dx:${(-90).toFixed(0)}px"/>`
+  }
+  return `<g>${s}</g>`
+}
+function birdsLayer() {
+  const r = rng(117); let s = ''
+  for (let i = 0; i < 6; i++) {
+    const y = 30 + r()*120, sc = (.6 + r()*.7).toFixed(2)
+    s += `<g class="lg-bird" style="--by:${y.toFixed(0)}px; animation-duration:${(16+r()*12).toFixed(0)}s;
+            animation-delay:-${(r()*20).toFixed(1)}s">
+        <g transform="scale(${sc})" class="lg-flap">
+          <path d="M-11,0 Q-5.5,-7 0,0 Q5.5,-7 11,0" stroke="#2b3140" stroke-width="2.4"
+            fill="none" stroke-linecap="round"/></g></g>`
+  }
+  return s
+}
+function windLeaves() {
+  const r = rng(131); let s = ''
+  for (let i = 0; i < 14; i++) {
+    const y = FENCE_BOT + r()*(H - FENCE_BOT - 40)
+    s += `<g class="lg-blown" style="--wy:${y.toFixed(0)}px; animation-duration:${(3.4+r()*3).toFixed(1)}s;
+            animation-delay:-${(r()*6).toFixed(1)}s">
+        <g transform="scale(${(.7+r()*.6).toFixed(2)})">
+          ${bigLeaf(13, 6, pick(G, .4+r()*.5, r), '#1a5a22')}</g></g>`
+  }
+  return s
+}
+
 const SLOTS = (() => {
   const out = [], r = rng(77)
   const rows = [{ y: BED_TOP+52, n: 5, sc: .72 }, { y: BED_TOP+112, n: 5, sc: .98 }]
@@ -240,18 +289,28 @@ const SLOTS = (() => {
 })()
 const CAP = SLOTS.length
 
+const load = (k, d) => { try { const v = localStorage.getItem(k); return v === null ? d : JSON.parse(v) } catch { return d } }
+const save = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)) } catch {} }
+
 export default function LifeGarden() {
   const { javaSessions, dsaLogs, logs, activeHabits } = useData()
   const today = todayISO()
-  const [mins, setMins] = useState(() => {
-    const d = new Date(); return d.getHours()*60 + d.getMinutes()
-  })
-  useEffect(() => {
-    const id = setInterval(() => {
-      const d = new Date(); setMins(d.getHours()*60 + d.getMinutes())
-    }, 60000)
-    return () => clearInterval(id)
-  }, [])
+  const clockMins = () => { const d = new Date(); return d.getHours()*60 + d.getMinutes() }
+  const [autoTime, setAutoTime] = useState(() => load('lg:autoTime', true))
+  const [manualMins, setManualMins] = useState(() => load('lg:manualMins', clockMins()))
+  const [tick, setTick] = useState(clockMins())
+  const [rain, setRain] = useState(() => load('lg:rain', false))
+  const [birds, setBirds] = useState(() => load('lg:birds', true))
+  const [wind, setWind] = useState(() => load('lg:wind', false))
+  const [showTime, setShowTime] = useState(false)
+  const mins = autoTime ? tick : manualMins
+
+  useEffect(() => { const id = setInterval(() => setTick(clockMins()), 60000); return () => clearInterval(id) }, [])
+  useEffect(() => { save('lg:autoTime', autoTime) }, [autoTime])
+  useEffect(() => { save('lg:manualMins', manualMins) }, [manualMins])
+  useEffect(() => { save('lg:rain', rain) }, [rain])
+  useEffect(() => { save('lg:birds', birds) }, [birds])
+  useEffect(() => { save('lg:wind', wind) }, [wind])
 
   // today's completed tasks → plant types, round-robin so the bed mixes
   const tasks = useMemo(() => {
@@ -288,13 +347,13 @@ export default function LifeGarden() {
            <circle cx="${body.x.toFixed(0)}" cy="${body.y.toFixed(0)}" r="12" fill="#f0f4ff"/>
            <circle cx="${(body.x+4).toFixed(0)}" cy="${(body.y-3.5).toFixed(0)}" r="10.5" fill="${sky.z}"/></g>`
 
-    let planted = ''
+    let backRow = '', frontRow = ''
     tasks.list.forEach((type, i) => {
       const sl = SLOTS[i], seed = i*57 + 13
       const art = type === 'habit' ? flowerPlant(seed, sl.sc)
         : type === 'dsa' ? shrubPlant(seed, sl.sc) : treePlant(seed, sl.sc)
       const isNew = i === newIndex, delay = (sl.x/W)*1.4
-      planted += `<g transform="translate(${sl.x.toFixed(1)},${sl.y.toFixed(1)})">
+      const chunk = `<g transform="translate(${sl.x.toFixed(1)},${sl.y.toFixed(1)})">
         <ellipse cx="${(-8*sl.sc).toFixed(1)}" cy="${(3*sl.sc).toFixed(1)}" rx="${(36*sl.sc).toFixed(1)}"
           ry="${(9*sl.sc).toFixed(1)}" fill="#2a1c11" opacity=".55" filter="url(#lgS2)"/>
         <ellipse cx="0" cy="${(2*sl.sc).toFixed(1)}" rx="${(24*sl.sc).toFixed(1)}" ry="${(7*sl.sc).toFixed(1)}" fill="#3d2a1c"/>
@@ -302,8 +361,11 @@ export default function LifeGarden() {
         <g class="lg-plant${isNew ? ' lg-new' : ''}" style="animation-delay:-${delay.toFixed(2)}s">${art}</g>
         <g>${basalLeaves(seed+5, sl.sc)}</g>
       </g>`
+      if (i < 5) backRow += chunk; else frontRow += chunk
     })
 
+    const wet = rain
+      ? `<rect width="${W}" height="${H}" fill="#48586b" opacity=".3" style="mix-blend-mode:multiply"/>` : ''
     const grade = sky.isNight
       ? `<rect width="${W}" height="${H}" fill="#0f1c4a" opacity=".46" style="mix-blend-mode:multiply"/>`
       : `<rect width="${W}" height="${H}" fill="${sky.warm}" opacity="${(.04+sky.sun*.07).toFixed(2)}" style="mix-blend-mode:soft-light"/>`
@@ -332,13 +394,18 @@ export default function LifeGarden() {
           <g filter="url(#lgFar)" opacity=".9">${farTrees()}</g>
           ${fence()}${hedge()}
           ${bedSoil()}
-          ${planted}
+          ${backRow}
+          ${soilRidge()}
+          ${frontRow}
           ${lawn()}${stones()}
-          ${grade}
+          ${wind ? windLeaves() : ''}
+          ${birds && !rain ? birdsLayer() : ''}
+          ${rain ? rainLayer() : ''}
+          ${wet}${grade}
           <rect width="${W}" height="${H}" fill="url(#lgVig)"/>
         </g>
       </svg>` }
-  }, [mins, tasks, newIndex])
+  }, [mins, tasks, newIndex, rain, birds, wind])
 
   return (
     <section className="card card-hover overflow-hidden !p-0">
@@ -357,6 +424,32 @@ export default function LifeGarden() {
         </div>
       </div>
 
+      <div className="px-4 pb-2 flex flex-wrap items-center gap-1.5">
+        <button onClick={() => setShowTime(v => !v)} className={`lg-pill ${!autoTime ? 'lg-on' : ''}`}>
+          {mins/60 >= 6 && mins/60 < 18.5 ? '☀️' : '🌙'} time
+        </button>
+        <button onClick={() => setRain(v => !v)} className={`lg-pill ${rain ? 'lg-on' : ''}`}>🌧️ rain</button>
+        <button onClick={() => setBirds(v => !v)} className={`lg-pill ${birds ? 'lg-on' : ''}`}>🐦 birds</button>
+        <button onClick={() => setWind(v => !v)} className={`lg-pill ${wind ? 'lg-on' : ''}`}>🍃 wind</button>
+      </div>
+
+      {showTime && (
+        <div className="px-4 pb-3 flex items-center gap-3">
+          <button onClick={() => setAutoTime(v => !v)} className={`lg-pill ${autoTime ? 'lg-on' : ''}`}>
+            {autoTime ? '● live' : 'manual'}
+          </button>
+          <input
+            type="range" min="0" max="1439" step="5" value={mins}
+            onChange={e => { setAutoTime(false); setManualMins(+e.target.value) }}
+            className="flex-1 accent-amber"
+            aria-label="Time of day"
+          />
+          <span className="font-mono text-xs text-dim w-11 text-right">
+            {String(Math.floor(mins/60)).padStart(2,'0')}:{String(mins%60).padStart(2,'0')}
+          </span>
+        </div>
+      )}
+
       <div dangerouslySetInnerHTML={{ __html: svg.markup }} />
 
       <div className="px-4 py-3 flex flex-wrap gap-3 text-[11px] text-dim border-t border-white/6">
@@ -369,16 +462,39 @@ export default function LifeGarden() {
       </div>
 
       <style>{`
-        .lg-plant { transform-origin: bottom center; animation: lgSway 6s ease-in-out infinite; }
-        @keyframes lgSway { 0%,100% { transform: rotate(-1.4deg); } 50% { transform: rotate(1.4deg); } }
+        .lg-plant { transform-origin: bottom center;
+          animation: lgSway ${wind ? '1.9s' : '6s'} ease-in-out infinite; }
+        @keyframes lgSway { 0%,100% { transform: rotate(${wind ? -5 : -1.4}deg); }
+          50% { transform: rotate(${wind ? 5 : 1.4}deg); } }
         .lg-new { animation: lgSprout .9s cubic-bezier(.2,.9,.25,1) both, lgSway 6s ease-in-out .9s infinite; }
         @keyframes lgSprout { 0% { transform: scale(.05) translateY(10px); opacity: 0; }
           55% { transform: scale(1.09) translateY(-3px); opacity: 1; } 100% { transform: none; opacity: 1; } }
         .lg-cloud { animation: lgDrift 120s linear infinite; }
         .lg-c1 { animation-duration: 155s; } .lg-c2 { animation-duration: 135s; }
         @keyframes lgDrift { 0% { transform: translate(-280px, var(--cy)); } 100% { transform: translate(1160px, var(--cy)); } }
+        .lg-pill { font-family: ui-monospace, monospace; font-size: 11px; color: #E9EEF8;
+          background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.12);
+          border-radius: 999px; padding: 5px 11px; cursor: pointer; transition: .15s; }
+        .lg-pill:hover { background: rgba(255,255,255,.1); }
+        .lg-on { background: rgba(34,197,94,.18); border-color: rgba(34,197,94,.5); color: #8ff0b0; }
+
+        .lg-drop { animation: lgRain linear infinite; }
+        @keyframes lgRain { 0% { transform: translate(0,-40px); } 100% { transform: translate(var(--dx), 700px); } }
+
+        .lg-bird { animation: lgFly linear infinite; }
+        @keyframes lgFly { 0% { transform: translate(-60px, var(--by)); }
+          50% { transform: translate(500px, calc(var(--by) - 26px)); }
+          100% { transform: translate(1080px, var(--by)); } }
+        .lg-flap { animation: lgFlap .42s ease-in-out infinite; transform-origin: center; }
+        @keyframes lgFlap { 0%,100% { transform: scaleY(1); } 50% { transform: scaleY(.35); } }
+
+        .lg-blown { animation: lgBlow linear infinite; }
+        @keyframes lgBlow { 0% { transform: translate(-40px, var(--wy)) rotate(0deg); opacity: 0; }
+          10% { opacity: .9; } 90% { opacity: .9; }
+          100% { transform: translate(1080px, calc(var(--wy) - 40px)) rotate(720deg); opacity: 0; } }
+
         @media (prefers-reduced-motion: reduce) {
-          .lg-plant, .lg-new, .lg-cloud { animation: none !important; }
+          .lg-plant, .lg-new, .lg-cloud, .lg-drop, .lg-bird, .lg-flap, .lg-blown { animation: none !important; }
         }
       `}</style>
     </section>
