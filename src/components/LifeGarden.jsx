@@ -9,20 +9,7 @@ import { todayISO } from '../lib/dates'
 const W = 1000, H = 640
 const SKY_BOT = 214, FENCE_TOP = 196, FENCE_BOT = 316, BED_TOP = 336, LAWN_EDGE = 468
 
-let LAWN_TINT = '#3f9c42'
-let G = ['#1e6b28', '#2a8034', '#369640', '#45ac4e', '#59c162', '#74d67a']
-
-const SEASONS = {
-  summer: { label: 'summer', icon: '☀️',
-    foliage: ['#1e6b28','#2a8034','#369640','#45ac4e','#59c162','#74d67a'], lawn: '#3f9c42' },
-  autumn: { label: 'autumn', icon: '🍂',
-    foliage: ['#7a3410','#964a12','#b06818','#c98a1e','#dba62c','#e8c04a'], lawn: '#7f8f36' },
-  winter: { label: 'winter', icon: '❄️',
-    foliage: ['#33463a','#3f5546','#4c6553','#5a7562','#6b8672','#7f9885'], lawn: '#8fa596' },
-  spring: { label: 'spring', icon: '🌸',
-    foliage: ['#2d7a34','#3d9440','#4fae4e','#66c65f','#84d977','#a3e693'], lawn: '#55b04c' },
-}
-const SEASON_ORDER = ['summer', 'autumn', 'winter', 'spring']
+const G = ['#1e6b28', '#2a8034', '#369640', '#45ac4e', '#59c162', '#74d67a']
 const GF = ['#5c8f62', '#68a06e', '#76b07c', '#84c08a']
 
 function rng(seed) {
@@ -221,7 +208,7 @@ function soilRidge() {
 
 function lawn() {
   const r = rng(37)
-  let s = `<path d="M0,${LAWN_EDGE} C260,${LAWN_EDGE-16} 620,${LAWN_EDGE+14} ${W},${LAWN_EDGE-8} L${W},${H} L0,${H} Z" fill="${LAWN_TINT}"/>
+  let s = `<path d="M0,${LAWN_EDGE} C260,${LAWN_EDGE-16} 620,${LAWN_EDGE+14} ${W},${LAWN_EDGE-8} L${W},${H} L0,${H} Z" fill="#3f9c42"/>
     <rect x="0" y="${LAWN_EDGE-10}" width="${W}" height="${H-LAWN_EDGE+10}" fill="url(#lgGrad)"/>`
   s += `<ellipse cx="${W*.45}" cy="${LAWN_EDGE+16}" rx="${W*.6}" ry="26" fill="#1e5c22" opacity=".28" filter="url(#lgS1)"/>`
   for (let i = 0; i < 6; i++)
@@ -251,77 +238,6 @@ function stones() {
       s += `<circle cx="${(x+Math.cos(a)*rad*rx*.8).toFixed(1)}" cy="${(y+Math.sin(a)*rad*ry*.8).toFixed(1)}"
              r="${(.9+r()*1.8).toFixed(1)}" fill="${r()>.5?'#94886f':'#e8dfc8'}" opacity=".45"/>`
     }
-  }
-  return s
-}
-
-function lanternsLayer(lit) {
-  const r = rng(147); let s = ''
-  const y = FENCE_TOP - 4
-  s += `<path d="M0,${y} Q${W*.25},${y+22} ${W*.5},${y+8} Q${W*.75},${y-6} ${W},${y+14}"
-         stroke="#3b3128" stroke-width="2.2" fill="none"/>`
-  for (let i = 0; i < 13; i++) {
-    const t = i/12, x = t*W
-    const yy = y + 22*Math.sin(Math.PI*t*1.0) * (t < .5 ? 1 : -.6) + 8
-    const col = ['#ffd36b','#ff9a5b','#ffe9a8','#ff7fa8'][i % 4]
-    s += `<line x1="${x.toFixed(0)}" y1="${(yy-9).toFixed(0)}" x2="${x.toFixed(0)}" y2="${(yy-3).toFixed(0)}"
-           stroke="#3b3128" stroke-width="1.6"/>`
-    if (lit) s += `<circle cx="${x.toFixed(0)}" cy="${yy.toFixed(0)}" r="13" fill="${col}" opacity=".3" filter="url(#lgS1)"/>`
-    s += `<ellipse cx="${x.toFixed(0)}" cy="${yy.toFixed(0)}" rx="5" ry="6.4" fill="${lit ? col : '#6b6255'}"
-           class="${lit ? 'lg-lantern' : ''}" style="animation-delay:-${(r()*3).toFixed(1)}s"/>`
-  }
-  return s
-}
-
-function butterfliesLayer(n) {
-  const r = rng(159); let s = ''
-  for (let i = 0; i < Math.max(2, Math.min(6, n)); i++) {
-    const y = BED_TOP + 20 + r()*120, sc = (.8 + r()*.6).toFixed(2)
-    const cols = [['#ff8ac4','#ffc0e0'],['#ffc65b','#ffe6a8'],['#8fb4ff','#cfe0ff'],['#c58aff','#e6cfff']][i % 4]
-    s += `<g class="lg-fly" style="--fy:${y.toFixed(0)}px; animation-duration:${(13+r()*10).toFixed(0)}s;
-            animation-delay:-${(r()*14).toFixed(1)}s">
-        <g transform="scale(${sc})" class="lg-wing">
-          <ellipse cx="-4.4" cy="0" rx="5" ry="3.4" fill="${cols[0]}"/>
-          <ellipse cx="4.4" cy="0" rx="5" ry="3.4" fill="${cols[1]}"/>
-          <rect x="-.8" y="-2.6" width="1.6" height="5.2" rx=".8" fill="#4a3a2a"/></g></g>`
-  }
-  return s
-}
-
-function rabbitLayer() {
-  const y = LAWN_EDGE + 96
-  return `<g class="lg-rabbit" style="--ry:${y}px">
-    <ellipse cx="0" cy="6" rx="17" ry="4" fill="#1c4a1e" opacity=".4"/>
-    <ellipse cx="0" cy="-9" rx="13" ry="10" fill="#cbbfae"/>
-    <ellipse cx="12" cy="-17" rx="7.4" ry="6.4" fill="#d8ccbb"/>
-    <path d="M13,-23 Q11,-36 15,-37 Q19,-34 16.5,-22 Z" fill="#d8ccbb"/>
-    <path d="M9,-23 Q6,-35 10,-36 Q14,-33 12,-22 Z" fill="#c9bcab"/>
-    <circle cx="15.4" cy="-18" r="1.5" fill="#3b2f24"/>
-    <circle cx="-12" cy="-11" r="5" fill="#e6dccd"/>
-    <ellipse cx="-4" cy="1" rx="5" ry="3.4" fill="#bfb2a1"/>
-    <ellipse cx="7" cy="1" rx="5" ry="3.4" fill="#bfb2a1"/>
-  </g>`
-}
-
-function snowLayer() {
-  const r = rng(173); let s = ''
-  for (let i = 0; i < 70; i++) {
-    const x = r()*W, rad = (1.4 + r()*2.4).toFixed(1)
-    s += `<circle cx="${x.toFixed(0)}" cy="0" r="${rad}" fill="#ffffff" opacity="${(.55+r()*.4).toFixed(2)}"
-           class="lg-snow" style="animation-duration:${(6+r()*7).toFixed(1)}s;
-           animation-delay:-${(r()*10).toFixed(1)}s; --sx:${((r()*2-1)*90).toFixed(0)}px"/>`
-  }
-  return s
-}
-
-function petalsLayer() {
-  const r = rng(181); let s = ''
-  for (let i = 0; i < 34; i++) {
-    const x = r()*W
-    s += `<ellipse cx="${x.toFixed(0)}" cy="0" rx="${(2.6+r()*1.8).toFixed(1)}" ry="${(1.6+r()*1.2).toFixed(1)}"
-           fill="${['#ffc0dc','#ffd6e6','#ff9ec4'][Math.floor(r()*3)]}" opacity=".9"
-           class="lg-petal" style="animation-duration:${(7+r()*6).toFixed(1)}s;
-           animation-delay:-${(r()*11).toFixed(1)}s; --px:${((r()*2-1)*120).toFixed(0)}px"/>`
   }
   return s
 }
@@ -386,10 +302,6 @@ export default function LifeGarden() {
   const [rain, setRain] = useState(() => load('lg:rain', false))
   const [birds, setBirds] = useState(() => load('lg:birds', true))
   const [wind, setWind] = useState(() => load('lg:wind', false))
-  const [season, setSeason] = useState(() => load('lg:season', 'summer'))
-  const [lanterns, setLanterns] = useState(() => load('lg:lanterns', true))
-  const [butterflies, setButterflies] = useState(() => load('lg:butterflies', true))
-  const [rabbit, setRabbit] = useState(() => load('lg:rabbit', false))
   const [showTime, setShowTime] = useState(false)
   const mins = autoTime ? tick : manualMins
 
@@ -399,10 +311,6 @@ export default function LifeGarden() {
   useEffect(() => { save('lg:rain', rain) }, [rain])
   useEffect(() => { save('lg:birds', birds) }, [birds])
   useEffect(() => { save('lg:wind', wind) }, [wind])
-  useEffect(() => { save('lg:season', season) }, [season])
-  useEffect(() => { save('lg:lanterns', lanterns) }, [lanterns])
-  useEffect(() => { save('lg:butterflies', butterflies) }, [butterflies])
-  useEffect(() => { save('lg:rabbit', rabbit) }, [rabbit])
 
   // today's completed tasks → plant types, round-robin so the bed mixes
   const tasks = useMemo(() => {
@@ -423,9 +331,6 @@ export default function LifeGarden() {
   useEffect(() => { prevCount.current = tasks.list.length }, [tasks.list.length])
 
   const svg = useMemo(() => {
-    const S = SEASONS[season] || SEASONS.summer
-    G = S.foliage
-    LAWN_TINT = S.lawn
     const sky = skyFor(mins), body = bodyPos(mins)
     let stars = ''
     if (sky.star > .02) {
@@ -487,18 +392,12 @@ export default function LifeGarden() {
           <rect width="${W}" height="${SKY_BOT+10}" fill="url(#lgSky)"/>
           ${stars}${bodySvg}${sky.isNight ? '' : clouds()}
           <g filter="url(#lgFar)" opacity=".9">${farTrees()}</g>
-          ${fence()}
-          ${lanterns ? lanternsLayer(sky.isNight || sky.sun < .6) : ''}
-          ${hedge()}
+          ${fence()}${hedge()}
           ${bedSoil()}
           ${backRow}
           ${soilRidge()}
           ${frontRow}
           ${lawn()}${stones()}
-          ${rabbit ? rabbitLayer() : ''}
-          ${butterflies && !rain && !sky.isNight ? butterfliesLayer(tasks.habits || 3) : ''}
-          ${season === 'winter' ? snowLayer() : ''}
-          ${season === 'spring' ? petalsLayer() : ''}
           ${wind ? windLeaves() : ''}
           ${birds && !rain ? birdsLayer() : ''}
           ${rain ? rainLayer() : ''}
@@ -506,7 +405,7 @@ export default function LifeGarden() {
           <rect width="${W}" height="${H}" fill="url(#lgVig)"/>
         </g>
       </svg>` }
-  }, [mins, tasks, newIndex, rain, birds, wind, season, lanterns, butterflies, rabbit])
+  }, [mins, tasks, newIndex, rain, birds, wind])
 
   return (
     <section className="card card-hover overflow-hidden !p-0">
@@ -532,14 +431,6 @@ export default function LifeGarden() {
         <button onClick={() => setRain(v => !v)} className={`lg-pill ${rain ? 'lg-on' : ''}`}>🌧️ rain</button>
         <button onClick={() => setBirds(v => !v)} className={`lg-pill ${birds ? 'lg-on' : ''}`}>🐦 birds</button>
         <button onClick={() => setWind(v => !v)} className={`lg-pill ${wind ? 'lg-on' : ''}`}>🍃 wind</button>
-        <button
-          onClick={() => setSeason(SEASON_ORDER[(SEASON_ORDER.indexOf(season) + 1) % SEASON_ORDER.length])}
-          className="lg-pill lg-on">
-          {SEASONS[season].icon} {SEASONS[season].label}
-        </button>
-        <button onClick={() => setLanterns(v => !v)} className={`lg-pill ${lanterns ? 'lg-on' : ''}`}>🏮 lanterns</button>
-        <button onClick={() => setButterflies(v => !v)} className={`lg-pill ${butterflies ? 'lg-on' : ''}`}>🦋 butterflies</button>
-        <button onClick={() => setRabbit(v => !v)} className={`lg-pill ${rabbit ? 'lg-on' : ''}`}>🐰 rabbit</button>
       </div>
 
       {showTime && (
@@ -602,44 +493,8 @@ export default function LifeGarden() {
           10% { opacity: .9; } 90% { opacity: .9; }
           100% { transform: translate(1080px, calc(var(--wy) - 40px)) rotate(720deg); opacity: 0; } }
 
-        .lg-lantern { animation: lgGlow 3.4s ease-in-out infinite; }
-        @keyframes lgGlow { 0%,100% { opacity: .85; } 50% { opacity: 1; } }
-
-        .lg-fly { animation: lgFlutter linear infinite; }
-        @keyframes lgFlutter {
-          0%   { transform: translate(-40px, var(--fy)); }
-          25%  { transform: translate(260px, calc(var(--fy) - 34px)); }
-          50%  { transform: translate(520px, calc(var(--fy) + 22px)); }
-          75%  { transform: translate(800px, calc(var(--fy) - 26px)); }
-          100% { transform: translate(1060px, var(--fy)); } }
-        .lg-wing { animation: lgWing .22s ease-in-out infinite; transform-origin: center; }
-        @keyframes lgWing { 0%,100% { transform: scaleX(1); } 50% { transform: scaleX(.4); } }
-
-        .lg-rabbit { animation: lgHop 14s ease-in-out infinite; }
-        @keyframes lgHop {
-          0%   { transform: translate(-60px, var(--ry)); }
-          8%   { transform: translate(60px, calc(var(--ry) - 18px)); }
-          14%  { transform: translate(150px, var(--ry)); }
-          22%  { transform: translate(250px, calc(var(--ry) - 18px)); }
-          28%  { transform: translate(330px, var(--ry)); }
-          45%  { transform: translate(360px, var(--ry)); }
-          55%  { transform: translate(470px, calc(var(--ry) - 18px)); }
-          62%  { transform: translate(560px, var(--ry)); }
-          72%  { transform: translate(700px, calc(var(--ry) - 18px)); }
-          80%  { transform: translate(820px, var(--ry)); }
-          100% { transform: translate(1080px, var(--ry)); } }
-
-        .lg-snow { animation: lgSnowFall linear infinite; }
-        @keyframes lgSnowFall { 0% { transform: translate(0,-20px); opacity: 0; }
-          10% { opacity: .9; } 100% { transform: translate(var(--sx), 680px); opacity: .6; } }
-
-        .lg-petal { animation: lgPetalFall linear infinite; }
-        @keyframes lgPetalFall { 0% { transform: translate(0,-20px) rotate(0deg); opacity: 0; }
-          10% { opacity: .95; } 100% { transform: translate(var(--px), 680px) rotate(540deg); opacity: .5; } }
-
         @media (prefers-reduced-motion: reduce) {
-          .lg-plant, .lg-new, .lg-cloud, .lg-drop, .lg-bird, .lg-flap, .lg-blown,
-          .lg-lantern, .lg-fly, .lg-wing, .lg-rabbit, .lg-snow, .lg-petal { animation: none !important; }
+          .lg-plant, .lg-new, .lg-cloud, .lg-drop, .lg-bird, .lg-flap, .lg-blown { animation: none !important; }
         }
       `}</style>
     </section>
