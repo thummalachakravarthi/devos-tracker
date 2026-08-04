@@ -253,18 +253,48 @@ function rainLayer() {
   }
   return `<g>${s}</g>`
 }
+function bird(sc) {
+  return `<g transform="scale(${sc})">
+    <g class="lg-wingF"><path d="M-1,-3 Q-11,-19 3,-17 Q9,-9 3,-2 Z" fill="#3d4a63"/></g>
+    <path d="M-11,0 L-22,-6 L-19,3 Z" fill="#4a5872"/>
+    <ellipse cx="0" cy="0" rx="12" ry="6.4" fill="#55647f"/>
+    <ellipse cx="-1" cy="2.4" rx="9" ry="3.6" fill="#8593ab"/>
+    <circle cx="10.5" cy="-5" r="5.2" fill="#55647f"/>
+    <path d="M15,-5.4 L22.5,-3.4 L15,-1.6 Z" fill="#e8a33d"/>
+    <circle cx="12" cy="-6.2" r="1.3" fill="#1b2230"/>
+    <g class="lg-wingN"><path d="M0,-2 Q-9,-21 6,-18 Q13,-9 5,-1 Z" fill="#6b7a96"/></g>
+  </g>`
+}
+
 function birdsLayer() {
-  const r = rng(117); let s = ''
-  for (let i = 0; i < 6; i++) {
-    const y = 30 + r()*120, sc = (.6 + r()*.7).toFixed(2)
-    s += `<g class="lg-bird" style="--by:${y.toFixed(0)}px; animation-duration:${(16+r()*12).toFixed(0)}s;
-            animation-delay:-${(r()*20).toFixed(1)}s">
-        <g transform="scale(${sc})" class="lg-flap">
-          <path d="M-11,0 Q-5.5,-7 0,0 Q5.5,-7 11,0" stroke="#2b3140" stroke-width="2.4"
-            fill="none" stroke-linecap="round"/></g></g>`
-  }
+  const r = rng(117)
+  // three flocks, each a staggered V, drifting left -> right
+  const flocks = [
+    { y: 44,  n: 5, sc: .62, dur: 26 },
+    { y: 104, n: 4, sc: .82, dur: 34 },
+    { y: 158, n: 6, sc: .5,  dur: 21 },
+  ]
+  let s = ''
+  flocks.forEach((f, fi) => {
+    let members = ''
+    for (let i = 0; i < f.n; i++) {
+      // V formation: each bird trails back and alternates above/below the leader
+      const side = i % 2 === 0 ? 1 : -1
+      const rank = Math.ceil(i / 2)
+      const dx = -rank * (30 + r() * 10)
+      const dy = side * rank * (13 + r() * 6)
+      members += `<g transform="translate(${dx.toFixed(0)},${dy.toFixed(0)})"
+          class="lg-bob" style="animation-delay:-${(r()*2).toFixed(2)}s;
+          animation-duration:${(2.6 + r()*1.4).toFixed(1)}s">
+          <g class="lg-flap" style="--fd:${(.34 + r()*.16).toFixed(2)}s">${bird(1)}</g></g>`
+    }
+    s += `<g class="lg-flock" style="--fy:${f.y}px; animation-duration:${f.dur}s;
+            animation-delay:-${(fi * 7 + r() * 6).toFixed(1)}s">
+        <g transform="scale(${f.sc})">${members}</g></g>`
+  })
   return s
 }
+
 function windLeaves() {
   const r = rng(131); let s = ''
   for (let i = 0; i < 14; i++) {
@@ -279,7 +309,7 @@ function windLeaves() {
 
 const SLOTS = (() => {
   const out = [], r = rng(77)
-  const rows = [{ y: BED_TOP+52, n: 5, sc: .72 }, { y: BED_TOP+112, n: 5, sc: .98 }]
+  const rows = [{ y: BED_TOP+100, n: 5, sc: .72 }, { y: BED_TOP+164, n: 5, sc: .98 }]
   rows.forEach((row, ri) => {
     const pad = 98 + ri*54, span = (W - pad*2)/(row.n - 1)
     for (let i = 0; i < row.n; i++)
@@ -481,12 +511,17 @@ export default function LifeGarden() {
         .lg-drop { animation: lgRain linear infinite; }
         @keyframes lgRain { 0% { transform: translate(0,-40px); } 100% { transform: translate(var(--dx), 700px); } }
 
-        .lg-bird { animation: lgFly linear infinite; }
-        @keyframes lgFly { 0% { transform: translate(-60px, var(--by)); }
-          50% { transform: translate(500px, calc(var(--by) - 26px)); }
-          100% { transform: translate(1080px, var(--by)); } }
-        .lg-flap { animation: lgFlap .42s ease-in-out infinite; transform-origin: center; }
-        @keyframes lgFlap { 0%,100% { transform: scaleY(1); } 50% { transform: scaleY(.35); } }
+        .lg-flock { animation: lgCross linear infinite; }
+        @keyframes lgCross {
+          0%   { transform: translate(-240px, var(--fy)); }
+          100% { transform: translate(1240px, var(--fy)); } }
+        .lg-bob { animation: lgBob ease-in-out infinite; }
+        @keyframes lgBob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-7px); } }
+        .lg-wingN { animation: lgWingN var(--fd, .4s) ease-in-out infinite; transform-origin: 2px -2px; }
+        @keyframes lgWingN { 0%,100% { transform: rotate(-26deg); } 50% { transform: rotate(46deg); } }
+        .lg-wingF { animation: lgWingF var(--fd, .4s) ease-in-out infinite;
+          transform-origin: 0px -3px; animation-delay: -.06s; }
+        @keyframes lgWingF { 0%,100% { transform: rotate(-14deg); } 50% { transform: rotate(34deg); } }
 
         .lg-blown { animation: lgBlow linear infinite; }
         @keyframes lgBlow { 0% { transform: translate(-40px, var(--wy)) rotate(0deg); opacity: 0; }
@@ -494,7 +529,8 @@ export default function LifeGarden() {
           100% { transform: translate(1080px, calc(var(--wy) - 40px)) rotate(720deg); opacity: 0; } }
 
         @media (prefers-reduced-motion: reduce) {
-          .lg-plant, .lg-new, .lg-cloud, .lg-drop, .lg-bird, .lg-flap, .lg-blown { animation: none !important; }
+          .lg-plant, .lg-new, .lg-cloud, .lg-drop, .lg-blown,
+          .lg-flock, .lg-bob, .lg-wingN, .lg-wingF { animation: none !important; }
         }
       `}</style>
     </section>
