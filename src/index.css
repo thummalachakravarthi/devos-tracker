@@ -282,3 +282,33 @@ body { @apply bg-bg text-text font-body antialiased; }
   animation: none !important;
   transition: none !important;
 }
+
+/* ── Money: premium motion ─────────────────────────────────── */
+.mny-enter {
+  animation: mnyEnter .6s cubic-bezier(.2, .8, .2, 1) both;
+}
+@keyframes mnyEnter {
+  from { opacity: 0; transform: translateY(14px) scale(.985); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* light travelling across the card, like a tilt catching a highlight */
+.mny-sweep {
+  transform: translateX(-140%) skewX(-14deg);
+  animation: mnySweep 7s ease-in-out 1.1s infinite;
+}
+@keyframes mnySweep {
+  0%   { transform: translateX(-140%) skewX(-14deg); }
+  18%  { transform: translateX(420%) skewX(-14deg); }
+  100% { transform: translateX(420%) skewX(-14deg); }
+}
+
+/* the add button should feel like it depresses */
+.mny-fab { transition: transform .18s cubic-bezier(.2,.8,.2,1), box-shadow .18s ease; }
+.mny-fab:active { transform: scale(.9); }
+
+.rm-on .mny-enter, .rm-on .mny-sweep { animation: none !important; }
+@media (prefers-reduced-motion: reduce) {
+  .mny-enter, .mny-sweep { animation: none !important; }
+  .mny-enter { opacity: 1; transform: none; }
+}

@@ -402,73 +402,112 @@ export default function Money() {
 
   return (
     <div className="space-y-4">
-      {/* ── balance card ── */}
-      <section className="relative overflow-hidden rounded-2xl border border-white/10 p-5"
-        style={{
-          background:
-            'radial-gradient(120% 140% at 0% 0%, #2a2350 0%, #171a2c 45%, #0f1119 100%)',
-        }}>
-        {/* sheen */}
-        <div className="pointer-events-none absolute -top-24 -left-16 w-72 h-72 rounded-full"
-          style={{ background: 'radial-gradient(circle, rgba(245,166,35,.22), transparent 70%)' }} />
-        <div className="pointer-events-none absolute -bottom-28 -right-10 w-64 h-64 rounded-full"
-          style={{ background: 'radial-gradient(circle, rgba(76,123,255,.18), transparent 70%)' }} />
+      {/* ── balance: a physical payment card ── */}
+      <section className="mny-enter" style={{ animationDelay: '0ms' }}>
+        <div className="relative w-full rounded-[22px] overflow-hidden border border-white/[.14]
+          shadow-[0_24px_60px_-18px_rgba(0,0,0,.85)]"
+          style={{ aspectRatio: '1.62 / 1', maxHeight: 232 }}>
 
-        <div className="relative flex items-start justify-between">
-          <div>
-            <div className="text-[10px] uppercase tracking-[.18em] text-dim">Total balance</div>
-            <div className="mt-1.5">
-              {accounts.length
-                ? <Amount value={netWorth} cur={cur} size="text-[34px]" animate
-                    tone={netWorth < 0 ? '#EF4444' : '#F4F7FF'} />
-                : <span className="font-display font-bold text-[34px] text-dim">—</span>}
-            </div>
-            {!!accounts.length && (
-              <div className="text-[11px] text-dim mt-1">
-                across {accounts.length} account{accounts.length > 1 ? 's' : ''}
+          {/* mesh gradient base */}
+          <div className="absolute inset-0" style={{
+            background:
+              'radial-gradient(120% 120% at 8% 0%, #3a2f6e 0%, transparent 55%),' +
+              'radial-gradient(110% 130% at 100% 10%, #7a3a2a 0%, transparent 50%),' +
+              'radial-gradient(140% 160% at 60% 110%, #123044 0%, transparent 60%),' +
+              'linear-gradient(150deg, #1b1c30 0%, #0d0e16 100%)',
+          }} />
+
+          {/* woven texture */}
+          <div className="absolute inset-0 opacity-[.16] mix-blend-overlay" style={{
+            backgroundImage:
+              'repeating-linear-gradient(115deg, rgba(255,255,255,.9) 0 1px, transparent 1px 4px)',
+          }} />
+
+          {/* light sweep */}
+          <div className="mny-sweep absolute inset-y-0 w-1/3 pointer-events-none" style={{
+            background: 'linear-gradient(100deg, transparent, rgba(255,255,255,.14), transparent)',
+          }} />
+
+          {/* top edge highlight */}
+          <div className="absolute inset-x-0 top-0 h-px"
+            style={{ background: 'linear-gradient(90deg, transparent, rgba(255,255,255,.5), transparent)' }} />
+
+          <div className="relative h-full p-5 flex flex-col">
+            <div className="flex items-start justify-between">
+              <div>
+                {/* chip */}
+                <div className="w-10 h-7 rounded-md relative overflow-hidden"
+                  style={{ background: 'linear-gradient(135deg,#e8c87a,#b8923f 45%,#f0dca2)' }}>
+                  <div className="absolute inset-0"
+                    style={{ background: 'repeating-linear-gradient(0deg, rgba(0,0,0,.28) 0 1px, transparent 1px 6px)' }} />
+                  <div className="absolute inset-y-1 left-1/2 w-px bg-black/30" />
+                </div>
+                <div className="text-[10px] uppercase tracking-[.22em] text-white/45 mt-3">
+                  Total balance
+                </div>
               </div>
-            )}
+              <button className="rounded-full px-3 py-1.5 text-[11px] bg-white/12 border border-white/20
+                hover:bg-white/20 transition flex items-center gap-1 shrink-0 backdrop-blur-sm"
+                onClick={() => setAddingAccount(true)}>
+                <Plus size={12} /> Account
+              </button>
+            </div>
+
+            <div className="mt-auto">
+              {accounts.length ? (
+                <Amount value={netWorth} cur={cur} size="text-[38px]" animate
+                  tone={netWorth < 0 ? '#ff7a7a' : '#F7F9FF'} />
+              ) : (
+                <span className="font-display font-bold text-[38px] text-white/25">—</span>
+              )}
+
+              <div className="flex items-end justify-between mt-3">
+                <div className="flex gap-3">
+                  {accounts.slice(0, 3).map((a) => {
+                    const K = ACCOUNT_KINDS.find((k) => k.id === a.kind) || ACCOUNT_KINDS[0]
+                    return (
+                      <div key={a.id} className="min-w-0">
+                        <div className="flex items-center gap-1">
+                          <K.Icon size={10} style={{ color: a.color }} />
+                          <span className="text-[9px] uppercase tracking-wider text-white/40 truncate max-w-[5.5rem]">
+                            {a.name}
+                          </span>
+                        </div>
+                        <div className="font-mono text-[13px] tabular-nums text-white/85 mt-0.5">
+                          {fmtMoney(balances[a.id] ?? 0, cur, { compact: true })}
+                        </div>
+                      </div>
+                    )
+                  })}
+                  {accounts.length > 3 && (
+                    <div className="text-[11px] text-white/40 self-end">
+                      +{accounts.length - 3} more
+                    </div>
+                  )}
+                </div>
+                <div className="font-display font-bold text-sm text-white/30 tracking-widest shrink-0">
+                  DEVOS
+                </div>
+              </div>
+            </div>
           </div>
-          <button className="rounded-full px-3 py-1.5 text-[11px] bg-white/10 border border-white/15
-            hover:bg-white/16 transition flex items-center gap-1 shrink-0"
-            onClick={() => setAddingAccount(true)}>
-            <Plus size={12} /> Account
-          </button>
         </div>
 
-        {!accounts.length ? (
+        {!accounts.length && (
           <button onClick={() => setAddingAccount(true)}
-            className="relative w-full mt-4 py-5 rounded-xl border border-dashed border-white/20 text-sm
+            className="w-full mt-3 py-3.5 rounded-2xl border border-dashed border-white/18 text-sm
               text-dim hover:border-amber/50 hover:text-text transition">
             Add an account to start tracking balances
           </button>
-        ) : (
-          <div className="relative mt-4 flex gap-2 overflow-x-auto pb-1 -mx-1 px-1">
-            {accounts.map((a) => {
-              const K = ACCOUNT_KINDS.find((k) => k.id === a.kind) || ACCOUNT_KINDS[0]
-              const bal = balances[a.id] ?? 0
-              return (
-                <div key={a.id}
-                  className="shrink-0 min-w-[9.5rem] rounded-xl p-3 border backdrop-blur-sm"
-                  style={{ background: `${a.color}14`, borderColor: `${a.color}3a` }}>
-                  <div className="flex items-center gap-1.5">
-                    <K.Icon size={13} style={{ color: a.color }} />
-                    <span className="text-[11px] text-dim truncate">{a.name}</span>
-                  </div>
-                  <div className="mt-1.5">
-                    <Amount value={bal} cur={cur} size="text-lg"
-                      tone={bal < 0 ? '#EF4444' : '#E9EEF8'} />
-                  </div>
-                </div>
-              )
-            })}
-          </div>
         )}
       </section>
 
       {/* ── month ── */}
-      <section className="relative overflow-hidden rounded-2xl border border-white/10 p-5"
-        style={{ background: 'linear-gradient(160deg, #171a28 0%, #12141d 60%, #0e1017 100%)' }}>
+      <section className="mny-enter relative overflow-hidden rounded-2xl border border-white/10 p-5"
+        style={{
+          animationDelay: '70ms',
+          background: 'linear-gradient(160deg, #171a28 0%, #12141d 60%, #0e1017 100%)',
+        }}>
         <div className="flex items-center justify-between mb-3">
           <button onClick={() => setMonth(shiftMonth(month, -1))} className="text-dim hover:text-text p-1">
             <ChevronLeft size={18} />
@@ -537,7 +576,8 @@ export default function Money() {
         )}
       </section>
 
-      <div className="flex p-1 rounded-2xl bg-white/[.05] border border-white/8">
+      <div className="mny-enter flex p-1 rounded-2xl bg-white/[.05] border border-white/8"
+        style={{ animationDelay: '130ms' }}>
         {['overview', 'transactions', 'budgets'].map((t) => (
           <button key={t} onClick={() => setTab(t)}
             className="flex-1 rounded-xl py-2 text-xs font-medium capitalize transition"
@@ -731,9 +771,11 @@ export default function Money() {
       )}
 
       <button onClick={() => setAdding(true)}
-        className="fixed bottom-24 right-5 z-30 w-14 h-14 rounded-full grid place-items-center
-          shadow-xl transition active:scale-95"
-        style={{ background: 'linear-gradient(135deg,#F5A623,#E8632B)' }} aria-label="Add transaction">
+        className="mny-fab fixed bottom-24 right-5 z-30 w-14 h-14 rounded-full grid place-items-center"
+        style={{
+          background: 'linear-gradient(135deg,#FFC65B,#E8632B)',
+          boxShadow: '0 10px 30px -6px rgba(232,99,43,.6), inset 0 1px 0 rgba(255,255,255,.45)',
+        }} aria-label="Add transaction">
         <Plus size={24} className="text-black/80" />
       </button>
 
