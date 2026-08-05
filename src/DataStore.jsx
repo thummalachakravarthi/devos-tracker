@@ -440,21 +440,34 @@ export function DataProvider({ session, children }) {
 
   // ---------- nuclear: reset all logged data ----------
   async function resetAllData() {
-    // wipe every table row belonging to this user
+    // Clears activity LOGS but keeps definitions — habits, books, accounts and
+    // categories survive, the same way the habit list always has.
     await Promise.all([
       supabase.from('habit_logs').delete().eq('user_id', uid),
       supabase.from('java_sessions').delete().eq('user_id', uid),
       supabase.from('dsa_logs').delete().eq('user_id', uid),
+      supabase.from('book_sessions').delete().eq('user_id', uid),
+      supabase.from('transactions').delete().eq('user_id', uid),
     ])
+
+    // Reading progress is derived from sessions, so zero it on books still in
+    // progress; finished books keep their record.
+    await supabase.from('books')
+      .update({ pages_read: 0 }).eq('user_id', uid).neq('status', 'finished')
+
     // restart mission clock at today
     const today = todayISO()
     await supabase.from('settings').update({ plan_start_date: today }).eq('user_id', uid)
     // clear level-up detector so next level-up still fires confetti
     try { localStorage.removeItem('devos:lastLevel') } catch {}
+
     // clear in-memory state
     setLogs({})
     setJavaSessions([])
     setDsaLogs([])
+    setBookSessions([])
+    setTransactions([])
+    setBooks((p) => p.map((b) => (b.status === 'finished' ? b : { ...b, pages_read: 0 })))
     setSettings((s) => ({ ...s, plan_start_date: today }))
     setUiDate(today)
   }

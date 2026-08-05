@@ -1,8 +1,8 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useMemo, useState } from 'react'
 import {
   Wallet, ChevronLeft, ChevronRight, Plus, X, Trash2, Check,
   TrendingUp, TrendingDown, Delete, ArrowRightLeft, CreditCard,
-  Banknote, PiggyBank, Landmark, Pencil,
+  Banknote, PiggyBank, Landmark,
 } from 'lucide-react'
 import { useData } from '../DataStore'
 import { todayISO, fmtShort } from '../lib/dates'

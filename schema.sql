@@ -171,3 +171,15 @@ create policy "own book notes" on public.book_notes
 alter table public.settings
   add column if not exists yearly_book_goal int not null default 12
     check (yearly_book_goal >= 0);
+
+-- Integrity constraints (already applied via migration)
+alter table public.transactions drop constraint if exists transactions_transfer_shape;
+alter table public.transactions add constraint transactions_transfer_shape check (
+  (kind = 'transfer' and to_account_id is not null and account_id is not null
+    and to_account_id <> account_id)
+  or (kind <> 'transfer' and to_account_id is null)
+);
+alter table public.books drop constraint if exists books_pages_within_total;
+alter table public.books add constraint books_pages_within_total check (
+  total_pages is null or pages_read <= total_pages
+);

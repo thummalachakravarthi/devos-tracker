@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Plus, ArrowUp, ArrowDown, Archive, ArchiveRestore, Pencil, X } from 'lucide-react'
+import { Plus, ArrowUp, ArrowDown, Archive, ArchiveRestore, Pencil } from 'lucide-react'
 import LifeGarden from '../components/LifeGarden'
 import { useData } from '../DataStore'
 

@@ -214,8 +214,9 @@ export default function SettingsPage() {
             <div className="text-sm">
               <p className="font-medium text-red">Wipe every log and restart at Day 1?</p>
               <p className="text-dim text-xs mt-1">
-                Deletes all habit check-ins, Java sessions and DSA logs, and resets your start
-                date to today. Keeps your account, habit list and settings.
+                Deletes every habit check-in, Java session, DSA log, reading session and
+                transaction, resets in-progress books to page 0, and restarts the mission
+                clock at today. Keeps your login, habits, books, accounts and settings.
                 <br /><span className="text-red">This cannot be undone.</span>
               </p>
             </div>

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Play, Pause, RotateCcw, SkipForward, Coffee, Brain, Zap } from 'lucide-react'
 import { useData } from '../DataStore'
 import { todayISO } from '../lib/dates'
