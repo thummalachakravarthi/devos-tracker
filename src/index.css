@@ -331,3 +331,106 @@ body { @apply bg-bg text-text font-body antialiased; }
 
 .no-scrollbar::-webkit-scrollbar { display: none; }
 .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* ════════════════════════════════════════════════════════════
+   PREMIUM PASS — refinements layered over the base components.
+   Surfaces get a top-lit gradient rather than a flat fill, borders
+   get a light catch along the top edge, and interactions get spring.
+   ════════════════════════════════════════════════════════════ */
+
+.card {
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.055) 0%, rgba(255,255,255,0) 42%),
+    rgba(16, 19, 28, 0.78);
+  border-radius: 18px;
+  box-shadow:
+    0 1px 0 rgba(255,255,255,.07) inset,
+    0 0 0 1px rgba(0,0,0,.35),
+    0 22px 48px -22px rgba(0,0,0,.85);
+}
+
+/* hairline of light along the top edge — the detail that reads expensive */
+.card::after {
+  content: '';
+  position: absolute;
+  inset: 0 12% auto 12%;
+  height: 1px;
+  border-radius: inherit;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.28), transparent);
+  pointer-events: none;
+}
+
+.card-hover { transition: transform .28s cubic-bezier(.2,.8,.2,1), box-shadow .28s ease, border-color .28s ease; }
+.card-hover:hover { transform: translateY(-3px); }
+
+/* buttons: depth on rest, real depression on press */
+.btn {
+  border-radius: 12px;
+  background: linear-gradient(180deg, rgba(255,255,255,.09), rgba(255,255,255,.035));
+  box-shadow:
+    0 1px 0 rgba(255,255,255,.12) inset,
+    0 6px 14px -8px rgba(0,0,0,.9);
+  transition: transform .16s cubic-bezier(.2,.8,.2,1), background .2s, border-color .2s, box-shadow .2s;
+}
+.btn:active { transform: translateY(1px) scale(.985); box-shadow: 0 1px 0 rgba(255,255,255,.06) inset; }
+
+/* inputs: quiet at rest, unmistakable on focus */
+.input {
+  border-radius: 12px;
+  transition: border-color .18s, box-shadow .18s, background .18s;
+}
+.input:focus, .input:focus-visible {
+  outline: none;
+  border-color: rgba(245,166,35,.55);
+  box-shadow: 0 0 0 3px rgba(245,166,35,.14);
+}
+
+/* visible keyboard focus everywhere, without a browser-default halo */
+:where(button, a, [role="button"], select):focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(10,12,18,.9), 0 0 0 4px rgba(245,166,35,.65);
+  border-radius: 12px;
+}
+
+/* page transition: content settles in rather than snapping */
+.anim-up { animation: pageIn .42s cubic-bezier(.2,.8,.2,1) both; }
+@keyframes pageIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* stagger direct children of a page so sections arrive in sequence */
+.anim-up > * { animation: pageIn .5s cubic-bezier(.2,.8,.2,1) both; }
+.anim-up > *:nth-child(1) { animation-delay: .02s }
+.anim-up > *:nth-child(2) { animation-delay: .07s }
+.anim-up > *:nth-child(3) { animation-delay: .12s }
+.anim-up > *:nth-child(4) { animation-delay: .17s }
+.anim-up > *:nth-child(5) { animation-delay: .22s }
+.anim-up > *:nth-child(n+6) { animation-delay: .26s }
+
+/* typography: tighter display headings read more considered */
+.font-display { letter-spacing: -0.017em; }
+.label {
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  font-size: 10px;
+  color: #8B94A8;
+}
+
+/* selection + scrollbar, small things people never notice unless they're wrong */
+::selection { background: rgba(245,166,35,.28); color: #fff; }
+* { scrollbar-width: thin; scrollbar-color: rgba(255,255,255,.16) transparent; }
+::-webkit-scrollbar { width: 9px; height: 9px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,.14);
+  border-radius: 99px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,.26); background-clip: content-box; }
+
+.rm-on .anim-up, .rm-on .anim-up > * { animation: none !important; }
+@media (prefers-reduced-motion: reduce) {
+  .anim-up, .anim-up > * { animation: none !important; opacity: 1 !important; transform: none !important; }
+}
