@@ -312,3 +312,19 @@ body { @apply bg-bg text-text font-body antialiased; }
   .mny-enter, .mny-sweep { animation: none !important; }
   .mny-enter { opacity: 1; transform: none; }
 }
+
+/* cover placeholder shimmer while the real image loads */
+.bk-shimmer {
+  background: linear-gradient(100deg,
+    rgba(255,255,255,0) 20%,
+    rgba(255,255,255,.09) 50%,
+    rgba(255,255,255,0) 80%);
+  background-size: 220% 100%;
+  animation: bkShimmer 1.4s ease-in-out infinite;
+}
+@keyframes bkShimmer {
+  from { background-position: 180% 0; }
+  to   { background-position: -60% 0; }
+}
+.rm-on .bk-shimmer { animation: none; }
+@media (prefers-reduced-motion: reduce) { .bk-shimmer { animation: none; } }

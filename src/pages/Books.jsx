@@ -5,7 +5,7 @@ import {
 } from 'lucide-react'
 import { useData } from '../DataStore'
 import { todayISO, fmtShort, weekdayShort, addDays } from '../lib/dates'
-import { searchBooks, estimateFinish } from '../lib/openlibrary'
+import { searchBooks, estimateFinish, coverAt } from '../lib/openlibrary'
 import { CountUp, Ring, Curve } from '../components/Numeric'
 
 const SHELVES = [
@@ -15,35 +15,50 @@ const SHELVES = [
   { id: 'abandoned', label: 'Abandoned', tone: '#EF4444' },
 ]
 
-/* A book should look like an object: spine, a little gloss, a shadow under it. */
-function Cover({ book, size = 'h-24 w-16', flat = false }) {
-  const [failed, setFailed] = useState(false)
+/* A book should look like an object: spine, a little gloss, a shadow under it.
+   The placeholder renders immediately and the real cover cross-fades over it,
+   so there's never a blank rectangle waiting on the network. */
+function Cover({ book, size = 'h-24 w-16', flat = false, res = 'M', priority = false }) {
+  const [state, setState] = useState('loading')   // loading | ok | failed
+  const src = book.cover_url ? coverAt(book.cover_url, res) : null
   const shadow = flat ? '' : 'shadow-[0_6px_16px_-4px_rgba(0,0,0,.7)]'
-  const inner = (
-    <>
+
+  return (
+    <div className={`${size} relative shrink-0 rounded-[3px] overflow-hidden ${shadow}
+      bg-gradient-to-br from-[#2b3145] to-[#171a26] border border-white/10`}>
+
+      {/* always-present fallback jacket */}
+      <div className="absolute inset-0 grid place-items-center text-center p-1.5">
+        <span className="text-[8px] leading-tight text-dim line-clamp-4 font-display">
+          {book.title}
+        </span>
+      </div>
+
+      {/* shimmer only while a real cover is on its way */}
+      {src && state === 'loading' && (
+        <div className="absolute inset-0 bk-shimmer" aria-hidden="true" />
+      )}
+
+      {src && state !== 'failed' && (
+        <img
+          src={src}
+          alt=""
+          loading={priority ? 'eager' : 'lazy'}
+          decoding="async"
+          fetchpriority={priority ? 'high' : 'auto'}
+          onLoad={() => setState('ok')}
+          onError={() => setState('failed')}
+          className="absolute inset-0 w-full h-full object-cover transition-opacity duration-500"
+          style={{ opacity: state === 'ok' ? 1 : 0 }}
+        />
+      )}
+
       {/* spine */}
-      <span className="absolute inset-y-0 left-0 w-[7%] rounded-l-[3px]"
+      <span className="absolute inset-y-0 left-0 w-[7%] rounded-l-[3px] pointer-events-none"
         style={{ background: 'linear-gradient(90deg, rgba(0,0,0,.45), rgba(255,255,255,.06))' }} />
       {/* gloss */}
       <span className="absolute inset-0 rounded-[3px] pointer-events-none"
         style={{ background: 'linear-gradient(115deg, rgba(255,255,255,.16) 0%, transparent 38%)' }} />
-    </>
-  )
-  if (book.cover_url && !failed) {
-    return (
-      <div className={`${size} relative shrink-0 rounded-[3px] overflow-hidden ${shadow}`}>
-        <img src={book.cover_url} alt="" onError={() => setFailed(true)}
-          className="w-full h-full object-cover" />
-        {inner}
-      </div>
-    )
-  }
-  return (
-    <div className={`${size} relative shrink-0 rounded-[3px] overflow-hidden ${shadow}
-      grid place-items-center text-center p-1.5
-      bg-gradient-to-br from-[#2b3145] to-[#171a26] border border-white/10`}>
-      <span className="text-[8px] leading-tight text-dim line-clamp-4 font-display">{book.title}</span>
-      {inner}
     </div>
   )
 }
@@ -203,7 +218,7 @@ export default function Books() {
             <div className="pointer-events-none absolute -top-24 -right-12 w-64 h-64 rounded-full"
               style={{ background: 'radial-gradient(circle, rgba(245,166,35,.2), transparent 70%)' }} />
             <div className="relative flex gap-4">
-              <Cover book={current} size="h-32 w-[5.5rem]" />
+              <Cover book={current} size="h-32 w-[5.5rem]" res="L" priority />
               <div className="min-w-0 flex-1 flex flex-col">
                 <div className="text-[10px] uppercase tracking-[.18em] text-dim">Currently reading</div>
                 <div className="font-display font-bold text-lg leading-snug mt-1 line-clamp-2">
@@ -266,7 +281,7 @@ export default function Books() {
             {results.map((r, i) => (
               <div key={r.olKey || i}
                 className="flex gap-3 p-2 rounded-lg bg-white/5 border border-white/8">
-                <Cover book={{ cover_url: r.cover, title: r.title }} size="h-16 w-11" />
+                <Cover book={{ cover_url: r.cover, title: r.title }} size="h-16 w-11" res="S" />
                 <div className="min-w-0 flex-1">
                   <div className="text-sm font-medium leading-snug line-clamp-2">{r.title}</div>
                   <div className="text-[11px] text-dim mt-0.5 truncate">
@@ -384,7 +399,7 @@ export default function Books() {
             return (
               <button key={b.id} onClick={() => { setView('list'); setOpen(b.id) }}
                 className="text-left group transition-transform duration-300 hover:-translate-y-1">
-                <Cover book={b} size="h-40 w-full" />
+                <Cover book={b} size="h-40 w-full" res="M" />
                 <div className="text-[11px] mt-1.5 leading-tight line-clamp-2">{b.title}</div>
                 {pct !== null && (
                   <div className="h-1 rounded-full bg-white/10 mt-1 overflow-hidden">

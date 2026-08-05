@@ -56,3 +56,13 @@ export function estimateFinish(book, sessions) {
   if (perDay <= 0) return null
   return Math.ceil(left / perDay)
 }
+
+/**
+ * Open Library serves S / M / L variants of the same cover. Requesting the
+ * right size matters: an L cover behind a 44px thumbnail is wasted bytes,
+ * and an S cover in the hero looks soft.
+ */
+export function coverAt(url, size = 'M') {
+  if (!url) return null
+  return url.replace(/-(S|M|L)\.jpg(\?.*)?$/i, `-${size}.jpg$2`)
+}

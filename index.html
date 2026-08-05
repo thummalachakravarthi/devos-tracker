@@ -7,6 +7,10 @@
     <link rel="icon" type="image/svg+xml" href="/icon.svg" />
     <link rel="manifest" href="/manifest.webmanifest" />
     <link rel="apple-touch-icon" href="/icon.svg" />
+    <!-- book covers: open the connection early so the first image isn't
+         waiting on DNS + TLS (worth ~300-800ms on mobile) -->
+    <link rel="preconnect" href="https://covers.openlibrary.org" crossorigin />
+    <link rel="dns-prefetch" href="https://covers.openlibrary.org" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
