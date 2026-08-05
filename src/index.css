@@ -434,3 +434,88 @@ body { @apply bg-bg text-text font-body antialiased; }
 @media (prefers-reduced-motion: reduce) {
   .anim-up, .anim-up > * { animation: none !important; opacity: 1 !important; transform: none !important; }
 }
+
+/* ════════════════════════════════════════════════════════════
+   ATMOSPHERE — the app sits in a room, not on a flat colour.
+   Slow-drifting aurora behind everything, a fine grain over it,
+   and a vignette to hold the eye toward the centre.
+   ════════════════════════════════════════════════════════════ */
+
+.atmos { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+
+.atmos-blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(90px);
+  will-change: transform;
+  opacity: .5;
+}
+.atmos-a {
+  width: 46vw; height: 46vw; min-width: 380px; min-height: 380px;
+  top: -14%; left: -10%;
+  background: radial-gradient(circle, rgba(120, 90, 255, .5), transparent 62%);
+  animation: atmosA 34s ease-in-out infinite;
+}
+.atmos-b {
+  width: 42vw; height: 42vw; min-width: 340px; min-height: 340px;
+  bottom: -18%; right: -8%;
+  background: radial-gradient(circle, rgba(232, 99, 43, .38), transparent 62%);
+  animation: atmosB 42s ease-in-out infinite;
+}
+.atmos-c {
+  width: 38vw; height: 38vw; min-width: 300px; min-height: 300px;
+  top: 38%; left: 46%;
+  background: radial-gradient(circle, rgba(28, 140, 190, .34), transparent 64%);
+  animation: atmosC 52s ease-in-out infinite;
+}
+@keyframes atmosA {
+  0%,100% { transform: translate3d(0,0,0) scale(1); }
+  50%     { transform: translate3d(9vw, 7vh, 0) scale(1.14); }
+}
+@keyframes atmosB {
+  0%,100% { transform: translate3d(0,0,0) scale(1.05); }
+  50%     { transform: translate3d(-8vw, -6vh, 0) scale(.92); }
+}
+@keyframes atmosC {
+  0%,100% { transform: translate3d(-50%,-50%,0) scale(1); }
+  50%     { transform: translate3d(-58%,-42%,0) scale(1.2); }
+}
+
+/* fine grain — kills banding in the gradients and adds tooth */
+.atmos-grain {
+  position: absolute; inset: -200%;
+  width: 500%; height: 500%;
+  opacity: .035;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
+  animation: grainShift 6s steps(6) infinite;
+}
+@keyframes grainShift {
+  0%   { transform: translate(0,0) }
+  20%  { transform: translate(-3%, 2%) }
+  40%  { transform: translate(2%, -3%) }
+  60%  { transform: translate(-2%, -2%) }
+  80%  { transform: translate(3%, 1%) }
+  100% { transform: translate(0,0) }
+}
+
+.atmos-vignette {
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse 90% 70% at 50% 40%, transparent 40%, rgba(0,0,0,.62) 100%);
+}
+
+/* content rides above the atmosphere */
+#root > * { position: relative; z-index: 1; }
+
+/* cards read as glass now there's something behind them */
+.card {
+  backdrop-filter: blur(18px) saturate(1.25);
+  -webkit-backdrop-filter: blur(18px) saturate(1.25);
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.06) 0%, rgba(255,255,255,0) 44%),
+    rgba(13, 16, 24, 0.66);
+}
+
+.rm-on .atmos-blob, .rm-on .atmos-grain { animation: none !important; }
+@media (prefers-reduced-motion: reduce) {
+  .atmos-blob, .atmos-grain { animation: none !important; }
+}

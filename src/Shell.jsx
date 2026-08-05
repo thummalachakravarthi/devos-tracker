@@ -79,7 +79,7 @@ export function Aurora() {
 
 function Sidebar({ tab, setTab }) {
   return (
-    <aside className="hidden lg:flex fixed left-0 top-0 bottom-0 w-60 flex-col border-r border-white/20 bg-white/80 backdrop-blur-xl z-30">
+    <aside className="hidden lg:flex fixed left-0 top-0 bottom-0 w-60 flex-col border-r border-white/10 bg-[#0b0e16]/72 backdrop-blur-2xl z-30">
       <div className="flex items-center gap-3 px-5 pt-6 pb-8">
         <img src="/icon.svg" alt="" className="w-10 h-10 rounded-xl glow-amber" />
         <div>
@@ -146,6 +146,14 @@ function Inner({ tab, setTab }) {
 
   return (
     <>
+      {/* ambient light + grain behind the whole app */}
+      <div className="atmos" aria-hidden="true">
+        <span className="atmos-blob atmos-a" />
+        <span className="atmos-blob atmos-b" />
+        <span className="atmos-blob atmos-c" />
+        <span className="atmos-grain" />
+        <span className="atmos-vignette" />
+      </div>
 
       {syncError && (
         <div className="fixed bottom-24 left-1/2 -translate-x-1/2 z-50 max-w-[92vw]
@@ -158,7 +166,7 @@ function Inner({ tab, setTab }) {
 
       <div className="lg:pl-60">
         {/* mobile header */}
-        <header className="lg:hidden flex items-center justify-between mx-3 mt-3 mb-1 px-3 py-2 rounded-2xl bg-white/80 backdrop-blur-xl border border-white/50 shadow-lg">
+        <header className="lg:hidden flex items-center justify-between mx-3 mt-3 mb-1 px-3 py-2 rounded-2xl bg-[#0d1018]/72 backdrop-blur-2xl border border-white/10 shadow-lg">
           <div className="flex items-center gap-2">
             <img src="/icon.svg" alt="" className="w-8 h-8 rounded-lg" />
             <div>
@@ -196,7 +204,7 @@ function Inner({ tab, setTab }) {
       </div>
 
       {/* mobile bottom nav */}
-      <nav className="lg:hidden fixed bottom-0 inset-x-0 z-20 bg-white/85 backdrop-blur-xl border-t border-white/40">
+      <nav className="lg:hidden fixed bottom-0 inset-x-0 z-20 bg-[#0a0d15]/82 backdrop-blur-2xl border-t border-white/10">
         <div className="flex overflow-x-auto no-scrollbar">
           {TABS.map(({ id, label, icon: Icon }) => (
             <button
