@@ -146,7 +146,7 @@ function SessionNotes() {
 // WEEKLY REVIEW
 // ═══════════════════════════════════════════════════════════
 function WeeklyReview() {
-  const { javaSessions, dsaLogs, logs, activeHabits } = useData()
+  const { javaSessions, dsaLogs, logs, activeHabits, settings } = useData()
   const today = todayISO()
   const weekStart = startOfWeek(today, settings?.week_starts_monday !== false)
   const prevWeekStart = addDays(weekStart, -7)

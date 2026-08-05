@@ -19,8 +19,6 @@ export function MissionControl() {
   const today = todayISO()
   const xp = computeXp({ javaSessions, dsaLogs, habitLogs })
   const lvl = levelFromXp(xp.total)
-  const pagesToday = (bookSessions || [])
-    .filter((s) => s.session_date === today).reduce((a, s) => a + s.pages, 0)
   const streak = computeGlobalStreak({ javaSessions, dsaLogs, habitLogs }, today)
   const quote = quoteForToday(today)
 
