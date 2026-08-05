@@ -54,6 +54,22 @@ function SpendCurve({ days, tone = '#F5A623' }) {
   )
 }
 
+function Empty({ icon, title, body, action, onAction }) {
+  return (
+    <div className="py-10 px-6 text-center">
+      <div className="w-14 h-14 rounded-2xl mx-auto grid place-items-center mb-3"
+        style={{ background: 'rgba(245,166,35,.1)', border: '1px solid rgba(245,166,35,.25)' }}>
+        {icon}
+      </div>
+      <div className="font-display font-bold text-sm">{title}</div>
+      <div className="text-xs text-dim mt-1.5 max-w-[16rem] mx-auto leading-relaxed">{body}</div>
+      {action && (
+        <button className="btn mt-4 !py-2 !px-4 text-xs" onClick={onAction}>{action}</button>
+      )}
+    </div>
+  )
+}
+
 const ACCOUNT_KINDS = [
   { id: 'bank', label: 'Bank', Icon: Landmark, color: '#4C7BFF' },
   { id: 'cash', label: 'Cash', Icon: Banknote, color: '#22C55E' },
@@ -451,7 +467,8 @@ export default function Money() {
       </section>
 
       {/* ── month ── */}
-      <section className="card card-hover">
+      <section className="relative overflow-hidden rounded-2xl border border-white/10 p-5"
+        style={{ background: 'linear-gradient(160deg, #171a28 0%, #12141d 60%, #0e1017 100%)' }}>
         <div className="flex items-center justify-between mb-3">
           <button onClick={() => setMonth(shiftMonth(month, -1))} className="text-dim hover:text-text p-1">
             <ChevronLeft size={18} />
@@ -486,7 +503,7 @@ export default function Money() {
           ))}
         </div>
 
-        {dailySpend.some((d) => d.amt > 0) && (
+        {dailySpend.filter((d) => d.amt > 0).length >= 2 && (
           <div className="mt-3 -mx-1">
             <SpendCurve days={dailySpend} />
           </div>
@@ -520,14 +537,14 @@ export default function Money() {
         )}
       </section>
 
-      <div className="flex gap-1.5">
+      <div className="flex p-1 rounded-2xl bg-white/[.05] border border-white/8">
         {['overview', 'transactions', 'budgets'].map((t) => (
           <button key={t} onClick={() => setTab(t)}
-            className="rounded-full px-3 py-1.5 text-xs border transition capitalize"
+            className="flex-1 rounded-xl py-2 text-xs font-medium capitalize transition"
             style={{
-              background: tab === t ? 'rgba(245,166,35,.18)' : 'rgba(255,255,255,.05)',
-              borderColor: tab === t ? 'rgba(245,166,35,.45)' : 'rgba(255,255,255,.1)',
-              color: tab === t ? '#F5A623' : undefined,
+              background: tab === t ? 'rgba(245,166,35,.16)' : 'transparent',
+              color: tab === t ? '#F5A623' : '#8B94A8',
+              boxShadow: tab === t ? 'inset 0 0 0 1px rgba(245,166,35,.35)' : 'none',
             }}>{t}</button>
         ))}
       </div>
@@ -535,9 +552,10 @@ export default function Money() {
       {tab === 'overview' && (
         <section className="card">
           {!byCat.length ? (
-            <div className="text-sm text-dim text-center py-8">
-              Nothing logged this month. Tap + to add something.
-            </div>
+            <Empty icon={<Wallet size={22} className="text-amber" />}
+              title="Nothing logged this month"
+              body="Add a few expenses and this fills with a breakdown by category and your spending curve."
+              action="Add an expense" onAction={() => setAdding(true)} />
           ) : (
             <>
               <div className="flex items-center gap-5">
@@ -601,7 +619,15 @@ export default function Money() {
       {tab === 'transactions' && (
         <div className="space-y-4">
           {!mtx.length ? (
-            <div className="card text-sm text-dim text-center py-8">No transactions this month.</div>
+            <div className="card !p-0">
+              <Empty icon={<Plus size={22} className="text-amber" />}
+                title="No transactions yet"
+                body={month === monthKey(todayISO())
+                  ? 'Every expense, income and transfer you log this month shows up here, grouped by day.'
+                  : 'Nothing was logged in this month.'}
+                action={month === monthKey(todayISO()) ? 'Add one' : null}
+                onAction={() => setAdding(true)} />
+            </div>
           ) : (() => {
             const groups = {}
             for (const t of mtx) (groups[t.txn_date] ||= []).push(t)
@@ -664,6 +690,16 @@ export default function Money() {
 
       {tab === 'budgets' && (
         <section className="card space-y-2">
+          {!totalBudget && (
+            <div className="rounded-xl p-3 mb-3"
+              style={{ background: 'rgba(245,166,35,.08)', border: '1px solid rgba(245,166,35,.22)' }}>
+              <div className="text-xs text-amber font-medium">Set your first budget</div>
+              <div className="text-[11px] text-dim mt-1 leading-relaxed">
+                Once a category has a cap, the month view shows whether you're ahead or behind
+                pace for today's date — not just how much is left.
+              </div>
+            </div>
+          )}
           <div className="text-[11px] text-dim mb-1">Monthly cap per category. Blank means no limit.</div>
           {categories.filter((c) => c.kind === 'expense' && !c.archived).map((c) => {
             const spent = byCat.find((s) => s.id === c.id)?.amt || 0
