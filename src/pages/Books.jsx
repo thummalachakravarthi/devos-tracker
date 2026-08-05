@@ -46,7 +46,7 @@ function Stars({ value, onPick, size = 13 }) {
 export default function Books() {
   const {
     books, addBook, updateBook, removeBook,
-    bookSessions, logReading, bookNotes, addNote, removeNote,
+    bookSessions, logReading, removeReading, bookNotes, addNote, removeNote,
     settings,
   } = useData()
 
@@ -59,6 +59,7 @@ export default function Books() {
   const [open, setOpen] = useState(null)
   const [pagesInput, setPagesInput] = useState({})
   const [noteDraft, setNoteDraft] = useState({ body: '', kind: 'note', page: '' })
+  const [logDate, setLogDate] = useState({})   // per-book, defaults to today
   const abortRef = useRef(null)
 
   // debounced live search against Open Library
@@ -147,9 +148,11 @@ export default function Books() {
     updateBook(b.id, patch)
   }
 
-  const logPages = (b) => {
-    const n = Number(pagesInput[b.id])
-    if (n > 0) { logReading(b.id, n); setPagesInput({ ...pagesInput, [b.id]: '' }) }
+  const logPages = (b, amount) => {
+    const n = Number(amount ?? pagesInput[b.id])
+    if (!(n > 0)) return
+    logReading(b.id, n, logDate[b.id] || todayISO())
+    if (amount == null) setPagesInput({ ...pagesInput, [b.id]: '' })
   }
 
   const saveNote = (b) => {
@@ -369,19 +372,47 @@ export default function Books() {
                 </div>
 
                 {b.status === 'reading' && (
-                  <div className="mt-3 flex items-center gap-2">
-                    <input type="number" inputMode="numeric" min="1"
-                      className="input w-20 !py-1 text-sm" placeholder="pages"
-                      value={pagesInput[b.id] || ''}
-                      onChange={(e) => setPagesInput({ ...pagesInput, [b.id]: e.target.value })}
-                      onKeyDown={(e) => e.key === 'Enter' && logPages(b)} />
-                    <button className="btn !py-1 !px-3 text-xs"
-                      disabled={!(Number(pagesInput[b.id]) > 0)} onClick={() => logPages(b)}>
-                      Log pages
-                    </button>
-                    {todaysPages(b.id) > 0 && (
-                      <span className="text-[11px] text-mint">+{todaysPages(b.id)} today</span>
-                    )}
+                  <div className="mt-3 rounded-xl bg-white/5 border border-white/8 p-2.5">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-[11px] text-dim">
+                        Add pages for{' '}
+                        {(logDate[b.id] || todayISO()) === todayISO()
+                          ? 'today' : fmtShort(logDate[b.id])}
+                      </span>
+                      {todaysPages(b.id) > 0 && (
+                        <span className="text-[11px] text-mint">+{todaysPages(b.id)} today</span>
+                      )}
+                    </div>
+
+                    <div className="flex flex-wrap items-center gap-1.5">
+                      {[5, 10, 25, 50].map((n) => (
+                        <button key={n} className="rounded-lg px-2.5 py-1 text-[11px]
+                          bg-white/8 border border-white/12 hover:bg-mint/20 hover:border-mint/40 transition"
+                          onClick={() => logPages(b, n)}>+{n}</button>
+                      ))}
+                      <input type="number" inputMode="numeric" min="1"
+                        className="input w-16 !py-1 text-sm" placeholder="+"
+                        value={pagesInput[b.id] || ''}
+                        onChange={(e) => setPagesInput({ ...pagesInput, [b.id]: e.target.value })}
+                        onKeyDown={(e) => e.key === 'Enter' && logPages(b)} />
+                      <button className="btn !py-1 !px-3 text-xs"
+                        disabled={!(Number(pagesInput[b.id]) > 0)} onClick={() => logPages(b)}>
+                        Add
+                      </button>
+                    </div>
+
+                    <div className="flex items-center gap-2 mt-2">
+                      <input type="date" max={todayISO()}
+                        className="input !py-1 text-[11px]"
+                        value={logDate[b.id] || todayISO()}
+                        onChange={(e) => setLogDate({ ...logDate, [b.id]: e.target.value })} />
+                      {(logDate[b.id] || todayISO()) !== todayISO() && (
+                        <button className="text-[11px] text-dim underline"
+                          onClick={() => setLogDate({ ...logDate, [b.id]: todayISO() })}>
+                          back to today
+                        </button>
+                      )}
+                    </div>
                   </div>
                 )}
 
@@ -402,6 +433,35 @@ export default function Books() {
 
                 {isOpen && (
                   <div className="mt-3 pt-3 border-t border-white/8 space-y-2">
+                    {(() => {
+                      const mine = bookSessions
+                        .filter((x) => x.book_id === b.id)
+                        .sort((x, y) => y.session_date.localeCompare(x.session_date))
+                      if (!mine.length) return null
+                      return (
+                        <div className="mb-3">
+                          <div className="text-[10px] uppercase tracking-wider text-dim mb-1.5">
+                            Reading log
+                          </div>
+                          <div className="space-y-1 max-h-40 overflow-y-auto">
+                            {mine.slice(0, 20).map((x) => (
+                              <div key={x.id} className="flex items-center gap-2 text-[11px]">
+                                <span className="text-dim w-16 shrink-0">
+                                  {x.session_date === todayISO() ? 'Today' : fmtShort(x.session_date)}
+                                </span>
+                                <span className="font-mono text-mint">+{x.pages}</span>
+                                <span className="text-dim">pages</span>
+                                <button className="ml-auto text-dim hover:text-red"
+                                  onClick={() => removeReading(x.id)} aria-label="Delete entry">
+                                  <X size={11} />
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )
+                    })()}
+
                     {notes.map((n) => (
                       <div key={n.id} className="flex gap-2 text-xs">
                         {n.kind === 'quote'
