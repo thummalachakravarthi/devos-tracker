@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { ChevronLeft, ChevronRight, Flame, Check, Plus, Minus, Coffee, Brain } from 'lucide-react'
 import { useData } from '../DataStore'
 import { ProgressRing, CountUp } from '../components/Bits'
-import { MissionControl, Achievements } from '../components/MissionControl'
+import { MissionControl, Achievements, LifetimeAchievements } from '../components/MissionControl'
 import { Quote as QuoteIcon } from 'lucide-react'
 import { quoteForToday } from '../config/quotes'
 import { todayISO, addDays, fmtNice, dayDiff } from '../lib/dates'
@@ -307,6 +307,10 @@ export default function Today({ setTab }) {
       {/* ACHIEVEMENTS */}
       <div className="mt-3">
         <Achievements />
+      </div>
+
+      <div className="mt-3">
+        <LifetimeAchievements />
       </div>
 
       {/* HABITS GRID */}

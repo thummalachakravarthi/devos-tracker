@@ -44,9 +44,11 @@ export const monthLabel = (y, m) =>
   new Date(y, m, 1).toLocaleDateString('en-IN', { month: 'long', year: 'numeric' })
 
 // Monday-start week
-export const startOfWeek = (iso) => {
+// Week boundary. Defaults to Monday because that's how the app is configured
+// by default; pass mondayStart=false for a Sunday week.
+export const startOfWeek = (iso, mondayStart = true) => {
   const d = parseISO(iso)
-  const back = (d.getDay() + 6) % 7
-  d.setDate(d.getDate() - back)
-  return localISO(d)
+  const dow = d.getDay()                       // 0 = Sunday
+  const back = mondayStart ? (dow + 6) % 7 : dow
+  return addDays(iso, -back)
 }

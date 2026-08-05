@@ -107,13 +107,13 @@ export const ACHIEVEMENTS = [
 // `habits` is the FULL list (including archived). A day is judged against the
 // habits that actually existed on that date, so archiving or adding a habit
 // can never retroactively grant or revoke a past perfect day.
-export function computeAchievementStats({ javaSessions, dsaLogs, habitLogs, activeHabits, habits, level, streak }) {
+export function computeAchievementStats({ javaSessions, dsaLogs, habitLogs, activeHabits, habits, level, streak, javaTarget = 180 }) {
   const javaMin = javaSessions.reduce((a, s) => a + (Number(s.minutes) || 0), 0)
   const byDay = {}
   for (const s of javaSessions) byDay[s.session_date] = (byDay[s.session_date] || 0) + (Number(s.minutes) || 0)
   const daysArr = Object.values(byDay)
   const maxJavaDay = daysArr.length ? Math.max(...daysArr) : 0
-  const daysOnTarget = daysArr.filter((m) => m >= 180).length
+  const daysOnTarget = daysArr.filter((m) => m >= javaTarget).length
   const dsaTotal = dsaLogs.reduce((a, l) => a + (Number(l.problems) || 0), 0)
 
   // perfect days: pick every date any habit was completed, then check ALL active habits completed that day

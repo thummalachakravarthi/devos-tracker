@@ -19,6 +19,8 @@ export function MissionControl() {
   const today = todayISO()
   const xp = computeXp({ javaSessions, dsaLogs, habitLogs })
   const lvl = levelFromXp(xp.total)
+  const pagesToday = (bookSessions || [])
+    .filter((s) => s.session_date === today).reduce((a, s) => a + s.pages, 0)
   const streak = computeGlobalStreak({ javaSessions, dsaLogs, habitLogs }, today)
   const quote = quoteForToday(today)
 
@@ -137,21 +139,27 @@ function Stat({ icon, label, value, suffix = '', isText = false }) {
 
 // ═══════ DAILY WINS — resets every day ═══════
 export function Achievements() {
-  const { javaSessions, dsaLogs, logs: habitLogs, activeHabits, settings } = useData()
+  const { javaSessions, dsaLogs, logs: habitLogs, activeHabits, habits, settings,
+    bookSessions } = useData()
   const today = todayISO()
+  const dsaTarget = settings?.daily_dsa_target ?? 2
+  const pagesTarget = settings?.daily_pages_target ?? 20
 
   // today-only stats
   const javaMinToday = javaSessions.filter(s => s.session_date === today).reduce((a, s) => a + s.minutes, 0)
   const dsaToday = dsaLogs.filter(l => l.log_date === today).reduce((a, l) => a + l.problems, 0)
   const habitsDoneToday = activeHabits.filter(h => habitLogs[h.id]?.[today]?.completed).length
   const totalHabits = activeHabits.length
+  const pagesToday = (bookSessions || [])
+    .filter((s) => s.session_date === today).reduce((a, s) => a + s.pages, 0)
   const streak = computeGlobalStreak({ javaSessions, dsaLogs, habitLogs }, today)
 
   const wins = [
     { icon: '☀️', name: 'Started the day',   done: javaMinToday >= 1 || dsaToday >= 1 || habitsDoneToday >= 1, hint: 'Any activity logged today' },
     { icon: '☕', name: 'Java · 1 hour',     done: javaMinToday >= 60,  hint: `${Math.floor(javaMinToday/60)}h ${javaMinToday%60}m so far` },
-    { icon: '🎯', name: '3-hour target',    done: javaMinToday >= settings.daily_java_minutes, hint: `Target: ${Math.floor(settings.daily_java_minutes/60)}h` },
-    { icon: '🧠', name: 'DSA solved',        done: dsaToday >= 1,       hint: dsaToday > 0 ? `${dsaToday} today` : 'Solve one problem' },
+    { icon: '🎯', name: 'Java target',      done: javaMinToday >= settings.daily_java_minutes, hint: `${Math.floor(javaMinToday/60)}h ${javaMinToday%60}m / ${Math.floor(settings.daily_java_minutes/60)}h` },
+    { icon: '🧠', name: 'DSA target',        done: dsaToday >= dsaTarget, hint: `${dsaToday}/${dsaTarget} problems` },
+    { icon: '📖', name: 'Reading',           done: pagesToday >= pagesTarget, hint: `${pagesToday}/${pagesTarget} pages` },
     { icon: '✅', name: 'Half habits',       done: totalHabits > 0 && habitsDoneToday >= Math.ceil(totalHabits / 2), hint: `${habitsDoneToday}/${totalHabits} habits` },
     { icon: '⭐', name: 'Perfect day',       done: totalHabits > 0 && habitsDoneToday === totalHabits && javaMinToday >= settings.daily_java_minutes, hint: 'Everything + Java target' },
   ]
@@ -190,6 +198,67 @@ export function Achievements() {
           </div>
         ))}
       </div>
+    </section>
+  )
+}
+
+
+// ═══════ LIFETIME ACHIEVEMENTS ═══════
+export function LifetimeAchievements() {
+  const { javaSessions, dsaLogs, logs: habitLogs, activeHabits, habits, settings } = useData()
+  const today = todayISO()
+
+  const streak = computeGlobalStreak({ javaSessions, dsaLogs, habitLogs }, today)
+  const xp = computeXp({ javaSessions, dsaLogs, habitLogs })
+  const { level } = levelFromXp(xp)
+
+  const stats = computeAchievementStats({
+    javaSessions, dsaLogs, habitLogs, activeHabits, habits, level, streak,
+    javaTarget: settings?.daily_java_minutes ?? 180,
+  })
+
+  const unlocked = ACHIEVEMENTS.filter((a) => a.check(stats))
+  const locked = ACHIEVEMENTS.filter((a) => !a.check(stats))
+
+  return (
+    <section className="card card-hover">
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-2">
+          <Trophy size={16} className="text-amber" />
+          <div className="label">Achievements</div>
+        </div>
+        <div className="font-mono text-xs text-dim">
+          <span className="text-text font-bold">{unlocked.length}</span> / {ACHIEVEMENTS.length}
+        </div>
+      </div>
+
+      <div className="h-1.5 rounded-full bg-white/8 overflow-hidden mb-4">
+        <div className="h-full rounded-full bg-amber transition-all duration-700"
+          style={{ width: `${(unlocked.length / ACHIEVEMENTS.length) * 100}%` }} />
+      </div>
+
+      <div className="grid grid-cols-4 sm:grid-cols-6 gap-2.5">
+        {[...unlocked, ...locked].map((a) => {
+          const on = unlocked.includes(a)
+          return (
+            <div key={a.id} title={`${a.name} — ${a.desc}`}
+              className={`text-center rounded-xl p-2.5 border transition ${
+                on ? 'bg-amber/10 border-amber/40' : 'bg-white/[.02] border-white/8 opacity-40'
+              }`}>
+              <div className="text-xl leading-none" style={{ filter: on ? 'none' : 'grayscale(1)' }}>
+                {a.icon}
+              </div>
+              <div className="text-[9px] font-medium mt-1.5 leading-tight">{a.name}</div>
+            </div>
+          )
+        })}
+      </div>
+
+      {locked.length > 0 && (
+        <div className="text-[11px] text-dim mt-3">
+          Next up: <span className="text-text">{locked[0].name}</span> — {locked[0].desc.toLowerCase()}.
+        </div>
+      )}
     </section>
   )
 }
