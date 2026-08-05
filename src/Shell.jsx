@@ -1,19 +1,19 @@
-import { useEffect, useState } from 'react'
+import { Suspense, lazy, useEffect, useState } from 'react'
 import { Home, Coffee, BarChart3, ListChecks, LogOut, Timer, Command as CommandIcon, LineChart, Sword, BookOpen, Wallet, Settings as Cog } from 'lucide-react'
 import { supabase } from './lib/supabase'
 import { DataProvider, useData } from './DataStore'
 import { CityBackdrop, ArtToday, ArtJava, ArtStats, ArtHabits, ArtFocus, ArtCommand, ArtRise } from './components/HeroArt'
-import Today from './pages/Today'
-import JavaHQ from './pages/JavaHQ'
-import Stats from './pages/Stats'
-import Habits from './pages/Habits'
-import Books from './pages/Books'
-import Money from './pages/Money'
-import SettingsPage from './pages/SettingsPage'
-import Focus from './pages/Focus'
-import Command from './pages/Command'
-import Insights from './pages/Insights'
-import Challenges from './pages/Challenges'
+const Today = lazy(() => import('./pages/Today'))
+const JavaHQ = lazy(() => import('./pages/JavaHQ'))
+const Stats = lazy(() => import('./pages/Stats'))
+const Habits = lazy(() => import('./pages/Habits'))
+const Books = lazy(() => import('./pages/Books'))
+const Money = lazy(() => import('./pages/Money'))
+const SettingsPage = lazy(() => import('./pages/SettingsPage'))
+const Focus = lazy(() => import('./pages/Focus'))
+const Command = lazy(() => import('./pages/Command'))
+const Insights = lazy(() => import('./pages/Insights'))
+const Challenges = lazy(() => import('./pages/Challenges'))
 import CopilotWidget from './components/CopilotWidget'
 
 const TABS = [
@@ -174,6 +174,11 @@ function Inner({ tab, setTab }) {
         <main className="max-w-7xl mx-auto px-4 lg:px-8 pt-2 lg:pt-8 pb-28 lg:pb-14">
           <HeroBanner tab={tab} />
           <div key={tab} className="anim-up">
+            <Suspense fallback={
+              <div className="py-20 grid place-items-center">
+                <div className="w-8 h-8 rounded-full border-2 border-white/15 border-t-amber animate-spin" />
+              </div>
+            }>
             {tab === 'today' && <Today setTab={setTab} />}
             {tab === 'focus' && <Focus />}
             {tab === 'challenges' && <Challenges />}
@@ -185,13 +190,14 @@ function Inner({ tab, setTab }) {
             {tab === 'books' && <Books />}
             {tab === 'money' && <Money />}
             {tab === 'settings' && <SettingsPage />}
+            </Suspense>
           </div>
         </main>
       </div>
 
       {/* mobile bottom nav */}
       <nav className="lg:hidden fixed bottom-0 inset-x-0 z-20 bg-white/85 backdrop-blur-xl border-t border-white/40">
-        <div className="grid grid-cols-7">
+        <div className="flex overflow-x-auto no-scrollbar">
           {TABS.map(({ id, label, icon: Icon }) => (
             <button
               key={id}

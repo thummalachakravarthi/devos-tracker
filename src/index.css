@@ -328,3 +328,6 @@ body { @apply bg-bg text-text font-body antialiased; }
 }
 .rm-on .bk-shimmer { animation: none; }
 @media (prefers-reduced-motion: reduce) { .bk-shimmer { animation: none; } }
+
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
