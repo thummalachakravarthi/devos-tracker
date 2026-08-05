@@ -59,7 +59,7 @@ function NumberField({ value, onCommit, suffix, min = 0, max = 100000, width = '
 export default function SettingsPage() {
   const {
     settings, updateSettings, resetAllData,
-    habits, logs, javaSessions, dsaLogs, books, bookSessions, bookNotes,
+    habits, logs, javaSessions, dsaLogs, books, bookSessions, bookNotes, accounts, categories, transactions,
   } = useData()
 
   const [confirming, setConfirming] = useState(false)
@@ -73,7 +73,7 @@ export default function SettingsPage() {
   const set = (patch) => updateSettings(patch)
 
   const doExport = () => {
-    downloadBackup(buildBackup({ settings, habits, logs, javaSessions, dsaLogs, books, bookSessions, bookNotes }))
+    downloadBackup(buildBackup({ settings, habits, logs, javaSessions, dsaLogs, books, bookSessions, bookNotes, accounts, categories, transactions }))
     setExported(true)
     setTimeout(() => setExported(false), 3000)
   }

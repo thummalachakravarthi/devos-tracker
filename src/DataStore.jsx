@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useMemo, useState } from 'react'
 import { nextReviewFor } from './lib/dsa'
+import { DEFAULT_CATEGORIES, round2 } from './lib/money'
 import { supabase } from './lib/supabase'
 import { todayISO } from './lib/dates'
 
@@ -34,6 +35,9 @@ export function DataProvider({ session, children }) {
   const [books, setBooks] = useState([])
   const [bookSessions, setBookSessions] = useState([])
   const [bookNotes, setBookNotes] = useState([])
+  const [accounts, setAccounts] = useState([])
+  const [categories, setCategories] = useState([])
+  const [transactions, setTransactions] = useState([])
   const [uiDate, setUiDate] = useState(todayISO()) // date being viewed/edited on Today
 
   useEffect(() => {
@@ -67,7 +71,8 @@ export function DataProvider({ session, children }) {
         }
 
         const [{ data: hl, error: e4 }, { data: js, error: e5 }, { data: dl, error: e6 },
-               { data: bk, error: e7 }, { data: bs, error: e8 }, { data: bn, error: e9 }] =
+               { data: bk, error: e7 }, { data: bs, error: e8 }, { data: bn, error: e9 },
+               { data: ac, error: e10 }, { data: ec, error: e11 }, { data: tx, error: e12 }] =
           await Promise.all([
             supabase.from('habit_logs').select('*').eq('user_id', uid),
             supabase.from('java_sessions').select('*').eq('user_id', uid).order('created_at'),
@@ -75,12 +80,27 @@ export function DataProvider({ session, children }) {
             supabase.from('books').select('*').eq('user_id', uid).order('created_at'),
             supabase.from('book_sessions').select('*').eq('user_id', uid).order('created_at'),
             supabase.from('book_notes').select('*').eq('user_id', uid).order('created_at'),
+            supabase.from('accounts').select('*').eq('user_id', uid).order('sort_order'),
+            supabase.from('expense_categories').select('*').eq('user_id', uid).order('sort_order'),
+            supabase.from('transactions').select('*').eq('user_id', uid).order('txn_date', { ascending: false }),
           ])
         if (e4 || e5 || e6) throw e4 || e5 || e6
         // books table may not exist yet on an older database — don't hard-fail
         if (!e7) setBooks(bk || [])
         if (!e8) setBookSessions(bs || [])
         if (!e9) setBookNotes(bn || [])
+        if (!e10) setAccounts(ac || [])
+        if (!e12) setTransactions(tx || [])
+
+        // seed a sensible starting set of categories on first use
+        if (!e11) {
+          if ((ec || []).length) setCategories(ec)
+          else {
+            const rows = DEFAULT_CATEGORIES.map((c, i) => ({ ...c, user_id: uid, sort_order: i }))
+            const { data: seeded } = await supabase.from('expense_categories').insert(rows).select()
+            setCategories(seeded || [])
+          }
+        }
 
         const logMap = {}
         for (const row of hl || []) {
@@ -309,6 +329,57 @@ export function DataProvider({ session, children }) {
     }
   }
 
+  // ---------- money ----------
+  async function addTxn(fields) {
+    const { data, error: e } = await supabase
+      .from('transactions')
+      .insert({ ...fields, amount: round2(fields.amount), user_id: uid })
+      .select().single()
+    if (e) return reportSync(e, 'that transaction')
+    setTransactions((p) => [data, ...p])
+    return data
+  }
+  async function updateTxn(id, patch) {
+    const before = transactions.find((t) => t.id === id)
+    setTransactions((p) => p.map((t) => (t.id === id ? { ...t, ...patch } : t)))
+    const { error: e } = await supabase.from('transactions').update(patch).eq('id', id)
+    if (e && before) {
+      setTransactions((p) => p.map((t) => (t.id === id ? before : t)))
+      reportSync(e, 'that transaction')
+    }
+  }
+  async function removeTxn(id) {
+    const removed = transactions.find((t) => t.id === id)
+    setTransactions((p) => p.filter((t) => t.id !== id))
+    const { error: e } = await supabase.from('transactions').delete().eq('id', id)
+    if (e && removed) {
+      setTransactions((p) => [removed, ...p])
+      reportSync(e, 'that deletion')
+    }
+  }
+  async function upsertCategory(id, patch) {
+    if (id) {
+      const before = categories.find((c) => c.id === id)
+      setCategories((p) => p.map((c) => (c.id === id ? { ...c, ...patch } : c)))
+      const { error: e } = await supabase.from('expense_categories').update(patch).eq('id', id)
+      if (e && before) {
+        setCategories((p) => p.map((c) => (c.id === id ? before : c)))
+        reportSync(e, 'that category')
+      }
+      return
+    }
+    const { data, error: e } = await supabase
+      .from('expense_categories').insert({ ...patch, user_id: uid }).select().single()
+    if (e) return reportSync(e, 'that category')
+    setCategories((p) => [...p, data])
+  }
+  async function addAccount(fields) {
+    const { data, error: e } = await supabase
+      .from('accounts').insert({ ...fields, user_id: uid }).select().single()
+    if (e) return reportSync(e, 'that account')
+    setAccounts((p) => [...p, data])
+  }
+
   async function removeBook(id) {
     const removed = books.find((b) => b.id === id)
     setBooks((p) => p.filter((b) => b.id !== id))
@@ -428,6 +499,14 @@ export function DataProvider({ session, children }) {
     bookNotes,
     addNote,
     removeNote,
+    accounts,
+    categories,
+    transactions,
+    addTxn,
+    updateTxn,
+    removeTxn,
+    upsertCategory,
+    addAccount,
     reviewDsa,
     scheduleUnscheduled,
     updateSettings,

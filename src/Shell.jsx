@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Home, Coffee, BarChart3, ListChecks, LogOut, Timer, Command as CommandIcon, LineChart, Sword, BookOpen, Settings as Cog } from 'lucide-react'
+import { Home, Coffee, BarChart3, ListChecks, LogOut, Timer, Command as CommandIcon, LineChart, Sword, BookOpen, Wallet, Settings as Cog } from 'lucide-react'
 import { supabase } from './lib/supabase'
 import { DataProvider, useData } from './DataStore'
 import { CityBackdrop, ArtToday, ArtJava, ArtStats, ArtHabits, ArtFocus, ArtCommand, ArtRise } from './components/HeroArt'
@@ -8,6 +8,7 @@ import JavaHQ from './pages/JavaHQ'
 import Stats from './pages/Stats'
 import Habits from './pages/Habits'
 import Books from './pages/Books'
+import Money from './pages/Money'
 import SettingsPage from './pages/SettingsPage'
 import Focus from './pages/Focus'
 import Command from './pages/Command'
@@ -24,6 +25,7 @@ const TABS = [
   { id: 'insights', label: 'Insights', icon: LineChart },
   { id: 'habits', label: 'Habits', icon: ListChecks },
   { id: 'books', label: 'Books', icon: BookOpen },
+  { id: 'money', label: 'Money', icon: Wallet },
   { id: 'settings', label: 'Settings', icon: Cog },
 ]
 
@@ -181,6 +183,7 @@ function Inner({ tab, setTab }) {
             {tab === 'stats' && <Stats setTab={setTab} />}
             {tab === 'habits' && <Habits />}
             {tab === 'books' && <Books />}
+            {tab === 'money' && <Money />}
             {tab === 'settings' && <SettingsPage />}
           </div>
         </main>
