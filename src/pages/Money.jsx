@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import {
   Wallet, ChevronLeft, ChevronRight, Plus, X, Trash2, Check,
   TrendingUp, TrendingDown, Delete, ArrowRightLeft, CreditCard,
@@ -7,6 +7,73 @@ import {
 import { useData } from '../DataStore'
 import { todayISO, fmtShort } from '../lib/dates'
 import { fmtMoney, monthKey, shiftMonth, monthLabel, budgetPace, round2 } from '../lib/money'
+
+/* Numbers that settle into place read as considered; numbers that snap don't. */
+function useCountUp(value, ms = 700) {
+  const [v, setV] = useState(value)
+  const from = useRef(value)
+  useEffect(() => {
+    const start = performance.now()
+    const a = from.current, b = value
+    if (a === b) return
+    let raf
+    const tick = (t) => {
+      const p = Math.min(1, (t - start) / ms)
+      const eased = 1 - Math.pow(1 - p, 3)
+      setV(a + (b - a) * eased)
+      if (p < 1) raf = requestAnimationFrame(tick)
+      else from.current = b
+    }
+    raf = requestAnimationFrame(tick)
+    return () => cancelAnimationFrame(raf)
+  }, [value, ms])
+  return v
+}
+
+/* Symbol and paise sit back; the rupees carry the weight. */
+function Amount({ value, cur = '₹', size = 'text-3xl', animate = false, tone }) {
+  // hook must run unconditionally; pick after
+  const animated = useCountUp(Number(value) || 0)
+  const shown = animate ? animated : Number(value) || 0
+  const neg = shown < 0
+  const abs = Math.abs(shown)
+  const whole = Math.floor(abs).toLocaleString('en-IN')
+  const paise = Math.round((abs - Math.floor(abs)) * 100).toString().padStart(2, '0')
+  return (
+    <span className={`font-display font-bold tabular-nums tracking-tight ${size}`} style={{ color: tone }}>
+      {neg && '−'}
+      <span className="opacity-55" style={{ fontSize: '0.62em' }}>{cur}</span>
+      {whole}
+      <span className="opacity-45" style={{ fontSize: '0.5em' }}>.{paise}</span>
+    </span>
+  )
+}
+
+/* Daily spend through the month — shape matters more than exact values here. */
+function SpendCurve({ days, tone = '#F5A623' }) {
+  if (!days.length) return null
+  const max = Math.max(1, ...days.map((d) => d.amt))
+  const W = 300, H = 56
+  const pts = days.map((d, i) => [
+    (i / Math.max(1, days.length - 1)) * W,
+    H - (d.amt / max) * (H - 6) - 3,
+  ])
+  const line = pts.map(([x, y], i) => `${i ? 'L' : 'M'}${x.toFixed(1)},${y.toFixed(1)}`).join(' ')
+  const area = `${line} L${W},${H} L0,${H} Z`
+  return (
+    <svg viewBox={`0 0 ${W} ${H}`} className="w-full h-14" preserveAspectRatio="none">
+      <defs>
+        <linearGradient id="scFill" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor={tone} stopOpacity="0.32" />
+          <stop offset="1" stopColor={tone} stopOpacity="0" />
+        </linearGradient>
+      </defs>
+      <path d={area} fill="url(#scFill)" />
+      <path d={line} fill="none" stroke={tone} strokeWidth="1.8"
+        strokeLinecap="round" strokeLinejoin="round" vectorEffect="non-scaling-stroke" />
+    </svg>
+  )
+}
 
 const ACCOUNT_KINDS = [
   { id: 'bank', label: 'Bank', Icon: Landmark, color: '#4C7BFF' },
@@ -300,6 +367,18 @@ export default function Money() {
     }
   }, [mtx, transactions, month])
 
+  // cumulative-free daily series for the curve
+  const dailySpend = useMemo(() => {
+    const [y, m] = month.split('-').map(Number)
+    const n = new Date(y, m, 0).getDate()
+    const by = {}
+    for (const t of mtx) if (t.kind === 'expense') by[t.txn_date] = (by[t.txn_date] || 0) + Number(t.amount)
+    return Array.from({ length: n }, (_, i) => {
+      const d = `${month}-${String(i + 1).padStart(2, '0')}`
+      return { d, amt: round2(by[d] || 0) }
+    })
+  }, [mtx, month])
+
   const byCat = useMemo(() => {
     const m = {}
     for (const t of mtx) {
@@ -328,48 +407,67 @@ export default function Money() {
 
   return (
     <div className="space-y-4">
-      {/* ── balances ── */}
-      <section className="card card-hover">
-        <div className="flex items-center justify-between mb-3">
-          <div className="label flex items-center gap-1.5"><Wallet size={12} /> Balance</div>
-          <button className="btn !py-1 !px-2.5 text-[11px]" onClick={() => setAddingAccount(true)}>
+      {/* ── balance card ── */}
+      <section className="relative overflow-hidden rounded-2xl border border-white/10 p-5"
+        style={{
+          background:
+            'radial-gradient(120% 140% at 0% 0%, #2a2350 0%, #171a2c 45%, #0f1119 100%)',
+        }}>
+        {/* sheen */}
+        <div className="pointer-events-none absolute -top-24 -left-16 w-72 h-72 rounded-full"
+          style={{ background: 'radial-gradient(circle, rgba(245,166,35,.22), transparent 70%)' }} />
+        <div className="pointer-events-none absolute -bottom-28 -right-10 w-64 h-64 rounded-full"
+          style={{ background: 'radial-gradient(circle, rgba(76,123,255,.18), transparent 70%)' }} />
+
+        <div className="relative flex items-start justify-between">
+          <div>
+            <div className="text-[10px] uppercase tracking-[.18em] text-dim">Total balance</div>
+            <div className="mt-1.5">
+              {accounts.length
+                ? <Amount value={netWorth} cur={cur} size="text-[34px]" animate
+                    tone={netWorth < 0 ? '#EF4444' : '#F4F7FF'} />
+                : <span className="font-display font-bold text-[34px] text-dim">—</span>}
+            </div>
+            {!!accounts.length && (
+              <div className="text-[11px] text-dim mt-1">
+                across {accounts.length} account{accounts.length > 1 ? 's' : ''}
+              </div>
+            )}
+          </div>
+          <button className="rounded-full px-3 py-1.5 text-[11px] bg-white/10 border border-white/15
+            hover:bg-white/16 transition flex items-center gap-1 shrink-0"
+            onClick={() => setAddingAccount(true)}>
             <Plus size={12} /> Account
           </button>
         </div>
 
         {!accounts.length ? (
           <button onClick={() => setAddingAccount(true)}
-            className="w-full py-6 rounded-xl border border-dashed border-white/15 text-sm text-dim
-              hover:border-amber/40 hover:text-text transition">
-            Add your first account to start tracking balances
+            className="relative w-full mt-4 py-5 rounded-xl border border-dashed border-white/20 text-sm
+              text-dim hover:border-amber/50 hover:text-text transition">
+            Add an account to start tracking balances
           </button>
         ) : (
-          <>
-            <div className="font-display font-bold text-3xl tabular-nums"
-              style={{ color: netWorth >= 0 ? '#E9EEF8' : '#EF4444' }}>
-              {fmtMoney(netWorth, cur)}
-            </div>
-            <div className="text-[11px] text-dim mt-0.5">across {accounts.length} account{accounts.length > 1 ? 's' : ''}</div>
-            <div className="mt-3 space-y-1.5">
-              {accounts.map((a) => {
-                const K = ACCOUNT_KINDS.find((k) => k.id === a.kind) || ACCOUNT_KINDS[0]
-                const bal = balances[a.id] ?? 0
-                return (
-                  <div key={a.id} className="flex items-center gap-2.5 py-1.5">
-                    <div className="w-8 h-8 rounded-xl grid place-items-center shrink-0"
-                      style={{ background: `${a.color}1e`, border: `1px solid ${a.color}44` }}>
-                      <K.Icon size={14} style={{ color: a.color }} />
-                    </div>
-                    <span className="text-sm truncate">{a.name}</span>
-                    <span className="ml-auto font-mono text-sm tabular-nums"
-                      style={{ color: bal < 0 ? '#EF4444' : undefined }}>
-                      {fmtMoney(bal, cur)}
-                    </span>
+          <div className="relative mt-4 flex gap-2 overflow-x-auto pb-1 -mx-1 px-1">
+            {accounts.map((a) => {
+              const K = ACCOUNT_KINDS.find((k) => k.id === a.kind) || ACCOUNT_KINDS[0]
+              const bal = balances[a.id] ?? 0
+              return (
+                <div key={a.id}
+                  className="shrink-0 min-w-[9.5rem] rounded-xl p-3 border backdrop-blur-sm"
+                  style={{ background: `${a.color}14`, borderColor: `${a.color}3a` }}>
+                  <div className="flex items-center gap-1.5">
+                    <K.Icon size={13} style={{ color: a.color }} />
+                    <span className="text-[11px] text-dim truncate">{a.name}</span>
                   </div>
-                )
-              })}
-            </div>
-          </>
+                  <div className="mt-1.5">
+                    <Amount value={bal} cur={cur} size="text-lg"
+                      tone={bal < 0 ? '#EF4444' : '#E9EEF8'} />
+                  </div>
+                </div>
+              )
+            })}
+          </div>
         )}
       </section>
 
@@ -381,7 +479,7 @@ export default function Money() {
           </button>
           <div className="text-center">
             <div className="label">{monthLabel(month)}</div>
-            <div className="font-display font-bold text-3xl tabular-nums mt-1">{fmtMoney(totals.spent, cur)}</div>
+            <div className="mt-1"><Amount value={totals.spent} cur={cur} size="text-[32px]" animate /></div>
             <div className="text-[11px] text-dim mt-0.5">
               spent
               {totals.change !== null && (
@@ -408,6 +506,12 @@ export default function Money() {
             </div>
           ))}
         </div>
+
+        {dailySpend.some((d) => d.amt > 0) && (
+          <div className="mt-3 -mx-1">
+            <SpendCurve days={dailySpend} />
+          </div>
+        )}
 
         {totals.rate !== null && (
           <div className="mt-3 text-[11px] text-dim">
@@ -458,13 +562,26 @@ export default function Money() {
           ) : (
             <>
               <div className="flex items-center gap-5">
-                <svg viewBox="0 0 140 140" className="w-32 h-32 shrink-0 -rotate-90">
-                  <circle cx="70" cy="70" r={R} fill="none" stroke="rgba(255,255,255,.07)" strokeWidth="18" />
-                  {arcs.map((s) => (
-                    <circle key={s.id} cx="70" cy="70" r={R} fill="none" stroke={s.cat.color}
-                      strokeWidth="18" strokeDasharray={`${s.dash} ${C - s.dash}`} strokeDashoffset={-s.off} />
-                  ))}
-                </svg>
+                <div className="relative w-32 h-32 shrink-0">
+                  <svg viewBox="0 0 140 140" className="w-32 h-32 -rotate-90">
+                    <circle cx="70" cy="70" r={R} fill="none" stroke="rgba(255,255,255,.06)" strokeWidth="15" />
+                    {arcs.map((a) => (
+                      <circle key={a.id} cx="70" cy="70" r={R} fill="none" stroke={a.cat.color}
+                        strokeWidth="15" strokeLinecap="round"
+                        strokeDasharray={`${Math.max(0, a.dash - 3)} ${C - Math.max(0, a.dash - 3)}`}
+                        strokeDashoffset={-a.off}
+                        style={{ transition: 'stroke-dasharray .7s ease, stroke-dashoffset .7s ease' }} />
+                    ))}
+                  </svg>
+                  <div className="absolute inset-0 grid place-items-center text-center">
+                    <div>
+                      <div className="text-[9px] uppercase tracking-wider text-dim">spent</div>
+                      <div className="font-display font-bold text-sm tabular-nums">
+                        {fmtMoney(totals.spent, cur, { compact: true })}
+                      </div>
+                    </div>
+                  </div>
+                </div>
                 <div className="min-w-0 flex-1 space-y-1.5">
                   {byCat.slice(0, 5).map((s) => (
                     <div key={s.id} className="flex items-center gap-2 text-xs">
@@ -503,29 +620,66 @@ export default function Money() {
       )}
 
       {tab === 'transactions' && (
-        <div className="space-y-2">
+        <div className="space-y-4">
           {!mtx.length ? (
             <div className="card text-sm text-dim text-center py-8">No transactions this month.</div>
-          ) : mtx.map((t) => {
-            const c = catById[t.category_id] || { name: t.kind === 'transfer' ? 'Transfer' : 'Uncategorised', icon: t.kind === 'transfer' ? '🔄' : '❔', color: '#8B94A8' }
-            return (
-              <div key={t.id} className="card !p-3 flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl grid place-items-center shrink-0 text-base"
-                  style={{ background: `${c.color}1e`, border: `1px solid ${c.color}44` }}>{c.icon}</div>
-                <div className="min-w-0 flex-1">
-                  <div className="text-sm truncate">{t.note || c.name}</div>
-                  <div className="text-[11px] text-dim">{c.name} · {fmtShort(t.txn_date)}</div>
+          ) : (() => {
+            const groups = {}
+            for (const t of mtx) (groups[t.txn_date] ||= []).push(t)
+            return Object.keys(groups).sort((a, b) => b.localeCompare(a)).map((day) => {
+              const rows = groups[day]
+              const spent = rows.filter((t) => t.kind === 'expense')
+                .reduce((a, t) => a + Number(t.amount), 0)
+              return (
+                <div key={day}>
+                  <div className="flex items-baseline justify-between px-1 mb-1.5">
+                    <div className="text-[11px] uppercase tracking-wider text-dim">
+                      {day === todayISO() ? 'Today' : fmtShort(day)}
+                    </div>
+                    {spent > 0 && (
+                      <div className="font-mono text-[11px] text-dim">
+                        {fmtMoney(spent, cur, { compact: true })}
+                      </div>
+                    )}
+                  </div>
+                  <div className="rounded-2xl border border-white/8 overflow-hidden bg-white/[.03]">
+                    {rows.map((t, i) => {
+                      const c = catById[t.category_id] || {
+                        name: t.kind === 'transfer' ? 'Transfer' : 'Uncategorised',
+                        icon: t.kind === 'transfer' ? '🔄' : '❔', color: '#8B94A8',
+                      }
+                      return (
+                        <div key={t.id}
+                          className={`flex items-center gap-3 px-3 py-2.5 group
+                            ${i ? 'border-t border-white/6' : ''}`}>
+                          <div className="w-9 h-9 rounded-xl grid place-items-center shrink-0 text-base"
+                            style={{ background: `${c.color}1e`, border: `1px solid ${c.color}3a` }}>
+                            {c.icon}
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <div className="text-sm truncate">{t.note || c.name}</div>
+                            <div className="text-[11px] text-dim truncate">{c.name}</div>
+                          </div>
+                          <div className="shrink-0 font-mono text-sm tabular-nums"
+                            style={{ color: t.kind === 'income' ? '#4ade80'
+                              : t.kind === 'transfer' ? '#38BDF8' : '#E9EEF8' }}>
+                            {t.kind === 'income' ? '+' : t.kind === 'transfer' ? '' : '−'}
+                            {fmtMoney(t.amount, cur)}
+                          </div>
+                          <button
+                            className="text-dim hover:text-red shrink-0 opacity-0 group-hover:opacity-100
+                              focus:opacity-100 transition"
+                            onClick={() => removeTxn(t.id)} aria-label="Delete">
+                            <Trash2 size={13} />
+                          </button>
+                        </div>
+                      )
+                    })}
+                  </div>
                 </div>
-                <div className="font-mono text-sm tabular-nums shrink-0"
-                  style={{ color: t.kind === 'income' ? '#4ade80' : t.kind === 'transfer' ? '#38BDF8' : undefined }}>
-                  {t.kind === 'income' ? '+' : t.kind === 'transfer' ? '' : '−'}{fmtMoney(t.amount, cur)}
-                </div>
-                <button className="text-dim hover:text-red shrink-0" onClick={() => removeTxn(t.id)}>
-                  <Trash2 size={13} />
-                </button>
-              </div>
-            )
-          })}
+              )
+            })
+          })()}
         </div>
       )}
 
