@@ -6,6 +6,7 @@ import {
 import { useData } from '../DataStore'
 import { todayISO, fmtShort, weekdayShort, addDays } from '../lib/dates'
 import { searchBooks, estimateFinish } from '../lib/openlibrary'
+import { CountUp, Ring, Curve } from '../components/Numeric'
 
 const SHELVES = [
   { id: 'reading', label: 'Reading', tone: '#4C7BFF' },
@@ -14,18 +15,35 @@ const SHELVES = [
   { id: 'abandoned', label: 'Abandoned', tone: '#EF4444' },
 ]
 
-function Cover({ book, size = 'h-24 w-16' }) {
+/* A book should look like an object: spine, a little gloss, a shadow under it. */
+function Cover({ book, size = 'h-24 w-16', flat = false }) {
   const [failed, setFailed] = useState(false)
+  const shadow = flat ? '' : 'shadow-[0_6px_16px_-4px_rgba(0,0,0,.7)]'
+  const inner = (
+    <>
+      {/* spine */}
+      <span className="absolute inset-y-0 left-0 w-[7%] rounded-l-[3px]"
+        style={{ background: 'linear-gradient(90deg, rgba(0,0,0,.45), rgba(255,255,255,.06))' }} />
+      {/* gloss */}
+      <span className="absolute inset-0 rounded-[3px] pointer-events-none"
+        style={{ background: 'linear-gradient(115deg, rgba(255,255,255,.16) 0%, transparent 38%)' }} />
+    </>
+  )
   if (book.cover_url && !failed) {
     return (
-      <img src={book.cover_url} alt="" onError={() => setFailed(true)}
-        className={`${size} object-cover rounded-md shrink-0 bg-white/5`} />
+      <div className={`${size} relative shrink-0 rounded-[3px] overflow-hidden ${shadow}`}>
+        <img src={book.cover_url} alt="" onError={() => setFailed(true)}
+          className="w-full h-full object-cover" />
+        {inner}
+      </div>
     )
   }
   return (
-    <div className={`${size} rounded-md shrink-0 grid place-items-center text-center
-      bg-gradient-to-br from-white/10 to-white/[.03] border border-white/10 p-1`}>
-      <span className="text-[8px] leading-tight text-dim line-clamp-3">{book.title}</span>
+    <div className={`${size} relative shrink-0 rounded-[3px] overflow-hidden ${shadow}
+      grid place-items-center text-center p-1.5
+      bg-gradient-to-br from-[#2b3145] to-[#171a26] border border-white/10`}>
+      <span className="text-[8px] leading-tight text-dim line-clamp-4 font-display">{book.title}</span>
+      {inner}
     </div>
   )
 }
@@ -170,6 +188,58 @@ export default function Books() {
 
   return (
     <div className="space-y-4">
+      {/* ── currently reading ── */}
+      {(() => {
+        const current = books
+          .filter((b) => b.status === 'reading')
+          .sort((a, b) => (b.pages_read || 0) - (a.pages_read || 0))[0]
+        if (!current) return null
+        const pct = current.total_pages
+          ? Math.min(100, Math.round(((current.pages_read || 0) / current.total_pages) * 100)) : 0
+        const eta = estimateFinish(current, bookSessions)
+        return (
+          <section className="relative overflow-hidden rounded-2xl border border-white/10 p-5"
+            style={{ background: 'radial-gradient(120% 140% at 100% 0%, #2b2440 0%, #171a2a 48%, #0f1119 100%)' }}>
+            <div className="pointer-events-none absolute -top-24 -right-12 w-64 h-64 rounded-full"
+              style={{ background: 'radial-gradient(circle, rgba(245,166,35,.2), transparent 70%)' }} />
+            <div className="relative flex gap-4">
+              <Cover book={current} size="h-32 w-[5.5rem]" />
+              <div className="min-w-0 flex-1 flex flex-col">
+                <div className="text-[10px] uppercase tracking-[.18em] text-dim">Currently reading</div>
+                <div className="font-display font-bold text-lg leading-snug mt-1 line-clamp-2">
+                  {current.title}
+                </div>
+                <div className="text-[11px] text-dim mt-0.5 truncate">
+                  {current.author || 'Unknown author'}
+                </div>
+
+                <div className="mt-auto pt-3">
+                  <div className="flex items-baseline gap-2">
+                    <span className="font-display font-bold text-2xl tabular-nums">
+                      <CountUp value={pct} />%
+                    </span>
+                    {current.total_pages && (
+                      <span className="text-[11px] text-dim">
+                        {current.pages_read || 0} of {current.total_pages}
+                      </span>
+                    )}
+                  </div>
+                  <div className="mt-1.5 h-1.5 rounded-full bg-white/10 overflow-hidden">
+                    <div className="h-full rounded-full transition-all duration-700"
+                      style={{ width: `${pct}%`, background: 'linear-gradient(90deg,#F5A623,#7ED957)' }} />
+                  </div>
+                  {eta !== null && eta > 0 && (
+                    <div className="text-[11px] text-dim mt-1.5">
+                      ~{eta} day{eta === 1 ? '' : 's'} left at your pace
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          </section>
+        )
+      })()}
+
       {/* ── search ── */}
       <section className="card card-hover">
         <div className="flex items-center gap-2 mb-3">
@@ -226,43 +296,58 @@ export default function Books() {
 
       {/* ── yearly goal + stats ── */}
       <section className="card">
-        <div className="flex items-center justify-between mb-2">
-          <div className="label">{year} reading goal</div>
-          <div className="font-mono text-xs text-dim">
-            <span className="text-text font-bold">{stats.thisYear}</span> / {goal} books
+        <div className="flex items-center gap-5">
+          <Ring pct={goalPct} tone={goalPct >= 100 ? '#22C55E' : '#F5A623'}>
+            <div>
+              <div className="font-display font-bold text-xl tabular-nums leading-none">
+                <CountUp value={stats.thisYear} />
+              </div>
+              <div className="text-[9px] text-dim mt-0.5">of {goal}</div>
+            </div>
+          </Ring>
+          <div className="min-w-0 flex-1">
+            <div className="label">{year} reading goal</div>
+            <div className="text-xs text-dim mt-1">
+              {goalPct >= 100
+                ? 'Goal met. Anything now is a bonus.'
+                : `${goal - stats.thisYear} more to go this year.`}
+            </div>
+            <div className="grid grid-cols-3 gap-2 mt-3">
+              {[
+                ['Pages', stats.totalPages],
+                ['Per day', stats.perDay],
+                ['Streak', stats.streak],
+              ].map(([k, v]) => (
+                <div key={k}>
+                  <div className="text-[9px] uppercase tracking-wider text-dim">{k}</div>
+                  <div className="font-display font-bold text-base tabular-nums">
+                    <CountUp value={v} suffix={k === 'Streak' ? 'd' : ''} />
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
-        <div className="h-2 rounded-full bg-white/8 overflow-hidden">
-          <div className="h-full rounded-full transition-all duration-700"
-            style={{ width: `${goalPct}%`, background: goalPct >= 100 ? '#22C55E' : '#F5A623' }} />
-        </div>
 
-        <div className="grid grid-cols-4 gap-2 mt-3">
-          {[
-            ['Finished', stats.done],
-            ['Pages', stats.totalPages.toLocaleString('en-IN')],
-            ['Per day', stats.perDay],
-            ['Streak', `${stats.streak}d`],
-          ].map(([k, v]) => (
-            <div key={k} className="rounded-lg bg-white/5 border border-white/8 p-2">
-              <div className="text-[9px] uppercase tracking-wider text-dim">{k}</div>
-              <div className="font-display font-bold text-base mt-0.5 tabular-nums">{v}</div>
+        {stats.week.some((w) => w.pages > 0) && (
+          <div className="mt-4">
+            <div className="flex items-baseline justify-between mb-1">
+              <span className="text-[10px] uppercase tracking-wider text-dim">Pages this week</span>
+              <span className="font-mono text-[11px] text-dim">{stats.today} today</span>
             </div>
-          ))}
-        </div>
+            <Curve points={stats.week.map((w) => w.pages)} id="bkCurve" tone="#7ED957" height={52} />
+            <div className="flex justify-between mt-0.5">
+              {stats.week.map(({ d }) => (
+                <span key={d} className="text-[9px] text-dim">{weekdayShort(d)[0]}</span>
+              ))}
+            </div>
+          </div>
+        )}
 
-        <div className="flex items-end gap-1.5 h-14 mt-3">
-          {stats.week.map(({ d, pages }) => (
-            <div key={d} className="flex-1 flex flex-col items-center gap-1">
-              <div className="w-full rounded-t bg-amber/70 transition-all duration-500"
-                style={{ height: `${Math.max(3, (pages / stats.max) * 100)}%` }} title={`${pages} pages`} />
-              <span className="text-[9px] text-dim">{weekdayShort(d)[0]}</span>
-            </div>
-          ))}
-        </div>
         {stats.avg && (
-          <div className="text-[11px] text-dim mt-2">
-            Average rating <span className="text-text font-mono">{stats.avg}</span>
+          <div className="text-[11px] text-dim mt-3">
+            Average rating <span className="text-text font-mono">{stats.avg}</span> across
+            {' '}{stats.done} finished book{stats.done === 1 ? '' : 's'}.
           </div>
         )}
       </section>
@@ -297,7 +382,8 @@ export default function Books() {
             const pct = b.total_pages
               ? Math.min(100, Math.round(((b.pages_read || 0) / b.total_pages) * 100)) : null
             return (
-              <button key={b.id} onClick={() => { setView('list'); setOpen(b.id) }} className="text-left">
+              <button key={b.id} onClick={() => { setView('list'); setOpen(b.id) }}
+                className="text-left group transition-transform duration-300 hover:-translate-y-1">
                 <Cover book={b} size="h-40 w-full" />
                 <div className="text-[11px] mt-1.5 leading-tight line-clamp-2">{b.title}</div>
                 {pct !== null && (

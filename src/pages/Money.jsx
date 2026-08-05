@@ -6,29 +6,8 @@ import {
 } from 'lucide-react'
 import { useData } from '../DataStore'
 import { todayISO, fmtShort } from '../lib/dates'
+import { useCountUp } from '../components/Numeric'
 import { fmtMoney, monthKey, shiftMonth, monthLabel, budgetPace, round2 } from '../lib/money'
-
-/* Numbers that settle into place read as considered; numbers that snap don't. */
-function useCountUp(value, ms = 700) {
-  const [v, setV] = useState(value)
-  const from = useRef(value)
-  useEffect(() => {
-    const start = performance.now()
-    const a = from.current, b = value
-    if (a === b) return
-    let raf
-    const tick = (t) => {
-      const p = Math.min(1, (t - start) / ms)
-      const eased = 1 - Math.pow(1 - p, 3)
-      setV(a + (b - a) * eased)
-      if (p < 1) raf = requestAnimationFrame(tick)
-      else from.current = b
-    }
-    raf = requestAnimationFrame(tick)
-    return () => cancelAnimationFrame(raf)
-  }, [value, ms])
-  return v
-}
 
 /* Symbol and paise sit back; the rupees carry the weight. */
 function Amount({ value, cur = '₹', size = 'text-3xl', animate = false, tone }) {
