@@ -373,6 +373,33 @@ export function DataProvider({ session, children }) {
     if (e) return reportSync(e, 'that category')
     setCategories((p) => [...p, data])
   }
+  async function updateAccount(id, patch) {
+    const before = accounts.find((a) => a.id === id)
+    setAccounts((p) => p.map((a) => (a.id === id ? { ...a, ...patch } : a)))
+    const { error: e } = await supabase.from('accounts').update(patch).eq('id', id)
+    if (e && before) {
+      setAccounts((p) => p.map((a) => (a.id === id ? before : a)))
+      reportSync(e, 'that account')
+    }
+  }
+
+  /** Deletes the account. Its transactions survive with a null account_id
+   *  unless `withTxns`, in which case they go too. */
+  async function removeAccount(id, withTxns = false) {
+    const before = accounts.find((a) => a.id === id)
+    const hitTxns = transactions.filter((t) => t.account_id === id || t.to_account_id === id)
+    setAccounts((p) => p.filter((a) => a.id !== id))
+    if (withTxns) setTransactions((p) => p.filter((t) => !hitTxns.some((x) => x.id === t.id)))
+
+    if (withTxns) await supabase.from('transactions').delete().eq('account_id', id)
+    const { error: e } = await supabase.from('accounts').delete().eq('id', id)
+    if (e && before) {
+      setAccounts((p) => [...p, before])
+      if (withTxns) setTransactions((p) => [...hitTxns, ...p])
+      reportSync(e, 'that deletion')
+    }
+  }
+
   async function addAccount(fields) {
     const { data, error: e } = await supabase
       .from('accounts').insert({ ...fields, user_id: uid }).select().single()
@@ -520,6 +547,8 @@ export function DataProvider({ session, children }) {
     removeTxn,
     upsertCategory,
     addAccount,
+    updateAccount,
+    removeAccount,
     reviewDsa,
     scheduleUnscheduled,
     updateSettings,

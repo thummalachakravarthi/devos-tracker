@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react'
 import {
   Wallet, ChevronLeft, ChevronRight, Plus, X, Trash2, Check,
   TrendingUp, TrendingDown, Delete, ArrowRightLeft, CreditCard,
-  Banknote, PiggyBank, Landmark,
+  Banknote, PiggyBank, Landmark, Pencil,
 } from 'lucide-react'
 import { useData } from '../DataStore'
 import { todayISO, fmtShort } from '../lib/dates'
@@ -78,31 +78,45 @@ const ACCOUNT_KINDS = [
   { id: 'savings', label: 'Savings', Icon: PiggyBank, color: '#38BDF8' },
 ]
 
+const SWATCHES = ['#4C7BFF', '#22C55E', '#C084FC', '#F5A623', '#38BDF8',
+  '#FF6FA5', '#7ED957', '#FF8A5B', '#A78BFA', '#8B94A8']
+
 /* ═══ Add / edit an account ═══ */
-function AccountSheet({ onClose }) {
-  const { addAccount, settings } = useData()
+function AccountSheet({ account, balance, txnCount, onClose }) {
+  const { addAccount, updateAccount, removeAccount, settings } = useData()
   const cur = settings?.currency || '₹'
-  const [name, setName] = useState('')
-  const [kind, setKind] = useState('bank')
-  const [balance, setBalance] = useState('')
+  const editing = !!account
+
+  const [name, setName] = useState(account?.name || '')
+  const [kind, setKind] = useState(account?.kind || 'bank')
+  const [color, setColor] = useState(account?.color || '#4C7BFF')
+  // shown as the CURRENT balance, not the opening one — that's what people know
+  const [bal, setBal] = useState(editing ? String(balance ?? 0) : '')
+  const [confirmDel, setConfirmDel] = useState(false)
 
   const save = () => {
     if (!name.trim()) return
-    addAccount({
-      name: name.trim(), kind,
-      opening_balance: round2(balance || 0),
-      color: ACCOUNT_KINDS.find((k) => k.id === kind)?.color || '#4C7BFF',
-    })
+    if (editing) {
+      // balance is derived, so to make the displayed figure land on what they
+      // typed we shift the opening balance by the difference
+      const delta = round2(bal || 0) - round2(balance ?? 0)
+      updateAccount(account.id, {
+        name: name.trim(), kind, color,
+        opening_balance: round2(Number(account.opening_balance || 0) + delta),
+      })
+    } else {
+      addAccount({ name: name.trim(), kind, color, opening_balance: round2(bal || 0) })
+    }
     onClose()
   }
 
   return (
-    <Sheet onClose={onClose} title="New account">
+    <Sheet onClose={onClose} title={editing ? 'Edit account' : 'New account'}>
       <div className="p-4 space-y-4">
         <div>
           <div className="label mb-2">Type</div>
           <div className="grid grid-cols-5 gap-2">
-            {ACCOUNT_KINDS.map(({ id, label, Icon, color }) => (
+            {ACCOUNT_KINDS.map(({ id, label, Icon }) => (
               <button key={id} onClick={() => setKind(id)}
                 className="py-2.5 rounded-xl border transition grid place-items-center gap-1"
                 style={{
@@ -118,28 +132,79 @@ function AccountSheet({ onClose }) {
 
         <div>
           <div className="label mb-1.5">Name</div>
-          <input className="input w-full" autoFocus placeholder="HDFC Savings, Cash in hand…"
+          <input className="input w-full" autoFocus={!editing} placeholder="HDFC Savings, Cash in hand…"
             value={name} onChange={(e) => setName(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && save()} />
         </div>
 
         <div>
-          <div className="label mb-1.5">Current balance</div>
+          <div className="label mb-2">Colour</div>
+          <div className="flex flex-wrap gap-2">
+            {SWATCHES.map((c) => (
+              <button key={c} onClick={() => setColor(c)}
+                className="w-8 h-8 rounded-full transition"
+                style={{
+                  background: c,
+                  boxShadow: color === c ? `0 0 0 2px #0f121b, 0 0 0 4px ${c}` : 'none',
+                  transform: color === c ? 'scale(1.05)' : 'none',
+                }} aria-label={c} />
+            ))}
+          </div>
+        </div>
+
+        <div>
+          <div className="label mb-1.5">{editing ? 'Correct balance' : 'Current balance'}</div>
           <div className="relative">
             <span className="absolute left-3 top-1/2 -translate-y-1/2 text-dim">{cur}</span>
             <input type="number" inputMode="decimal" className="input w-full !pl-8" placeholder="0"
-              value={balance} onChange={(e) => setBalance(e.target.value)}
+              value={bal} onChange={(e) => setBal(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && save()} />
           </div>
           <div className="text-[11px] text-dim mt-1.5">
-            What's in it right now. Every transaction adjusts it from here.
+            {editing
+              ? `Balance is worked out from ${txnCount} transaction${txnCount === 1 ? '' : 's'}. Type what the account really holds and the starting figure is adjusted to match.`
+              : "What's in it right now. Every transaction adjusts it from here."}
           </div>
         </div>
 
         <button className="btn w-full !py-3 !border-amber/40 !bg-amber/15 !text-amber"
           disabled={!name.trim()} onClick={save}>
-          <Check size={15} /> Add account
+          <Check size={15} /> {editing ? 'Save changes' : 'Add account'}
         </button>
+
+        {editing && (
+          <div className="pt-2 border-t border-white/8">
+            {!confirmDel ? (
+              <button className="btn w-full !py-2.5 text-xs !text-red !border-red/30"
+                onClick={() => setConfirmDel(true)}>
+                <Trash2 size={13} /> Delete account
+              </button>
+            ) : (
+              <div className="space-y-2">
+                <div className="text-xs text-dim">
+                  {txnCount
+                    ? `${txnCount} transaction${txnCount === 1 ? '' : 's'} use this account. Keep them (they'll show as unassigned) or remove them too?`
+                    : 'Delete this account?'}
+                </div>
+                <div className="flex gap-2">
+                  <button className="btn flex-1 !py-2 text-xs" onClick={() => setConfirmDel(false)}>
+                    Cancel
+                  </button>
+                  {!!txnCount && (
+                    <button className="btn flex-1 !py-2 text-xs"
+                      onClick={() => { removeAccount(account.id, false); onClose() }}>
+                      Keep them
+                    </button>
+                  )}
+                  <button className="btn flex-1 !py-2 text-xs !border-red !bg-red !text-white"
+                    onClick={() => { removeAccount(account.id, true); onClose() }}>
+                    {txnCount ? 'Delete both' : 'Delete'}
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </Sheet>
   )
@@ -321,6 +386,7 @@ export default function Money() {
   const [month, setMonth] = useState(monthKey(todayISO()))
   const [adding, setAdding] = useState(false)
   const [addingAccount, setAddingAccount] = useState(false)
+  const [editAccount, setEditAccount] = useState(null)
   const [tab, setTab] = useState('overview')
   const [budgetEdit, setBudgetEdit] = useState({})
 
@@ -342,6 +408,9 @@ export default function Money() {
     }
     return b
   }, [accounts, transactions])
+
+  const txnCount = (id) =>
+    transactions.filter((t) => t.account_id === id || t.to_account_id === id).length
 
   const netWorth = round2(Object.values(balances).reduce((a, n) => a + n, 0))
 
@@ -466,7 +535,8 @@ export default function Money() {
                   {accounts.slice(0, 3).map((a) => {
                     const K = ACCOUNT_KINDS.find((k) => k.id === a.kind) || ACCOUNT_KINDS[0]
                     return (
-                      <div key={a.id} className="min-w-0">
+                      <button key={a.id} className="min-w-0 text-left active:scale-95 transition"
+                        onClick={() => setEditAccount(a)}>
                         <div className="flex items-center gap-1">
                           <K.Icon size={10} style={{ color: a.color }} />
                           <span className="text-[9px] uppercase tracking-wider text-white/40 truncate max-w-[5.5rem]">
@@ -476,7 +546,7 @@ export default function Money() {
                         <div className="font-mono text-[13px] tabular-nums text-white/85 mt-0.5">
                           {fmtMoney(balances[a.id] ?? 0, cur, { compact: true })}
                         </div>
-                      </div>
+                      </button>
                     )
                   })}
                   {accounts.length > 3 && (
@@ -501,6 +571,42 @@ export default function Money() {
           </button>
         )}
       </section>
+
+      {accounts.length > 0 && (
+        <section className="card !p-0 overflow-hidden mny-enter" style={{ animationDelay: '40ms' }}>
+          <div className="flex items-center justify-between px-4 pt-3.5 pb-2">
+            <div className="label">Accounts</div>
+            <button className="text-[11px] text-dim hover:text-text flex items-center gap-1"
+              onClick={() => setAddingAccount(true)}><Plus size={11} /> Add</button>
+          </div>
+          {accounts.map((a, i) => {
+            const K = ACCOUNT_KINDS.find((k) => k.id === a.kind) || ACCOUNT_KINDS[0]
+            const bal = balances[a.id] ?? 0
+            const n = txnCount(a.id)
+            return (
+              <button key={a.id} onClick={() => setEditAccount(a)}
+                className={`w-full flex items-center gap-3 px-4 py-3 text-left transition
+                  hover:bg-white/[.04] ${i ? 'border-t border-white/6' : 'border-t border-white/6'}`}>
+                <div className="w-9 h-9 rounded-xl grid place-items-center shrink-0"
+                  style={{ background: `${a.color}1e`, border: `1px solid ${a.color}44` }}>
+                  <K.Icon size={15} style={{ color: a.color }} />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="text-sm truncate">{a.name}</div>
+                  <div className="text-[11px] text-dim">
+                    {K.label} · {n} transaction{n === 1 ? '' : 's'}
+                  </div>
+                </div>
+                <div className="text-right shrink-0">
+                  <Amount value={bal} cur={cur} size="text-sm"
+                    tone={bal < 0 ? '#EF4444' : '#E9EEF8'} />
+                </div>
+                <Pencil size={13} className="text-dim shrink-0" />
+              </button>
+            )
+          })}
+        </section>
+      )}
 
       {/* ── month ── */}
       <section className="mny-enter relative overflow-hidden rounded-2xl border border-white/10 p-5"
@@ -781,6 +887,10 @@ export default function Money() {
 
       {adding && <QuickAdd onClose={() => setAdding(false)} />}
       {addingAccount && <AccountSheet onClose={() => setAddingAccount(false)} />}
+      {editAccount && (
+        <AccountSheet account={editAccount} balance={balances[editAccount.id] ?? 0}
+          txnCount={txnCount(editAccount.id)} onClose={() => setEditAccount(null)} />
+      )}
     </div>
   )
 }
