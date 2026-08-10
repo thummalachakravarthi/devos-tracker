@@ -237,7 +237,28 @@ function Sheet({ onClose, title, children, headerExtra }) {
 
 /* ═══ Fast transaction entry ═══ */
 function QuickAdd({ onClose }) {
-  const { categories, accounts, addTxn, settings } = useData()
+  const { categories, accounts, addTxn, settings, transactions } = useData()
+  const [editAcc, setEditAcc] = useState(null)
+  const [newAcc, setNewAcc] = useState(false)
+
+  // balance is derived, so work it out here too for the edit sheet
+  const balanceOf = (id) => {
+    const a = accounts.find((x) => x.id === id)
+    if (!a) return 0
+    let b = Number(a.opening_balance) || 0
+    for (const t of transactions) {
+      const amt = Number(t.amount)
+      if (t.kind === 'expense' && t.account_id === id) b -= amt
+      if (t.kind === 'income' && t.account_id === id) b += amt
+      if (t.kind === 'transfer') {
+        if (t.account_id === id) b -= amt
+        if (t.to_account_id === id) b += amt
+      }
+    }
+    return round2(b)
+  }
+  const txnCountOf = (id) =>
+    transactions.filter((t) => t.account_id === id || t.to_account_id === id).length
   const cur = settings?.currency || '₹'
   const [kind, setKind] = useState('expense')
   const [raw, setRaw] = useState('')
@@ -319,12 +340,31 @@ function QuickAdd({ onClose }) {
         </div>
 
         {/* accounts */}
-        {accounts.length > 0 && (
-          <div className="flex gap-2 mt-2 items-center">
+        <div className="flex gap-2 mt-2 items-center">
+          {accounts.length > 0 ? (
             <select className="input flex-1 !py-2 text-sm" value={accountId}
               onChange={(e) => setAccountId(e.target.value)}>
               {accounts.map((a) => <option key={a.id} value={a.id}>{a.name}</option>)}
             </select>
+          ) : (
+            <span className="flex-1 text-xs text-dim">No account yet</span>
+          )}
+          {accounts.length > 0 && kind !== 'transfer' && (
+            <button type="button" onClick={() => setEditAcc(accounts.find((a) => a.id === accountId) || accounts[0])}
+              className="w-9 h-9 rounded-xl grid place-items-center bg-white/6 border border-white/12
+                text-dim hover:text-text hover:bg-white/12 transition shrink-0"
+              aria-label="Edit account" title="Edit this account">
+              <Pencil size={14} />
+            </button>
+          )}
+          {kind !== 'transfer' && (
+            <button type="button" onClick={() => setNewAcc(true)}
+              className="w-9 h-9 rounded-xl grid place-items-center bg-white/6 border border-white/12
+                text-dim hover:text-text hover:bg-white/12 transition shrink-0"
+              aria-label="Add account" title="Add an account">
+              <Plus size={15} />
+            </button>
+          )}
             {kind === 'transfer' && (
               <>
                 <ArrowRightLeft size={14} className="text-dim shrink-0" />
@@ -336,8 +376,7 @@ function QuickAdd({ onClose }) {
                 </select>
               </>
             )}
-          </div>
-        )}
+        </div>
 
         {/* categories */}
         {kind !== 'transfer' && (
@@ -364,6 +403,12 @@ function QuickAdd({ onClose }) {
           </>
         )}
       </div>
+
+      {editAcc && (
+        <AccountSheet account={editAcc} balance={balanceOf(editAcc.id)}
+          txnCount={txnCountOf(editAcc.id)} onClose={() => setEditAcc(null)} />
+      )}
+      {newAcc && <AccountSheet onClose={() => setNewAcc(false)} />}
 
       {/* save bar */}
       <div className="sticky bottom-0 p-4 pt-3 bg-[#0f121b] border-t border-white/8">
@@ -571,42 +616,6 @@ export default function Money() {
           </button>
         )}
       </section>
-
-      {accounts.length > 0 && (
-        <section className="card !p-0 overflow-hidden mny-enter" style={{ animationDelay: '40ms' }}>
-          <div className="flex items-center justify-between px-4 pt-3.5 pb-2">
-            <div className="label">Accounts</div>
-            <button className="text-[11px] text-dim hover:text-text flex items-center gap-1"
-              onClick={() => setAddingAccount(true)}><Plus size={11} /> Add</button>
-          </div>
-          {accounts.map((a, i) => {
-            const K = ACCOUNT_KINDS.find((k) => k.id === a.kind) || ACCOUNT_KINDS[0]
-            const bal = balances[a.id] ?? 0
-            const n = txnCount(a.id)
-            return (
-              <button key={a.id} onClick={() => setEditAccount(a)}
-                className={`w-full flex items-center gap-3 px-4 py-3 text-left transition
-                  hover:bg-white/[.04] ${i ? 'border-t border-white/6' : 'border-t border-white/6'}`}>
-                <div className="w-9 h-9 rounded-xl grid place-items-center shrink-0"
-                  style={{ background: `${a.color}1e`, border: `1px solid ${a.color}44` }}>
-                  <K.Icon size={15} style={{ color: a.color }} />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <div className="text-sm truncate">{a.name}</div>
-                  <div className="text-[11px] text-dim">
-                    {K.label} · {n} transaction{n === 1 ? '' : 's'}
-                  </div>
-                </div>
-                <div className="text-right shrink-0">
-                  <Amount value={bal} cur={cur} size="text-sm"
-                    tone={bal < 0 ? '#EF4444' : '#E9EEF8'} />
-                </div>
-                <Pencil size={13} className="text-dim shrink-0" />
-              </button>
-            )
-          })}
-        </section>
-      )}
 
       {/* ── month ── */}
       <section className="mny-enter relative overflow-hidden rounded-2xl border border-white/10 p-5"
