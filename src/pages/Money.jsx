@@ -236,8 +236,9 @@ function Sheet({ onClose, title, children, headerExtra }) {
 }
 
 /* ═══ Fast transaction entry ═══ */
-function QuickAdd({ onClose }) {
-  const { categories, accounts, addTxn, settings, transactions } = useData()
+function QuickAdd({ txn, onClose }) {
+  const { categories, accounts, addTxn, updateTxn, removeTxn, settings, transactions } = useData()
+  const editing = !!txn
   const [editAcc, setEditAcc] = useState(null)
   const [newAcc, setNewAcc] = useState(false)
 
@@ -260,13 +261,15 @@ function QuickAdd({ onClose }) {
   const txnCountOf = (id) =>
     transactions.filter((t) => t.account_id === id || t.to_account_id === id).length
   const cur = settings?.currency || '₹'
-  const [kind, setKind] = useState('expense')
-  const [raw, setRaw] = useState('')
-  const [note, setNote] = useState('')
-  const [date, setDate] = useState(todayISO())
-  const [accountId, setAccountId] = useState(accounts[0]?.id || '')
-  const [toAccountId, setToAccountId] = useState(accounts[1]?.id || '')
-  const [catId, setCatId] = useState(null)
+  const [kind, setKind] = useState(txn?.kind || 'expense')
+  // amount is held in paise so the numpad can append digits
+  const [raw, setRaw] = useState(txn ? String(Math.round(Number(txn.amount) * 100)) : '')
+  const [note, setNote] = useState(txn?.note || '')
+  const [date, setDate] = useState(txn?.txn_date || todayISO())
+  const [accountId, setAccountId] = useState(txn?.account_id || accounts[0]?.id || '')
+  const [toAccountId, setToAccountId] = useState(txn?.to_account_id || accounts[1]?.id || '')
+  const [catId, setCatId] = useState(txn?.category_id || null)
+  const [confirmDel, setConfirmDel] = useState(false)
 
   const amount = Number(raw || 0) / 100
   const cats = categories.filter((c) => c.kind === (kind === 'income' ? 'income' : 'expense') && !c.archived)
@@ -276,13 +279,15 @@ function QuickAdd({ onClose }) {
 
   const save = () => {
     if (!canSave) return
-    addTxn({
+    const fields = {
       amount: round2(amount), kind,
       category_id: kind === 'transfer' ? null : catId,
       account_id: accountId || accounts[0]?.id || null,
       to_account_id: kind === 'transfer' ? toAccountId : null,
       note: note.trim() || null, txn_date: date,
-    })
+    }
+    if (editing) updateTxn(txn.id, fields)
+    else addTxn(fields)
     onClose()
   }
 
@@ -417,19 +422,40 @@ function QuickAdd({ onClose }) {
             disabled:opacity-30 active:scale-[.98]"
           style={{ background: canSave ? tone : 'rgba(255,255,255,.08)', color: canSave ? '#0b0b10' : '#8B94A8' }}>
           {amount <= 0 ? 'Enter an amount'
-            : kind === 'transfer' ? (canSave ? `Transfer ${fmtMoney(amount, cur)}` : 'Pick both accounts')
-            : catId ? `Save ${fmtMoney(amount, cur)}` : 'Pick a category'}
+            : kind === 'transfer' ? (canSave ? `${editing ? 'Update' : 'Transfer'} ${fmtMoney(amount, cur)}` : 'Pick both accounts')
+            : catId ? `${editing ? 'Update' : 'Save'} ${fmtMoney(amount, cur)}` : 'Pick a category'}
         </button>
+
+        {editing && (
+          confirmDel ? (
+            <div className="flex gap-2 mt-2">
+              <button className="btn flex-1 !py-2 text-xs" onClick={() => setConfirmDel(false)}>
+                Cancel
+              </button>
+              <button className="btn flex-1 !py-2 text-xs !border-red !bg-red !text-white"
+                onClick={() => { removeTxn(txn.id); onClose() }}>
+                Delete for good
+              </button>
+            </div>
+          ) : (
+            <button className="w-full mt-2 py-2 text-xs text-dim hover:text-red transition
+              flex items-center justify-center gap-1.5"
+              onClick={() => setConfirmDel(true)}>
+              <Trash2 size={12} /> Delete this transaction
+            </button>
+          )
+        )}
       </div>
     </Sheet>
   )
 }
 
 export default function Money() {
-  const { transactions, categories, accounts, removeTxn, upsertCategory, settings } = useData()
+  const { transactions, categories, accounts, upsertCategory, settings } = useData()
   const cur = settings?.currency || '₹'
   const [month, setMonth] = useState(monthKey(todayISO()))
   const [adding, setAdding] = useState(false)
+  const [editTxn, setEditTxn] = useState(null)
   const [addingAccount, setAddingAccount] = useState(false)
   const [editAccount, setEditAccount] = useState(null)
   const [tab, setTab] = useState('overview')
@@ -809,8 +835,9 @@ export default function Money() {
                         icon: t.kind === 'transfer' ? '🔄' : '❔', color: '#8B94A8',
                       }
                       return (
-                        <div key={t.id}
-                          className={`flex items-center gap-3 px-3 py-2.5 group
+                        <button key={t.id} onClick={() => setEditTxn(t)}
+                          className={`w-full text-left flex items-center gap-3 px-3 py-2.5
+                            transition hover:bg-white/[.04] active:bg-white/[.07]
                             ${i ? 'border-t border-white/6' : ''}`}>
                           <div className="w-9 h-9 rounded-xl grid place-items-center shrink-0 text-base"
                             style={{ background: `${c.color}1e`, border: `1px solid ${c.color}3a` }}>
@@ -826,13 +853,8 @@ export default function Money() {
                             {t.kind === 'income' ? '+' : t.kind === 'transfer' ? '' : '−'}
                             {fmtMoney(t.amount, cur)}
                           </div>
-                          <button
-                            className="text-dim hover:text-red shrink-0 opacity-0 group-hover:opacity-100
-                              focus:opacity-100 transition"
-                            onClick={() => removeTxn(t.id)} aria-label="Delete">
-                            <Trash2 size={13} />
-                          </button>
-                        </div>
+                          <Pencil size={12} className="text-dim/60 shrink-0" />
+                        </button>
                       )
                     })}
                   </div>
@@ -895,6 +917,7 @@ export default function Money() {
       </button>
 
       {adding && <QuickAdd onClose={() => setAdding(false)} />}
+      {editTxn && <QuickAdd txn={editTxn} onClose={() => setEditTxn(null)} />}
       {addingAccount && <AccountSheet onClose={() => setAddingAccount(false)} />}
       {editAccount && (
         <AccountSheet account={editAccount} balance={balances[editAccount.id] ?? 0}
